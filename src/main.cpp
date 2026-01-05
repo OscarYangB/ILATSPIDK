@@ -1,85 +1,31 @@
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
-#include "entt/entity/fwd.hpp"
+#include "game_render.h"
 #include <SDL3/SDL.h>
 #include <iostream>
 #include <entt/entt.hpp>
 #include <SDL3/SDL_surface.h>
+#include "game.h"
+#include "platform_render.h"
 
-typedef struct {
-	int x;
-	int y;
-} Position, Velocity;
-
-static SDL_Window* window = NULL;
-static SDL_Renderer* renderer = NULL;
-
-entt::registry ecs;
-
-bool start()
-{
-    SDL_SetAppMetadata("I Love All The Strange People I don't know", "0.1", "");
-
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
-        SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
-        return false;
-    }
-
-    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
-        SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
-        return false;
-    }
-	
-    SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
-
-    return true;
+void start() {	
+	const entt::entity entity = ecs.create();
+	ecs.emplace<Sprite>(entity, "assets/test_image.png");
+	ecs.emplace<Position>(entity, 0.0f, 0.0f);
 }
 
-void update()
-{
-    const double now = ((double)SDL_GetTicks()) / 1000.0;  /* convert from milliseconds to seconds. */
-    /* choose the color for the frame we will draw. The sine wave trick makes it fade between colors smoothly. */
-    const float red = (float)(0.5 + 0.5 * SDL_sin(now));
-    const float green = (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 2 / 3));
-    const float blue = (float)(0.5 + 0.5 * SDL_sin(now + SDL_PI_D * 4 / 3));
-    SDL_SetRenderDrawColorFloat(renderer, red, green, blue, SDL_ALPHA_OPAQUE_FLOAT);  /* new color, full alpha. */
-
-    /* clear the window to the draw color. */
-    SDL_RenderClear(renderer);
-
-	SDL_Surface* image = SDL_LoadPNG("assets/test_image.png");  
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, image);
-	SDL_FRect fromRect = SDL_FRect();
-	fromRect.w = texture->w;
-	fromRect.h = texture->h;
-	SDL_FRect toRect = SDL_FRect();
-	toRect.w = texture->w;
-	toRect.h = texture->h;
-	SDL_RenderTexture(renderer, texture, &fromRect, &toRect);
-	
-    /* put the newly-cleared rendering on the screen. */
-    SDL_RenderPresent(renderer);
-
-
-	auto query = ecs.view<const Position>();
-	for (auto entity: query) {
-		auto &pos = query.get<Position>(entity);
-		//std::cout << std::to_string(pos.x);
-	}
+void update() {
+	render_system();
 }
 
 int main(int argc, char* argv[]) {
-	const auto entity = ecs.create();
-	ecs.emplace<Position>(entity, 2, 3);
-	
     bool done = false;
 
-    bool started = start();
+    bool started = start_window();
 
     if (!started) {
         return 1;
     }
-
+	
+	start();
     std::cout << "Initialized";
 
     while (!done) {
@@ -96,7 +42,6 @@ int main(int argc, char* argv[]) {
         // Do game logic, present a frame, etc.
     }
 
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+	destroy_window();
     return 0;
 }
