@@ -1,14 +1,21 @@
+#include "entt/entity/fwd.hpp"
 #include <SDL3/SDL.h>
 #include <iostream>
+#include <entt/entt.hpp>
 
-/* We will use this renderer to draw into this window every frame. */
+typedef struct {
+	int x;
+	int y;
+} Position, Velocity;
+
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 
-/* This function runs once at startup. */
+entt::registry ecs;
+
 bool start()
 {
-    SDL_SetAppMetadata("Example Renderer Clear", "1.0", "com.example.renderer-clear");
+    SDL_SetAppMetadata("I Love All The Strange People I don't know", "0.1", "");
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -19,6 +26,7 @@ bool start()
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return false;
     }
+	
     SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     return true;
@@ -38,11 +46,19 @@ void update()
 
     /* put the newly-cleared rendering on the screen. */
     SDL_RenderPresent(renderer);
+
+
+	auto query = ecs.view<const Position>();
+	for (auto entity: query) {
+		auto &pos = query.get<Position>(entity);
+		//		std::cout << std::to_string(pos.x);
+	}
 }
 
-
 int main(int argc, char* argv[]) {
-
+	const auto entity = ecs.create();
+	ecs.emplace<Position>(entity, 2, 3);
+	
     bool done = false;
 
     bool started = start();
