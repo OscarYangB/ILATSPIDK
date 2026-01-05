@@ -1,7 +1,10 @@
+#include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "entt/entity/fwd.hpp"
 #include <SDL3/SDL.h>
 #include <iostream>
 #include <entt/entt.hpp>
+#include <SDL3/SDL_surface.h>
 
 typedef struct {
 	int x;
@@ -44,6 +47,16 @@ void update()
     /* clear the window to the draw color. */
     SDL_RenderClear(renderer);
 
+	SDL_Surface* image = SDL_LoadPNG("assets/test_image.png");  
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, image);
+	SDL_FRect fromRect = SDL_FRect();
+	fromRect.w = texture->w;
+	fromRect.h = texture->h;
+	SDL_FRect toRect = SDL_FRect();
+	toRect.w = texture->w;
+	toRect.h = texture->h;
+	SDL_RenderTexture(renderer, texture, &fromRect, &toRect);
+	
     /* put the newly-cleared rendering on the screen. */
     SDL_RenderPresent(renderer);
 
@@ -51,7 +64,7 @@ void update()
 	auto query = ecs.view<const Position>();
 	for (auto entity: query) {
 		auto &pos = query.get<Position>(entity);
-		//		std::cout << std::to_string(pos.x);
+		//std::cout << std::to_string(pos.x);
 	}
 }
 
