@@ -7,22 +7,17 @@
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
 
-struct SpriteData {
-  SDL_Surface* surface;
-  SDL_Texture* texture;
-};
-
-static std::unordered_map<const char*, SpriteData> loaded_sprites {};
+static std::unordered_map<const char*, SDL_Texture*> loaded_sprites {};
 
 bool start_window() {
-    SDL_SetAppMetadata("I Love All The Strange People I don't know", "0.1", "");
+    SDL_SetAppMetadata("I Love All The Strange People I Don't Know", "0.1", "");
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return false;
     }
 
-    if (!SDL_CreateWindowAndRenderer("examples/renderer/clear", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer("I Love All The Strange People I Don't Know", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return false;
     }
@@ -41,15 +36,15 @@ static SDL_Texture* load_sprite(const char* name) {
 	if (loaded_sprites.find(name) == loaded_sprites.end()) {
 		SDL_Surface* surface = SDL_LoadPNG(name);
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-		loaded_sprites[name] = {surface, texture};
+		SDL_DestroySurface(surface);
+		loaded_sprites[name] = texture;
 	}
 
-	return loaded_sprites[name].texture;
+	return loaded_sprites[name];
 }
 
 static void unload_sprite(const char* name) {
-	SDL_DestroyTexture(loaded_sprites[name].texture);
-	SDL_DestroySurface(loaded_sprites[name].surface);
+	SDL_DestroyTexture(loaded_sprites[name]);
 	loaded_sprites.erase(name);
 }
 
