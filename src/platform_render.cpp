@@ -1,9 +1,18 @@
+#include "platform_render.h"
 #include <SDL3/SDL.h>
 #include "SDL3/SDL_render.h"
-#include "platform_render.h"
+#include "SDL3/SDL_surface.h"
+#include <unordered_map>
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
+
+struct SpriteData {
+  SDL_Surface* surface;
+  SDL_Texture* texture;
+};
+
+static std::unordered_map<const char*, SpriteData> loaded_sprites {};
 
 bool start_window() {
     SDL_SetAppMetadata("I Love All The Strange People I don't know", "0.1", "");
@@ -28,15 +37,26 @@ void destroy_window() {
     SDL_Quit();
 }
 
-void render_sprite(const char* name, float x, float y) {
-	SDL_RenderClear(renderer);
-	
-	SDL_Surface* surface = SDL_LoadPNG(name);
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+static SDL_Texture* load_sprite(const char* name) {
+	if (loaded_sprites.find(name) == loaded_sprites.end()) {
+		SDL_Surface* surface = SDL_LoadPNG(name);
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+		loaded_sprites[name] = {surface, texture};
+	}
 
-	SDL_FRect fromRect = {0.0f, 0.0f, (float)texture->w, (float)texture->h};
-	SDL_FRect toRect = {x, y, (float)texture->w, (float)texture->h};
-	
-	SDL_RenderTexture(renderer, texture, &fromRect, &toRect);
+	return loaded_sprites[name].texture;
+}
+
+static void unload_sprite(const char* name) {
+	SDL_DestroyTexture(loaded_sprites[name].texture);
+	SDL_DestroySurface(loaded_sprites[name].surface);
+	loaded_sprites.erase(name);
+}
+
+void render_sprite(const char* name, float x, float y) {
+	SDL_RenderClear(renderer);	
+	SDL_Texture* texture = load_sprite(name);
+	SDL_FRect toRect = {0.0f, 0.0f, (float)texture->w, (float)texture->h};
+	SDL_RenderTexture(renderer, texture, nullptr, &toRect);
 	SDL_RenderPresent(renderer);
 }

@@ -1,7 +1,6 @@
 #include "game_render.h"
 #include "platform_render.h"
 #include "game.h"
-#include <SDL3/SDL.h>
 
 Position camera_position = {3, 2};
 
