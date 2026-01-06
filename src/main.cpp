@@ -1,3 +1,5 @@
+#include "SDL3/SDL_events.h"
+#include "SDL3/SDL_keycode.h"
 #include "game_render.h"
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -35,6 +37,23 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_EVENT_QUIT) {
                 done = true;
             }
+
+			// TO REMOVE--this is just to test moving the camera
+			if (event.type == SDL_EVENT_KEY_DOWN) {
+				if (event.key.key == SDLK_W) {
+					camera_position.y += 1.0f;
+				} else if (event.key.key == SDLK_A) {
+					camera_position.x -= 1.0f;
+				} else if (event.key.key == SDLK_S) {
+					camera_position.y -= 1.0f;
+				} else if (event.key.key == SDLK_D) {
+					camera_position.x += 1.0f;
+				} else if (event.key.key == SDLK_Z) {
+					camera_scale += 0.1f;
+				} else if (event.key.key == SDLK_X) {
+					camera_scale -= 0.1f;					
+				}
+			}
         }
 
         update();

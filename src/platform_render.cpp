@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
+#include <cstdlib>
 #include <unordered_map>
 
 static SDL_Window* window = NULL;
@@ -18,11 +19,11 @@ bool start_window() {
     }
 
     if (!SDL_CreateWindowAndRenderer("I Love All The Strange People I Don't Know", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
-        SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return false;
     }
 	
-    SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_DISABLED);
 	
     return true;
 }
@@ -32,6 +33,9 @@ void destroy_window() {
     SDL_Quit();
 }
 
+// Lazy load the textures into memory for now.
+// Could be interesting to do some sort of reference counting
+// There could be a component to async load all the resources an entity needs
 static SDL_Texture* load_sprite(const char* name) {
 	if (loaded_sprites.find(name) == loaded_sprites.end()) {
 		SDL_Surface* surface = SDL_LoadPNG(name);
@@ -48,10 +52,19 @@ static void unload_sprite(const char* name) {
 	loaded_sprites.erase(name);
 }
 
-void render_sprite(const char* name, float x, float y) {
+void render_sprite(const char* name, float x, float y, float scale, const AtlasData* atlas_data) {
 	SDL_RenderClear(renderer);	
 	SDL_Texture* texture = load_sprite(name);
-	SDL_FRect toRect = {0.0f, 0.0f, (float)texture->w, (float)texture->h};
-	SDL_RenderTexture(renderer, texture, nullptr, &toRect);
+	SDL_FRect from_rect = {0.0f, 0.0f, (float)texture->w, (float)texture->h};
+	SDL_FRect to_rect  = {x, y, texture->w * scale, texture->h * scale};
+
+	if (atlas_data) {
+		int atlas_x = (atlas_data->index * atlas_data->w) % texture->w;
+		int atlas_y = ((atlas_data->index * atlas_data->w) / texture->w) * atlas_data->h;
+		from_rect = {(float)atlas_x, (float)atlas_y, (float)atlas_data->w, (float)atlas_data->h};
+		to_rect = {x, y, (float)atlas_data->w * scale, (float)atlas_data->h * scale};
+	}
+	
+	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
 	SDL_RenderPresent(renderer);
 }

@@ -13,6 +13,7 @@ struct Position;
 struct Sprite;
 
 extern Position camera_position;
+extern float camera_scale;
 
 void render_system();
 Position world_to_pixel(Position in);
