@@ -3,7 +3,7 @@
 #include "game.h"
 
 Position camera_position = {3.0f, 2.0f};
-float camera_scale = 0.5f;
+float camera_scale = 1.0f;
 
 void render_system() {
 	auto view = ecs.view<const Sprite, Position>();
