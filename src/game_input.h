@@ -21,7 +21,7 @@ enum InputType {
 struct Input {
 	u16 default_binding; // TODO
 	bool isDown;
-	bool isHandled;
+	bool isHandled; // TODO
 };
 
 struct InputEvent {
@@ -32,6 +32,8 @@ struct InputEvent {
 
 extern Input inputs[(u8)InputType::_count];
 extern std::queue<InputEvent> input_events;
+extern float mouse_x;
+extern float mouse_y;
 
 void update_input();
 void handle_input_event(SDL_KeyboardEvent event);

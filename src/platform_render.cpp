@@ -61,17 +61,13 @@ void end_render() {
 	SDL_RenderPresent(renderer);
 }
 
-void render_sprite(const char* name, float x, float y, float scale, const AtlasData* atlas_data) {
+void render_sprite(const char* name, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h) {
 	SDL_Texture* texture = load_sprite(name);
-	SDL_FRect from_rect = {0.0f, 0.0f, (float)texture->w, (float)texture->h};
-	SDL_FRect to_rect  = {x, y, texture->w * scale, texture->h * scale};
 
-	if (atlas_data) {
-		int atlas_x = (atlas_data->index * atlas_data->width) % texture->w;
-		int atlas_y = ((atlas_data->index * atlas_data->width) / texture->w) * atlas_data->height;
-		from_rect = {(float)atlas_x, (float)atlas_y, (float)atlas_data->width, (float)atlas_data->height};
-		to_rect = {x, y, (float)atlas_data->width * scale, (float)atlas_data->height * scale};
-	}
+	int atlas_x = (index * atlas_w) % texture->w;
+	int atlas_y = ((index * atlas_w) / texture->w) * atlas_h;
+	SDL_FRect from_rect = {(float)atlas_x, (float)atlas_y, (float)atlas_w, (float)atlas_h};
+	SDL_FRect to_rect = {x, y, w, h};
 
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
 }

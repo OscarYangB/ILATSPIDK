@@ -12,6 +12,9 @@ struct Sprite {
   u16 width;
   u16 height;
   u8 atlas_index;
+
+  float render_width() const;
+  float render_height() const;
 };
 
 enum class VerticalAnchor {
@@ -29,7 +32,9 @@ enum class HorizontalAnchor {
 struct AnchoredTransform {
   VerticalAnchor y_anchor;
   HorizontalAnchor x_anchor;
-  Vector2 position;
+  Vector2 relative_position;
+
+  void get_render_dimensions(float sprite_w, float sprite_h, float* x, float* y, float* w, float* h) const;
 };
 
 extern Vector2 camera_position;
@@ -37,4 +42,3 @@ extern float camera_scale;
 
 void render_system();
 Vector2 world_to_pixel(Vector2 in);
-Vector2 pixel_to_world(Vector2 in);
