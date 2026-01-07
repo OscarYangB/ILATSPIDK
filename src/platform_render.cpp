@@ -53,8 +53,15 @@ static void unload_sprite(const char* name) {
 	loaded_sprites.erase(name);
 }
 
-void render_sprite(const char* name, float x, float y, float scale, const AtlasData* atlas_data) {
+void start_render() {
 	SDL_RenderClear(renderer);
+}
+
+void end_render() {
+	SDL_RenderPresent(renderer);
+}
+
+void render_sprite(const char* name, float x, float y, float scale, const AtlasData* atlas_data) {
 	SDL_Texture* texture = load_sprite(name);
 	SDL_FRect from_rect = {0.0f, 0.0f, (float)texture->w, (float)texture->h};
 	SDL_FRect to_rect  = {x, y, texture->w * scale, texture->h * scale};
@@ -67,7 +74,6 @@ void render_sprite(const char* name, float x, float y, float scale, const AtlasD
 	}
 
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
-	SDL_RenderPresent(renderer); // Should have some sort of "start_render()" "finish_render()" kind of thing
 }
 
 int window_width() {

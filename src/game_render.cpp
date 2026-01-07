@@ -2,11 +2,12 @@
 #include "platform_render.h"
 #include "game.h"
 
-Vector2 camera_position = {3.0f, 2.0f};
+Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.0f;
-// Maybe another coefficient to scale the camera based on the resolution
 
 void render_system() {
+	start_render();
+
 	auto sprites = ecs.view<const Sprite, const Transform>();
 
 	for (auto [entity, sprite, transform] : sprites.each()) {
@@ -14,6 +15,8 @@ void render_system() {
 		AtlasData atlas_data = {sprite.atlas_index, sprite.width, sprite.height};
 	    render_sprite(sprite.name, pixel_position.x, pixel_position.y, camera_scale, &atlas_data);
 	}
+
+	end_render();
 }
 
 void render_ui_system() {
@@ -48,10 +51,15 @@ void render_ui_system() {
 	}
 }
 
-Vector2 world_to_pixel(Vector2 in) { // Flip y because I want the up direction to be positive y
-	return Vector2{(in.x - camera_position.x) * camera_scale, (in.y + camera_position.y) * camera_scale};
+static float window_scale() {
+	return window_height() / 1080.0f;
+}
+
+Vector2 world_to_pixel(Vector2 in) {
+	return Vector2{(in.x - camera_position.x) * camera_scale * window_scale() + window_width() / 2.0f,
+				   (-in.y + camera_position.y) * camera_scale * window_scale() + window_height() / 2.0f};
 }
 
 Vector2 pixel_to_world(Vector2 in) {
-	return Vector2{(in.x / camera_scale) + camera_position.x, (in.y / camera_scale) - camera_position.y};
+	return Vector2{(in.x / camera_scale) + camera_position.x, -((in.y / camera_scale) - camera_position.y)};
 }

@@ -14,7 +14,15 @@ static double delta_time = 0.0;
 void start() {
 	const entt::entity entity = ecs.create();
 	ecs.emplace<Sprite>(entity, "assets/test_image.png", u16{200}, u16{300}, u8{12});
-	ecs.emplace<Transform>(entity, 0.0f, 0.0f);
+	ecs.emplace<Transform>(entity, Vector2{0.0f, 0.0f});
+
+	const entt::entity entity2 = ecs.create();
+	ecs.emplace<Sprite>(entity2, "assets/test_image.png", u16{200}, u16{300}, u8{12});
+	ecs.emplace<Transform>(entity2, Vector2{500.0f, 500.0f});
+
+	const entt::entity background  = ecs.create();
+	ecs.emplace<Sprite>(background, "assets/test_background.png", u16{2339}, u16{1654}, u8{0});
+	ecs.emplace<Transform>(background, Vector2{-500.0f, 0.0f});
 }
 
 void update() {
@@ -22,16 +30,21 @@ void update() {
 
 	// TO REMOVE--this is just to test moving the camera
 	if (inputs[UP].isDown) {
-		camera_position.y += 20.0f * delta_time;
-	} else if (inputs[LEFT].isDown) {
-		camera_position.x -= 20.0f * delta_time;
-	} else if (inputs[DOWN].isDown) {
-		camera_position.y -= 20.0f * delta_time;
-	} else if (inputs[RIGHT].isDown) {
-		camera_position.x += 20.0f * delta_time;
-	} else if (inputs[INTERACT].isDown) {
+		camera_position.y += 300.0f * delta_time;
+	}
+	if (inputs[LEFT].isDown) {
+		camera_position.x -= 300.0f * delta_time;
+	}
+	if (inputs[DOWN].isDown) {
+		camera_position.y -= 300.0f * delta_time;
+	}
+	if (inputs[RIGHT].isDown) {
+		camera_position.x += 300.0f * delta_time;
+	}
+	if (inputs[INTERACT].isDown) {
 		camera_scale += 0.5f * delta_time;
-	} else if (inputs[INVENTORY].isDown) {
+	}
+	if (inputs[INVENTORY].isDown) {
 		camera_scale -= 0.5f * delta_time;
 	}
 }
