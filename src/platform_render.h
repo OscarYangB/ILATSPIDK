@@ -7,10 +7,13 @@ struct SDL_Texture;
 
 struct AtlasData {
   u8 index;
-  int w;
-  int h;
+  u16 width;
+  u16 height;
 };
 
 bool start_window();
 void destroy_window();
 void render_sprite(const char* name, float x, float y, float scale, const AtlasData* atlas_data = nullptr);
+
+int window_width();
+int window_height();

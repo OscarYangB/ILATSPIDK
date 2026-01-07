@@ -2,11 +2,12 @@
 #include <SDL3/SDL.h>
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
+#include "SDL3/SDL_video.h"
 #include <cstdlib>
 #include <unordered_map>
 
-static SDL_Window* window = NULL;
-static SDL_Renderer* renderer = NULL;
+static SDL_Window* window = nullptr;
+static SDL_Renderer* renderer = nullptr;
 
 static std::unordered_map<const char*, SDL_Texture*> loaded_sprites {};
 
@@ -22,9 +23,9 @@ bool start_window() {
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return false;
     }
-	
+
     SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_DISABLED);
-	
+
     return true;
 }
 
@@ -53,18 +54,30 @@ static void unload_sprite(const char* name) {
 }
 
 void render_sprite(const char* name, float x, float y, float scale, const AtlasData* atlas_data) {
-	SDL_RenderClear(renderer);	
+	SDL_RenderClear(renderer);
 	SDL_Texture* texture = load_sprite(name);
 	SDL_FRect from_rect = {0.0f, 0.0f, (float)texture->w, (float)texture->h};
 	SDL_FRect to_rect  = {x, y, texture->w * scale, texture->h * scale};
 
 	if (atlas_data) {
-		int atlas_x = (atlas_data->index * atlas_data->w) % texture->w;
-		int atlas_y = ((atlas_data->index * atlas_data->w) / texture->w) * atlas_data->h;
-		from_rect = {(float)atlas_x, (float)atlas_y, (float)atlas_data->w, (float)atlas_data->h};
-		to_rect = {x, y, (float)atlas_data->w * scale, (float)atlas_data->h * scale};
+		int atlas_x = (atlas_data->index * atlas_data->width) % texture->w;
+		int atlas_y = ((atlas_data->index * atlas_data->width) / texture->w) * atlas_data->height;
+		from_rect = {(float)atlas_x, (float)atlas_y, (float)atlas_data->width, (float)atlas_data->height};
+		to_rect = {x, y, (float)atlas_data->width * scale, (float)atlas_data->height * scale};
 	}
-	
+
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
-	SDL_RenderPresent(renderer);
+	SDL_RenderPresent(renderer); // Should have some sort of "start_render()" "finish_render()" kind of thing
+}
+
+int window_width() {
+	int w, h = 0;
+	SDL_GetWindowSize(window, &w, &h);
+	return w;
+}
+
+int window_height() {
+	int w, h = 0;
+	SDL_GetWindowSize(window, &w, &h);
+	return h;
 }

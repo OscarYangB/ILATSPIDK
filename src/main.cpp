@@ -9,15 +9,12 @@
 #include "game_input.h"
 
 static u64 start_frame_time = 0.0;
+static double delta_time = 0.0;
 
-double delta_time() {
-	return (SDL_GetTicks() - start_frame_time) / 1000.0;
-}
-
-void start() {	
+void start() {
 	const entt::entity entity = ecs.create();
-	ecs.emplace<Sprite>(entity, "assets/test_image.png");
-	ecs.emplace<Position>(entity, 0.0f, 0.0f);
+	ecs.emplace<Sprite>(entity, "assets/test_image.png", u16{200}, u16{300}, u8{12});
+	ecs.emplace<Transform>(entity, 0.0f, 0.0f);
 }
 
 void update() {
@@ -25,17 +22,17 @@ void update() {
 
 	// TO REMOVE--this is just to test moving the camera
 	if (inputs[UP].isDown) {
-		camera_position.y += 20.0f * delta_time();
+		camera_position.y += 20.0f * delta_time;
 	} else if (inputs[LEFT].isDown) {
-		camera_position.x -= 20.0f * delta_time();
+		camera_position.x -= 20.0f * delta_time;
 	} else if (inputs[DOWN].isDown) {
-		camera_position.y -= 20.0f * delta_time();
+		camera_position.y -= 20.0f * delta_time;
 	} else if (inputs[RIGHT].isDown) {
-		camera_position.x += 20.0f * delta_time();
+		camera_position.x += 20.0f * delta_time;
 	} else if (inputs[INTERACT].isDown) {
-		camera_scale += 0.5f * delta_time();
+		camera_scale += 0.5f * delta_time;
 	} else if (inputs[INVENTORY].isDown) {
-		camera_scale -= 0.5f * delta_time();					
+		camera_scale -= 0.5f * delta_time;
 	}
 }
 
@@ -47,23 +44,24 @@ int main(int argc, char* argv[]) {
     if (!started) {
         return 1;
     }
-	
+
 	start();
     std::cout << "Initialized";
 
     while (!done) {
+		delta_time = (SDL_GetTicks() - start_frame_time) / 1000.0;
 		start_frame_time = SDL_GetTicks();
-		
+
         SDL_Event event;
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 done = true;
-            }		 
+            }
 
-			handle_input_event(event.key);			
+			handle_input_event(event.key);
         }
-		
+
 		update_input();
         update();
 
