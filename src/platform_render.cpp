@@ -64,6 +64,10 @@ void end_render() {
 void render_sprite(const char* name, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h) {
 	SDL_Texture* texture = load_sprite(name);
 
+	if (!texture) {
+		return;
+	}
+
 	int atlas_x = (index * atlas_w) % texture->w;
 	int atlas_y = ((index * atlas_w) / texture->w) * atlas_h;
 	SDL_FRect from_rect = {(float)atlas_x, (float)atlas_y, (float)atlas_w, (float)atlas_h};

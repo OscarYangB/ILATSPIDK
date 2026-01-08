@@ -30,11 +30,15 @@ enum class HorizontalAnchor {
 };
 
 struct AnchoredTransform {
-  VerticalAnchor y_anchor;
   HorizontalAnchor x_anchor;
+  VerticalAnchor y_anchor;
   Vector2 relative_position;
+  u16 width;
+  u16 height;
 
-  void get_render_dimensions(float sprite_w, float sprite_h, float* x, float* y, float* w, float* h) const;
+  Vector2 render_position() const;
+  float render_width() const;
+  float render_height() const;
 };
 
 extern Vector2 camera_position;

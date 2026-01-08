@@ -1,4 +1,5 @@
 #include "SDL3/SDL_events.h"
+#include "SDL3/SDL_timer.h"
 #include "game_render.h"
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -7,9 +8,18 @@
 #include "game.h"
 #include "platform_render.h"
 #include "game_input.h"
+#include "button.h"
 
 static u64 start_frame_time = 0.0;
 static double delta_time = 0.0;
+
+void button_hovered() {
+	std::cout << "button hovered\n";
+}
+
+void button_clicked() {
+	std::cout << "button clicked\n";
+}
 
 void start() {
 	const entt::entity entity = ecs.create();
@@ -20,12 +30,20 @@ void start() {
 	ecs.emplace<Sprite>(entity2, "assets/test_image.png", u16{200}, u16{300}, u8{12});
 	ecs.emplace<Transform>(entity2, Vector2{500.0f, 500.0f});
 
-	const entt::entity background  = ecs.create();
+	const entt::entity background = ecs.create();
 	ecs.emplace<Sprite>(background, "assets/test_background.png", u16{2339}, u16{1654}, u8{0});
 	ecs.emplace<Transform>(background, Vector2{-500.0f, 0.0f});
+
+	const entt::entity button = ecs.create();
+	ecs.emplace<Sprite>(button, "assets/test_button.png", u16{400}, u16{200}, u8{0});
+	ecs.emplace<AnchoredTransform>(button, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
+								   Vector2{0.0f, 0.0f}, u16{400}, u16{200});
+	ecs.emplace<Button>(button, button_hovered, button_clicked, nullptr);
 }
 
 void update() {
+	update_input();
+	button_system();
 	render_system();
 
 	// TO REMOVE--this is just to test moving the camera
@@ -62,6 +80,10 @@ int main(int argc, char* argv[]) {
     std::cout << "Initialized";
 
     while (!done) {
+		if (SDL_GetTicks() - start_frame_time < (1.0 / 120.0)) {
+			continue;
+		} // This causes screen tearing at 16 and 8 ms delay
+
 		delta_time = (SDL_GetTicks() - start_frame_time) / 1000.0;
 		start_frame_time = SDL_GetTicks();
 
@@ -75,7 +97,6 @@ int main(int argc, char* argv[]) {
 			handle_input_event(event.key);
         }
 
-		update_input();
         update();
 
         // Do game logic, present a frame, etc.
