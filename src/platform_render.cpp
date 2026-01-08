@@ -61,6 +61,23 @@ void end_render() {
 	SDL_RenderPresent(renderer);
 }
 
+/*
+constexpr char data[] {
+	#embed "assets/big_file.png"
+};
+
+void test_big_image() {
+	SDL_IOStream* stream = SDL_IOFromConstMem(&data, sizeof data);
+	SDL_Surface* surface = SDL_LoadPNG_IO(stream, true);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_DestroySurface(surface);
+	SDL_FRect to_rect = {0.f, 0.f, (float)texture->w, (float)texture->h};
+
+	SDL_RenderTexture(renderer, texture, nullptr, &to_rect);
+	SDL_DestroyTexture(texture);
+}
+*/
+
 void render_sprite(const char* name, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h) {
 	SDL_Texture* texture = load_sprite(name);
 

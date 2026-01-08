@@ -1,0 +1,17 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "Debug ILATSPIDK",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/ILATSPIDK.exe",
+            "args": ["-q"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb"
+        }
+    ]
+}
