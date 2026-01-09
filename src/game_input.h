@@ -1,7 +1,6 @@
 #pragma once
 
 #include "definitions.h"
-#include <queue>
 
 struct SDL_KeyboardEvent;
 
@@ -20,8 +19,8 @@ enum InputType {
 
 struct Input {
 	u16 default_binding; // TODO
-	bool isDown;
-	bool isHandled; // TODO
+	bool is_down;
+	bool is_handled;
 };
 
 struct InputEvent {
@@ -30,10 +29,14 @@ struct InputEvent {
 	bool down;
 };
 
-extern Input inputs[(u8)InputType::_count];
-extern std::queue<InputEvent> input_events;
 extern float mouse_x;
 extern float mouse_y;
 
 void update_input();
 void handle_input_event(SDL_KeyboardEvent event);
+
+bool input_held(InputType input_type);
+bool input_down_this_frame(InputType input_type);
+bool input_released_this_frame(InputType input_type);
+void handle_input(InputType input_type);
+void input_end_frame();

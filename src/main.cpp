@@ -47,24 +47,26 @@ void update() {
 	render_system();
 
 	// TO REMOVE--this is just to test moving the camera
-	if (inputs[UP].isDown) {
+	if (input_held(UP)) {
 		camera_position.y += 300.0f * delta_time;
 	}
-	if (inputs[LEFT].isDown) {
+	if (input_held(LEFT)) {
 		camera_position.x -= 300.0f * delta_time;
 	}
-	if (inputs[DOWN].isDown) {
+	if (input_held(DOWN)) {
 		camera_position.y -= 300.0f * delta_time;
 	}
-	if (inputs[RIGHT].isDown) {
+	if (input_held(RIGHT)) {
 		camera_position.x += 300.0f * delta_time;
 	}
-	if (inputs[INTERACT].isDown) {
+	if (input_held(INTERACT)) {
 		camera_scale += 0.5f * delta_time;
 	}
-	if (inputs[INVENTORY].isDown) {
+	if (input_held(INVENTORY)) {
 		camera_scale -= 0.5f * delta_time;
 	}
+
+	input_end_frame();
 }
 
 int main(int argc, char* argv[]) {
