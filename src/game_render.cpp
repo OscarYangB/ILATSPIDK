@@ -1,6 +1,9 @@
 #include "game_render.h"
+#include "entt/entity/fwd.hpp"
+#include "kerry_anim_controller.h"
 #include "platform_render.h"
 #include "game.h"
+#include "player_movement_controller.h"
 
 Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.0f; // Gameplay code can write to this
@@ -20,12 +23,17 @@ static float render_scale() {
 void render_system() {
 	start_render();
 
-	auto sprites = ecs.view<const Sprite, const Transform>();
+	auto sprites = ecs.view<const Sprite, const Transform>(entt::exclude_t<PlayerMovementComponent>()); // Temporary exclusion
 	for (auto [entity, sprite, transform] : sprites.each()) {
 		Vector2 position = world_to_pixel(transform.position);
-	    render_sprite(sprite.name, position.x, position.y, sprite.render_width(), sprite.render_height(),
-					  sprite.atlas_index, sprite.width, sprite.height);
+		float width = sprite.render_width();
+		float height = sprite.render_height();
+		if (position.x > window_width() || position.y > window_height()) continue; // Cull off screen stuff
+		if (position.x + width < 0.f || position.y + height < 0.f) continue;
+	    render_sprite(sprite.name, position.x, position.y, width, height, sprite.atlas_index, sprite.width, sprite.height);
 	}
+
+	update_animation(); // This is for a temporary test
 
 	auto ui_sprites = ecs.view<const Sprite, const AnchoredTransform>();
 	for (auto [entity, sprite, transform] : ui_sprites.each()) {

@@ -9,9 +9,9 @@
 #include "platform_render.h"
 #include "game_input.h"
 #include "button.h"
+#include "player_movement_controller.h"
 
 static u64 start_frame_time = 0.0;
-static double delta_time = 0.0;
 
 void button_hovered() {
 	std::cout << "button hovered\n";
@@ -23,8 +23,9 @@ void button_clicked() {
 
 void start() {
 	const entt::entity entity = ecs.create();
-	ecs.emplace<Sprite>(entity, "assets/test_image.png", u16{200}, u16{300}, u8{12});
+	ecs.emplace<Sprite>(entity, "assets/Kerry.png", u16{200}, u16{300}, u8{12});
 	ecs.emplace<Transform>(entity, Vector2{0.0f, 0.0f});
+	ecs.emplace<PlayerMovementComponent>(entity, 200.f, CharacterDirection::DOWN);
 
 	const entt::entity entity2 = ecs.create();
 	ecs.emplace<Sprite>(entity2, "assets/test_image.png", u16{200}, u16{300}, u8{12});
@@ -32,7 +33,7 @@ void start() {
 
 	const entt::entity background = ecs.create();
 	ecs.emplace<Sprite>(background, "assets/test_background.png", u16{2339}, u16{1654}, u8{0});
-	ecs.emplace<Transform>(background, Vector2{-500.0f, 0.0f});
+	ecs.emplace<Transform>(background, Vector2{-1500.0f, 1000.0f});
 
 	const entt::entity button = ecs.create();
 	ecs.emplace<Sprite>(button, "assets/test_button.png", u16{400}, u16{200}, u8{0});
@@ -44,21 +45,22 @@ void start() {
 void update() {
 	update_input();
 	button_system();
+	update_movement();
 	render_system();
 
 	// TO REMOVE--this is just to test moving the camera
-	if (input_held(UP)) {
-		camera_position.y += 300.0f * delta_time;
-	}
-	if (input_held(LEFT)) {
-		camera_position.x -= 300.0f * delta_time;
-	}
-	if (input_held(DOWN)) {
-		camera_position.y -= 300.0f * delta_time;
-	}
-	if (input_held(RIGHT)) {
-		camera_position.x += 300.0f * delta_time;
-	}
+	// if (input_held(UP)) {
+	// 	camera_position.y += 300.0f * delta_time;
+	// }
+	// if (input_held(LEFT)) {
+	// 	camera_position.x -= 300.0f * delta_time;
+	// }
+	// if (input_held(DOWN)) {
+	// 	camera_position.y -= 300.0f * delta_time;
+	// }
+	// if (input_held(RIGHT)) {
+	// 	camera_position.x += 300.0f * delta_time;
+	// }
 	if (input_held(INTERACT)) {
 		camera_scale += 0.5f * delta_time;
 	}

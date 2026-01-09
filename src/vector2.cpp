@@ -1,19 +1,56 @@
 #include "vector2.h"
 #include <cmath>
+#include <stdexcept>
 
-Vector2 Vector2::operator+(const Vector2 other) {
+Vector2 Vector2::operator+(const Vector2& other) {
 	return Vector2{x + other.x, y + other.y};
 }
 
-Vector2 Vector2::operator-(const Vector2 other) {
+Vector2 Vector2::operator-(const Vector2& other) {
 	return Vector2{x - other.x, y - other.y};
 }
 
-float Vector2::operator*(const Vector2 other) {
+float Vector2::operator*(const Vector2& other) {
 	return x * other.x + y * other.y;
 }
 
+Vector2 Vector2::operator*(const float other) {
+	return Vector2{x * other, y * other};
+}
+
+Vector2 Vector2::operator/(const float other) {
+	return Vector2{x / other, y / other};
+}
+
+Vector2& Vector2::operator+=(const Vector2& other) {
+	this->x += other.x;
+	this->y += other.y;
+	return *this;
+}
+
+Vector2& Vector2::operator-=(const Vector2& other) {
+	this->x -= other.x;
+	this->y -= other.y;
+	return *this;
+}
+
+Vector2& Vector2::operator*=(const float other) {
+	this->x *= other;
+	this->y *= other;
+	return *this;
+}
+
+Vector2& Vector2::operator/=(const float other) {
+	this->x /= other;
+	this->y /= other;
+	return *this;
+}
+
 Vector2 Vector2::normalized() {
+	if (x == 0.f && y == 0.f) {
+		throw std::runtime_error("Cannot normalize the zero vector!");
+	}
+
 	float mag = magnitude();
 	return Vector2{x / mag, y / mag};
 }
