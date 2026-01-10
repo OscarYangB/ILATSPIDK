@@ -37,6 +37,14 @@ void render_system() {
 
 	auto ui_sprites = ecs.view<const Sprite, const AnchoredTransform>();
 	for (auto [entity, sprite, transform] : ui_sprites.each()) {
+		// This seems quite bad. Check if theres a better way to do this in a query maybe
+		if (NineSliceComponent* slice = ecs.try_get<NineSliceComponent>(entity); slice != nullptr) {
+			Vector2 position = transform.render_position();
+			render_nine_slice(sprite.name, position.x, position.y, transform.render_width(), transform.render_height(),
+							  sprite.atlas_index, sprite.width, sprite.height, slice->x, slice->y, slice->w, slice->h, window_scale());
+			continue;
+		}
+
 		Vector2 position = transform.render_position();
 	    render_sprite(sprite.name, position.x, position.y, transform.render_width(), transform.render_height(),
 					  sprite.atlas_index, sprite.width, sprite.height);

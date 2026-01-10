@@ -81,16 +81,46 @@ void test_big_image() {
 void render_sprite(const char* name, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h) {
 	SDL_Texture* texture = load_sprite(name);
 
-	if (!texture) {
-		return;
-	}
-
 	int atlas_x = (index * atlas_w) % texture->w;
 	int atlas_y = ((index * atlas_w) / texture->w) * atlas_h;
 	SDL_FRect from_rect = {(float)atlas_x, (float)atlas_y, (float)atlas_w, (float)atlas_h};
 	SDL_FRect to_rect = {x, y, w, h};
 
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
+}
+
+void render_nine_slice(const char* name, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h,
+					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale) {
+	SDL_Texture* texture = load_sprite(name);
+
+	int atlas_x = (index * atlas_w) % texture->w;
+	int atlas_y = ((index * atlas_w) / texture->w) * atlas_h;
+
+	float last_segment_width = (float)atlas_w - slice_x - slice_w;
+	float last_segment_height = (float)atlas_h - slice_y - slice_h;
+
+	float x_from_locations[4] = {(float)atlas_x, slice_x, slice_w, last_segment_width};
+	float x_to_locations[4] = {x, slice_x * window_scale,
+							   w - last_segment_width * window_scale - slice_x * window_scale, last_segment_width * window_scale};
+	float y_from_locations[4] = {(float)atlas_y, slice_y, slice_h, last_segment_height};
+	float y_to_locations[4] = {y, slice_y * window_scale,
+							   h - last_segment_height * window_scale - slice_y * window_scale, last_segment_height * window_scale};
+
+	float x_from_location = 0.f;
+	float x_to_location = 0.f;
+	for (int i = 0; i < 3; i++) {
+		x_from_location += x_from_locations[i];
+		x_to_location += x_to_locations[i];
+		float y_from_location = 0.f;
+		float y_to_location = 0.f;
+		for (int j = 0; j < 3; j++) {
+			y_from_location += y_from_locations[j];
+			y_to_location += y_to_locations[j];
+			SDL_FRect from_rect = {x_from_location, y_from_location, x_from_locations[i+1], y_from_locations[j+1]};
+			SDL_FRect to_rect = {x_to_location, y_to_location, x_to_locations[i+1], y_to_locations[j+1]};
+			SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
+		}
+	}
 }
 
 int window_width() {

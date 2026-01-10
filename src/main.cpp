@@ -38,8 +38,9 @@ void start() {
 	const entt::entity button = ecs.create();
 	ecs.emplace<Sprite>(button, "assets/test_button.png", u16{400}, u16{200}, u8{0});
 	ecs.emplace<AnchoredTransform>(button, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
-								   Vector2{0.0f, 0.0f}, u16{400}, u16{200});
+								   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
 	ecs.emplace<Button>(button, button_hovered, button_clicked, nullptr);
+	ecs.emplace<NineSliceComponent>(button, u16{40}, u16{30}, u16{320}, u16{150});
 }
 
 void update() {

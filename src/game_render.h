@@ -41,6 +41,13 @@ struct AnchoredTransform {
   float render_height() const;
 };
 
+struct NineSliceComponent {
+	u16 x;
+	u16 y;
+	u16 w;
+	u16 h;
+};
+
 extern Vector2 camera_position;
 extern float camera_scale;
 
