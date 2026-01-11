@@ -50,6 +50,8 @@ void render_system() {
 					  sprite.atlas_index, sprite.width, sprite.height);
 	}
 
+	render_text();
+
 	end_render();
 }
 

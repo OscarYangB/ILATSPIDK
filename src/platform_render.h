@@ -16,3 +16,5 @@ void render_nine_slice(const char* name, float x, float y, float w, float h, u8 
 
 int window_width();
 int window_height();
+
+void render_text();

@@ -5,6 +5,8 @@
 #include "SDL3/SDL_video.h"
 #include <cstdlib>
 #include <unordered_map>
+#define SDL_STB_FONT_IMPL
+#include "../external/sdl_stb_font/sdlStbFont.h"
 
 static SDL_Window* window = nullptr;
 static SDL_Renderer* renderer = nullptr;
@@ -133,4 +135,22 @@ int window_height() {
 	int w, h = 0;
 	SDL_GetWindowSize(window, &w, &h);
 	return h;
+}
+
+
+constexpr char font[] {
+	#embed "assets/NotoSans-Regular.ttf"
+};
+
+void render_text() {
+	sdl_stb_prerendered_text text;
+
+	sdl_stb_font_cache font_cache;
+	font_cache.faceSize = 60;
+	font_cache.bindRenderer(renderer);
+	font_cache.loadFont(font, sizeof font);
+	font_cache.renderTextToObject(&text, "fuck");
+
+	text.drawWithColorMod(500, 500, 255, 0, 0, 255);
+	text.freeTexture();
 }
