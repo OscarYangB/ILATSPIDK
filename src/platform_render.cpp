@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <unordered_map>
 #define SDL_STB_FONT_IMPL
-#include "../external/sdl_stb_font/sdlStbFont.h"
+#include "../external/sdl-stb-font/sdlStbFont.h"
 
 static SDL_Window* window = nullptr;
 static SDL_Renderer* renderer = nullptr;
@@ -139,18 +139,18 @@ int window_height() {
 
 
 constexpr char font[] {
-	#embed "assets/NotoSans-Regular.ttf"
+	#embed "assets/AtkinsonHyperlegible-Regular.ttf"
 };
 
-void render_text() {
-	sdl_stb_prerendered_text text;
+void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b) {
+	sdl_stb_prerendered_text text_render;
 
 	sdl_stb_font_cache font_cache;
 	font_cache.faceSize = 60;
 	font_cache.bindRenderer(renderer);
 	font_cache.loadFont(font, sizeof font);
-	font_cache.renderTextToObject(&text, "fuck");
+	font_cache.renderTextToObject(&text_render, text);
 
-	text.drawWithColorMod(500, 500, 255, 0, 0, 255);
-	text.freeTexture();
+	text_render.drawWithColorMod(x, y, r, g, b, 255);
+	text_render.freeTexture();
 }

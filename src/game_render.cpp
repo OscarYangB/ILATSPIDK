@@ -50,7 +50,7 @@ void render_system() {
 					  sprite.atlas_index, sprite.width, sprite.height);
 	}
 
-	render_text();
+	render_text("fuck", 500, 500, 255, 0, 0);
 
 	end_render();
 }
