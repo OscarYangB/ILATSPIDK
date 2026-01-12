@@ -3,6 +3,7 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
 #include "SDL3/SDL_video.h"
+#include "game_assets.h"
 #include <cstdlib>
 #include <unordered_map>
 #define SDL_STB_FONT_IMPL
@@ -137,18 +138,13 @@ int window_height() {
 	return h;
 }
 
-
-constexpr char font[] {
-	#embed "assets/AtkinsonHyperlegible-Regular.ttf"
-};
-
 void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b) {
 	sdl_stb_prerendered_text text_render;
 
 	sdl_stb_font_cache font_cache;
 	font_cache.faceSize = 60;
 	font_cache.bindRenderer(renderer);
-	font_cache.loadFont(font, sizeof font);
+	font_cache.loadFont(AtkinsonHyperlegible, sizeof AtkinsonHyperlegible);
 	font_cache.renderTextToObject(&text_render, text);
 
 	text_render.drawWithColorMod(x, y, r, g, b, 255);
