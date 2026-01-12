@@ -5,14 +5,13 @@
 #include "SDL3/SDL_video.h"
 #include "game_assets.h"
 #include <cstdlib>
-#include <unordered_map>
 #define SDL_STB_FONT_IMPL
 #include "../external/sdl-stb-font/sdlStbFont.h"
 
 static SDL_Window* window = nullptr;
 static SDL_Renderer* renderer = nullptr;
 
-static std::unordered_map<const char*, SDL_Texture*> loaded_sprites {};
+static SDL_Texture* loaded_sprites[NUMBER_OF_IMAGES] {};
 
 bool start_window() {
     SDL_SetAppMetadata("I Love All The Strange People I Don't Know", "0.1", "");
@@ -40,20 +39,24 @@ void destroy_window() {
 // Lazy load the textures into memory for now.
 // Could be interesting to do some sort of reference counting
 // There could be a component to async load all the resources an entity needs
-static SDL_Texture* load_sprite(const char* name) {
-	if (loaded_sprites.find(name) == loaded_sprites.end()) {
-		SDL_Surface* surface = SDL_LoadPNG(name);
+static SDL_Texture* load_sprite(ImageAsset image_asset) {
+	u8 image_index = static_cast<u8>(image_asset);
+
+	if (loaded_sprites[image_index] == nullptr) {
+		SDL_IOStream* stream = SDL_IOFromConstMem(image_data[image_index], image_sizes[image_index]);
+		SDL_Surface* surface = SDL_LoadPNG_IO(stream, true);
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_DestroySurface(surface);
-		loaded_sprites[name] = texture;
+		loaded_sprites[image_index] = texture;
 	}
 
-	return loaded_sprites[name];
+	return loaded_sprites[image_index];
 }
 
-static void unload_sprite(const char* name) {
-	SDL_DestroyTexture(loaded_sprites[name]);
-	loaded_sprites.erase(name);
+static void unload_sprite(ImageAsset image_asset) {
+	u8 image_index = static_cast<u8>(image_asset);
+	SDL_DestroyTexture(loaded_sprites[image_index]);
+	loaded_sprites[image_index] = nullptr;
 }
 
 void start_render() {
@@ -64,25 +67,8 @@ void end_render() {
 	SDL_RenderPresent(renderer);
 }
 
-/*
-constexpr char data[] {
-	#embed "assets/big_file.png"
-};
-
-void test_big_image() {
-	SDL_IOStream* stream = SDL_IOFromConstMem(&data, sizeof data);
-	SDL_Surface* surface = SDL_LoadPNG_IO(stream, true);
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-	SDL_DestroySurface(surface);
-	SDL_FRect to_rect = {0.f, 0.f, (float)texture->w, (float)texture->h};
-
-	SDL_RenderTexture(renderer, texture, nullptr, &to_rect);
-	SDL_DestroyTexture(texture);
-}
-*/
-
-void render_sprite(const char* name, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h) {
-	SDL_Texture* texture = load_sprite(name);
+void render_sprite(ImageAsset image_asset, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h) {
+	SDL_Texture* texture = load_sprite(image_asset);
 
 	int atlas_x = (index * atlas_w) % texture->w;
 	int atlas_y = ((index * atlas_w) / texture->w) * atlas_h;
@@ -92,9 +78,9 @@ void render_sprite(const char* name, float x, float y, float w, float h, u8 inde
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
 }
 
-void render_nine_slice(const char* name, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h,
+void render_nine_slice(ImageAsset image_asset, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h,
 					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale) {
-	SDL_Texture* texture = load_sprite(name);
+	SDL_Texture* texture = load_sprite(image_asset);
 
 	int atlas_x = (index * atlas_w) % texture->w;
 	int atlas_y = ((index * atlas_w) / texture->w) * atlas_h;
@@ -144,7 +130,7 @@ void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b) {
 	sdl_stb_font_cache font_cache;
 	font_cache.faceSize = 60;
 	font_cache.bindRenderer(renderer);
-	font_cache.loadFont(AtkinsonHyperlegible, sizeof AtkinsonHyperlegible);
+	font_cache.loadFont(atkinson_hyperlegible, sizeof atkinson_hyperlegible);
 	font_cache.renderTextToObject(&text_render, text);
 
 	text_render.drawWithColorMod(x, y, r, g, b, 255);

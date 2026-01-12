@@ -3,12 +3,14 @@
 #include "vector2.h"
 #include "definitions.h"
 
+enum class ImageAsset;
+
 struct Transform {
   Vector2 position;
 };
 
 struct Sprite {
-  const char* name;
+  ImageAsset image_asset;
   u16 width;
   u16 height;
   u8 atlas_index;

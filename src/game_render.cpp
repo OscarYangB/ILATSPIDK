@@ -30,7 +30,7 @@ void render_system() {
 		float height = sprite.render_height();
 		if (position.x > window_width() || position.y > window_height()) continue; // Cull off screen stuff
 		if (position.x + width < 0.f || position.y + height < 0.f) continue;
-	    render_sprite(sprite.name, position.x, position.y, width, height, sprite.atlas_index, sprite.width, sprite.height);
+	    render_sprite(sprite.image_asset, position.x, position.y, width, height, sprite.atlas_index, sprite.width, sprite.height);
 	}
 
 	update_animation(); // This is for a temporary test
@@ -40,13 +40,13 @@ void render_system() {
 		// This seems quite bad. Check if theres a better way to do this in a query maybe
 		if (NineSliceComponent* slice = ecs.try_get<NineSliceComponent>(entity); slice != nullptr) {
 			Vector2 position = transform.render_position();
-			render_nine_slice(sprite.name, position.x, position.y, transform.render_width(), transform.render_height(),
+			render_nine_slice(sprite.image_asset, position.x, position.y, transform.render_width(), transform.render_height(),
 							  sprite.atlas_index, sprite.width, sprite.height, slice->x, slice->y, slice->w, slice->h, window_scale());
 			continue;
 		}
 
 		Vector2 position = transform.render_position();
-	    render_sprite(sprite.name, position.x, position.y, transform.render_width(), transform.render_height(),
+	    render_sprite(sprite.image_asset, position.x, position.y, transform.render_width(), transform.render_height(),
 					  sprite.atlas_index, sprite.width, sprite.height);
 	}
 

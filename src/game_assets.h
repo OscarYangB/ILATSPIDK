@@ -7,12 +7,16 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc23-extensions"
 
-constexpr inline char AtkinsonHyperlegible[] { 
-	#embed "..\assets\AtkinsonHyperlegible.ttf"
+constexpr inline char atkinson_hyperlegible[] { 
+	#embed "..\assets\atkinson_hyperlegible.ttf"
 };
 
-constexpr inline char Kerry[] { 
-	#embed "..\assets\Kerry.png"
+constexpr inline char captain_orange[] { 
+	#embed "..\assets\captain_orange.png"
+};
+
+constexpr inline char kerry[] { 
+	#embed "..\assets\kerry.png"
 };
 
 constexpr inline char test_background[] { 
@@ -23,8 +27,27 @@ constexpr inline char test_button[] {
 	#embed "..\assets\test_button.png"
 };
 
-constexpr inline char test_image[] { 
-	#embed "..\assets\test_image.png"
+#pragma clang diagnostic pop
+
+enum class ImageAsset {
+	CAPTAIN_ORANGE_IMAGE,
+	KERRY_IMAGE,
+	TEST_BACKGROUND_IMAGE,
+	TEST_BUTTON_IMAGE,
 };
 
-#pragma clang diagnostic pop
+constexpr const inline char* image_data[] {
+	captain_orange,
+	kerry,
+	test_background,
+	test_button,
+};
+
+constexpr int image_sizes[] {
+	sizeof(captain_orange),
+	sizeof(kerry),
+	sizeof(test_background),
+	sizeof(test_button),
+};
+
+constexpr int NUMBER_OF_IMAGES = 4;

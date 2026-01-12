@@ -3,6 +3,8 @@ import os
 
 oxipng_path = "C:/oxipng/oxipng.exe"
 
+# Should do for jpeg too with jpegoptim
+
 for (root, dirs, files) in os.walk("..\\assets"):
     for file in files:
         split = file.split('.', 1)

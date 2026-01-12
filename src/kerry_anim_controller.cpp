@@ -196,7 +196,7 @@ void update_animation() {
 			Vector2 position = world_to_pixel(transform.position);
 			float width = sprite.render_width();
 			float height = sprite.render_height();
-			render_sprite(sprite.name, position.x, position.y, width, height, index, sprite.width, sprite.height);
+			render_sprite(sprite.image_asset, position.x, position.y, width, height, index, sprite.width, sprite.height);
 		}
 	}
 }

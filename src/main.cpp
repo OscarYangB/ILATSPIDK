@@ -1,5 +1,6 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
+#include "game_assets.h"
 #include "game_render.h"
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -23,20 +24,20 @@ void button_clicked() {
 
 void start() {
 	const entt::entity entity = ecs.create();
-	ecs.emplace<Sprite>(entity, "assets/Kerry.png", u16{200}, u16{300}, u8{12});
+	ecs.emplace<Sprite>(entity, ImageAsset::KERRY_IMAGE, u16{200}, u16{300}, u8{12});
 	ecs.emplace<Transform>(entity, Vector2{0.0f, 0.0f});
 	ecs.emplace<PlayerMovementComponent>(entity, 200.f, CharacterDirection::DOWN);
 
 	const entt::entity entity2 = ecs.create();
-	ecs.emplace<Sprite>(entity2, "assets/test_image.png", u16{200}, u16{300}, u8{12});
+	ecs.emplace<Sprite>(entity2, ImageAsset::CAPTAIN_ORANGE_IMAGE, u16{200}, u16{300}, u8{12});
 	ecs.emplace<Transform>(entity2, Vector2{500.0f, 500.0f});
 
 	const entt::entity background = ecs.create();
-	ecs.emplace<Sprite>(background, "assets/test_background.png", u16{2339}, u16{1654}, u8{0});
+	ecs.emplace<Sprite>(background, ImageAsset::TEST_BACKGROUND_IMAGE, u16{2339}, u16{1654}, u8{0});
 	ecs.emplace<Transform>(background, Vector2{-1500.0f, 1000.0f});
 
 	const entt::entity button = ecs.create();
-	ecs.emplace<Sprite>(button, "assets/test_button.png", u16{400}, u16{200}, u8{0});
+	ecs.emplace<Sprite>(button, ImageAsset::TEST_BUTTON_IMAGE, u16{400}, u16{200}, u8{0});
 	ecs.emplace<AnchoredTransform>(button, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
 								   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
 	ecs.emplace<Button>(button, button_hovered, button_clicked, nullptr);
