@@ -86,12 +86,14 @@ int main(int argc, char* argv[]) {
     std::cout << "Initialized";
 
     while (!done) {
-		if (SDL_GetTicks() - start_frame_time < (1.0 / 120.0)) {
-			continue;
-		} // This causes screen tearing at 16 and 8 ms delay
+		const u64 frame_time = 8000000; // In nanoseconds
+		const u64 time_elapsed = SDL_GetTicksNS() - start_frame_time;
+		if (time_elapsed < frame_time) {
+			SDL_DelayNS(frame_time - time_elapsed);
+		}
 
-		delta_time = (SDL_GetTicks() - start_frame_time) / 1000.0;
-		start_frame_time = SDL_GetTicks();
+		delta_time = (SDL_GetTicksNS() - start_frame_time) / 1000000000.0;
+		start_frame_time = SDL_GetTicksNS();
 
         SDL_Event event;
 
