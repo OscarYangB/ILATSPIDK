@@ -10,8 +10,12 @@ header_text += "#pragma clang diagnostic ignored \"-Wc23-extensions\"\n\n"
 image_enum_text = "enum class ImageAsset {\n"
 image_array_text = "constexpr const inline char* image_data[] {\n"
 image_size_text = "constexpr int image_sizes[] {\n"
-
 number_of_images = 0
+
+audio_enum_text = "enum class AudioAsset {\n"
+audio_array_text = "constexpr const inline char* audio_data[] {\n"
+audio_size_text = "constexpr int audio_sizes[] {\n"
+number_of_sounds = 0
 
 for (root, dirs, files) in os.walk("..\\assets"):
     for file in files:
@@ -27,18 +31,29 @@ for (root, dirs, files) in os.walk("..\\assets"):
             image_size_text += "\tsizeof(" + name + "),\n"
             number_of_images += 1
 
+        if extension == "wav":
+            audio_enum_text += "\t" + name.upper() + "_AUDIO,\n"
+            audio_array_text += "\t%s,\n"%name
+            audio_size_text += "\tsizeof(" + name + "),\n"
+            number_of_sounds += 1
+
 header_text += "#pragma clang diagnostic pop\n\n"
 
 image_enum_text += "};\n\n"
 header_text += image_enum_text
-
 image_array_text += "};\n\n"
 header_text += image_array_text
-
 image_size_text += "};\n\n"
 header_text += image_size_text
+header_text += "constexpr int NUMBER_OF_IMAGES = %s;\n\n\n"%number_of_images
 
-header_text += "constexpr int NUMBER_OF_IMAGES = %s;"%number_of_images
+audio_enum_text += "};\n\n"
+header_text += audio_enum_text
+audio_array_text += "};\n\n"
+header_text += audio_array_text
+audio_size_text += "};\n\n"
+header_text += audio_size_text
+header_text += "constexpr int NUMBER_OF_SOUNDS = %s;\n\n\n"%number_of_sounds
 
 with open("../src/game_assets.h", "w") as header:
     header.write(header_text)

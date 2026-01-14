@@ -19,6 +19,10 @@ constexpr inline char kerry[] {
 	#embed "..\assets\kerry.png"
 };
 
+constexpr inline char success[] { 
+	#embed "..\assets\success.wav"
+};
+
 constexpr inline char test_background[] { 
 	#embed "..\assets\test_background.png"
 };
@@ -51,3 +55,20 @@ constexpr int image_sizes[] {
 };
 
 constexpr int NUMBER_OF_IMAGES = 4;
+
+
+enum class AudioAsset {
+	SUCCESS_AUDIO,
+};
+
+constexpr const inline char* audio_data[] {
+	success,
+};
+
+constexpr int audio_sizes[] {
+	sizeof(success),
+};
+
+constexpr int NUMBER_OF_SOUNDS = 1;
+
+

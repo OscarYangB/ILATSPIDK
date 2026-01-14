@@ -1,5 +1,6 @@
 #include "platform_render.h"
 #include <SDL3/SDL.h>
+#include "SDL3/SDL_init.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
 #include "SDL3/SDL_video.h"
@@ -16,7 +17,7 @@ static SDL_Texture* loaded_sprites[NUMBER_OF_IMAGES] {};
 bool start_window() {
     SDL_SetAppMetadata("I Love All The Strange People I Don't Know", "0.1", "");
 
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return false;
     }

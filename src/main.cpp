@@ -1,6 +1,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
 #include "game_assets.h"
+#include "game_audio.h"
 #include "game_render.h"
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -42,6 +43,9 @@ void start() {
 								   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
 	ecs.emplace<Button>(button, button_hovered, button_clicked, nullptr);
 	ecs.emplace<NineSliceComponent>(button, u16{40}, u16{30}, u16{320}, u16{150});
+
+	init_audio();
+	play_audio(AudioAsset::SUCCESS_AUDIO);
 }
 
 void update() {
