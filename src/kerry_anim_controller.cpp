@@ -145,7 +145,7 @@ void update_animation() {
 		leg_timer -= 0.1;
 		leg_moving_index++; leg_moving_index %= 6;
 	}
-	auto view = ecs.view<Sprite, PlayerMovementComponent, Transform>();
+	auto view = ecs.view<SpriteComponent, PlayerMovementComponent, TransformComponent>();
 
 	for (auto [entity, sprite, movement, transform] : view.each()) {
 		std::array<u8, 5> sprite_order;

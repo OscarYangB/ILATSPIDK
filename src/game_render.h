@@ -5,11 +5,11 @@
 
 enum class ImageAsset;
 
-struct Transform {
+struct TransformComponent {
   Vector2 position;
 };
 
-struct Sprite {
+struct SpriteComponent {
   ImageAsset image_asset;
   u16 width;
   u16 height;
@@ -31,7 +31,7 @@ enum class HorizontalAnchor {
   CENTER,
 };
 
-struct AnchoredTransform {
+struct AnchoredTransformComponent {
   HorizontalAnchor x_anchor;
   VerticalAnchor y_anchor;
   Vector2 relative_position;

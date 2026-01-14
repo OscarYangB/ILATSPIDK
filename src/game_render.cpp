@@ -23,7 +23,7 @@ static float render_scale() {
 void render_system() {
 	start_render();
 
-	auto sprites = ecs.view<const Sprite, const Transform>(entt::exclude_t<PlayerMovementComponent>()); // Temporary exclusion
+	auto sprites = ecs.view<const SpriteComponent, const TransformComponent>(entt::exclude_t<PlayerMovementComponent>()); // Temporary exclusion
 	for (auto [entity, sprite, transform] : sprites.each()) {
 		Vector2 position = world_to_pixel(transform.position);
 		float width = sprite.render_width();
@@ -35,7 +35,7 @@ void render_system() {
 
 	update_animation(); // This is for a temporary test
 
-	auto ui_sprites = ecs.view<const Sprite, const AnchoredTransform>();
+	auto ui_sprites = ecs.view<const SpriteComponent, const AnchoredTransformComponent>();
 	for (auto [entity, sprite, transform] : ui_sprites.each()) {
 		// This seems quite bad. Check if theres a better way to do this in a query maybe
 		if (NineSliceComponent* slice = ecs.try_get<NineSliceComponent>(entity); slice != nullptr) {
@@ -60,7 +60,7 @@ Vector2 world_to_pixel(Vector2 in) {
 				   (-in.y + camera_position.y) * render_scale() + window_height() / 2.0f};
 }
 
-Vector2 AnchoredTransform::render_position() const  {
+Vector2 AnchoredTransformComponent::render_position() const  {
     float x = relative_position.x * window_scale();
 	float y = relative_position.y * window_scale();
 
@@ -87,18 +87,18 @@ Vector2 AnchoredTransform::render_position() const  {
 	return Vector2{x, y};
 }
 
-float Sprite::render_width() const {
+float SpriteComponent::render_width() const {
 	return width * render_scale();
 }
 
-float Sprite::render_height() const {
+float SpriteComponent::render_height() const {
 	return height * render_scale();
 }
 
-float AnchoredTransform::render_width() const {
+float AnchoredTransformComponent::render_width() const {
 	return width * window_scale();
 }
 
-float AnchoredTransform::render_height() const {
+float AnchoredTransformComponent::render_height() const {
 	return height * window_scale();
 }

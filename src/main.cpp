@@ -25,21 +25,21 @@ void button_clicked() {
 
 void start() {
 	const entt::entity entity = ecs.create();
-	ecs.emplace<Sprite>(entity, ImageAsset::KERRY_IMAGE, u16{200}, u16{300}, u8{12});
-	ecs.emplace<Transform>(entity, Vector2{0.0f, 0.0f});
+	ecs.emplace<SpriteComponent>(entity, ImageAsset::KERRY_IMAGE, u16{200}, u16{300}, u8{12});
+	ecs.emplace<TransformComponent>(entity, Vector2{0.0f, 0.0f});
 	ecs.emplace<PlayerMovementComponent>(entity, 200.f, CharacterDirection::DOWN);
 
 	const entt::entity entity2 = ecs.create();
-	ecs.emplace<Sprite>(entity2, ImageAsset::CAPTAIN_ORANGE_IMAGE, u16{200}, u16{300}, u8{12});
-	ecs.emplace<Transform>(entity2, Vector2{500.0f, 500.0f});
+	ecs.emplace<SpriteComponent>(entity2, ImageAsset::CAPTAIN_ORANGE_IMAGE, u16{200}, u16{300}, u8{12});
+	ecs.emplace<TransformComponent>(entity2, Vector2{500.0f, 500.0f});
 
 	const entt::entity background = ecs.create();
-	ecs.emplace<Sprite>(background, ImageAsset::TEST_BACKGROUND_IMAGE, u16{2339}, u16{1654}, u8{0});
-	ecs.emplace<Transform>(background, Vector2{-1500.0f, 1000.0f});
+	ecs.emplace<SpriteComponent>(background, ImageAsset::TEST_BACKGROUND_IMAGE, u16{2339}, u16{1654}, u8{0});
+	ecs.emplace<TransformComponent>(background, Vector2{-1500.0f, 1000.0f});
 
 	const entt::entity button = ecs.create();
-	ecs.emplace<Sprite>(button, ImageAsset::TEST_BUTTON_IMAGE, u16{400}, u16{200}, u8{0});
-	ecs.emplace<AnchoredTransform>(button, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
+	ecs.emplace<SpriteComponent>(button, ImageAsset::TEST_BUTTON_IMAGE, u16{400}, u16{200}, u8{0});
+	ecs.emplace<AnchoredTransformComponent>(button, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
 								   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
 	ecs.emplace<Button>(button, button_hovered, button_clicked, nullptr);
 	ecs.emplace<NineSliceComponent>(button, u16{40}, u16{30}, u16{320}, u16{150});

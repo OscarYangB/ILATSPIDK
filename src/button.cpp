@@ -5,7 +5,7 @@
 #include "game_input.h"
 
 void button_system() {
-	auto buttons = ecs.view<const Sprite, Button, const AnchoredTransform>();
+	auto buttons = ecs.view<const SpriteComponent, Button, const AnchoredTransformComponent>();
 
 	for (auto [entity, sprite, button, transform] : buttons.each()) {
 		Vector2 position = transform.render_position();
