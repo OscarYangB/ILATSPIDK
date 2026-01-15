@@ -3,7 +3,6 @@
 #include "SDL3/SDL_iostream.h"
 #include "SDL3/SDL_stdinc.h"
 #include "game_assets.h"
-#include <algorithm>
 
 SDL_AudioStream* audio_stream = nullptr;
 std::vector<PlayingAudio> playing_audio;
@@ -24,11 +23,13 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 		playing_audio[i].position += samples_to_play;
 	}
 
-	auto remove_if = std::remove_if(playing_audio.begin(), playing_audio.end(), [](PlayingAudio audio) {return audio.position == audio.length;});
-	for (auto iter = remove_if; iter != playing_audio.end(); iter++) {
-		SDL_free(iter->data);
-	}
-	playing_audio.erase(remove_if, playing_audio.end());
+	std::erase_if(playing_audio, [](PlayingAudio audio) {
+		if (audio.position == audio.length) {
+			SDL_free(audio.data);
+			return true;
+		}
+		return false;
+	});
 }
 
 // Could do reference counted loading. Maybe a component that keeps a file in memory if an entity needs it during its lifetime.
