@@ -23,7 +23,7 @@ static float render_scale() {
 void render_system() {
 	start_render();
 
-	auto sprites = ecs.view<const SpriteComponent, const TransformComponent>(entt::exclude_t<PlayerMovementComponent>()); // Temporary exclusion
+	auto sprites = ecs.view<const SpriteComponent, const TransformComponent>(entt::exclude_t<PlayerMovementComponent>()); // Clean this up
 	for (auto [entity, sprite, transform] : sprites.each()) {
 		Vector2 position = world_to_pixel(transform.position);
 		float width = sprite.render_width();
@@ -35,22 +35,24 @@ void render_system() {
 
 	update_animation(); // This is for a temporary test
 
-	auto ui_sprites = ecs.view<const SpriteComponent, const AnchoredTransformComponent>();
+	auto ui_sprites = ecs.view<const SpriteComponent, const AnchoredTransformComponent>(); // Can use component sorting to do render order here
 	for (auto [entity, sprite, transform] : ui_sprites.each()) {
-		// This seems quite bad. Check if theres a better way to do this in a query maybe
 		if (NineSliceComponent* slice = ecs.try_get<NineSliceComponent>(entity); slice != nullptr) {
 			Vector2 position = transform.render_position();
 			render_nine_slice(sprite.image_asset, position.x, position.y, transform.render_width(), transform.render_height(),
 							  sprite.atlas_index, sprite.width, sprite.height, slice->x, slice->y, slice->w, slice->h, window_scale());
-			continue;
+		} else {
+			Vector2 position = transform.render_position();
+			render_sprite(sprite.image_asset, position.x, position.y, transform.render_width(), transform.render_height(),
+						  sprite.atlas_index, sprite.width, sprite.height);
 		}
-
-		Vector2 position = transform.render_position();
-	    render_sprite(sprite.image_asset, position.x, position.y, transform.render_width(), transform.render_height(),
-					  sprite.atlas_index, sprite.width, sprite.height);
 	}
 
-	render_text("fuck", 500, 500, 255, 0, 0);
+	auto text_view = ecs.view<const TextComponent, const AnchoredTransformComponent>();
+	for (auto [entity, text, transform] : text_view.each()) {
+		Vector2 position = transform.render_position();
+		render_text(text.text, position.x, position.y, text.r, text.b, text.g, text.size * window_scale());
+	}
 
 	end_render();
 }

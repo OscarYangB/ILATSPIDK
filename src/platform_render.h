@@ -18,4 +18,4 @@ void render_nine_slice(ImageAsset image_asset, float x, float y, float w, float 
 int window_width();
 int window_height();
 
-void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b);
+void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b, u8 size);

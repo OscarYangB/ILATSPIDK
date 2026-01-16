@@ -50,6 +50,14 @@ struct NineSliceComponent {
 	u16 h;
 };
 
+struct TextComponent {
+	const char* text;
+	u8 r;
+	u8 g;
+	u8 b;
+	u8 size;
+};
+
 extern Vector2 camera_position;
 extern float camera_scale;
 

@@ -1,5 +1,6 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
+#include "entt/entity/fwd.hpp"
 #include "game_assets.h"
 #include "game_audio.h"
 #include "game_render.h"
@@ -24,7 +25,7 @@ void button_clicked() {
 }
 
 void start() {
-	const entt::entity entity = ecs.create();
+	const entt::entity entity = ecs.create(); // Use scopes here to initialize maybe
 	ecs.emplace<SpriteComponent>(entity, ImageAsset::KERRY_IMAGE, u16{200}, u16{300}, u8{12});
 	ecs.emplace<TransformComponent>(entity, Vector2{0.0f, 0.0f});
 	ecs.emplace<PlayerMovementComponent>(entity, 200.f, CharacterDirection::DOWN);
@@ -40,9 +41,14 @@ void start() {
 	const entt::entity button = ecs.create();
 	ecs.emplace<SpriteComponent>(button, ImageAsset::TEST_BUTTON_IMAGE, u16{400}, u16{200}, u8{0});
 	ecs.emplace<AnchoredTransformComponent>(button, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
-								   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
+										   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
 	ecs.emplace<Button>(button, button_hovered, button_clicked, nullptr);
 	ecs.emplace<NineSliceComponent>(button, u16{40}, u16{30}, u16{320}, u16{150});
+
+	const entt::entity text_entity = ecs.create();
+	ecs.emplace<TextComponent>(text_entity, "hello world", u8{255}, u8{0}, u8{0}, u8{100});
+	ecs.emplace<AnchoredTransformComponent>(text_entity, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
+										   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
 
 	init_audio();
 	play_audio(AudioAsset::SUCCESS_AUDIO);

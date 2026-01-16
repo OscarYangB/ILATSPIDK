@@ -125,11 +125,11 @@ int window_height() {
 	return h;
 }
 
-void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b) {
+void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b, u8 size) {
 	sdl_stb_prerendered_text text_render;
 
 	sdl_stb_font_cache font_cache;
-	font_cache.faceSize = 60;
+	font_cache.faceSize = size;
 	font_cache.bindRenderer(renderer);
 	font_cache.loadFont(atkinson_hyperlegible, sizeof atkinson_hyperlegible);
 	font_cache.renderTextToObject(&text_render, text);
