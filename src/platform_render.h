@@ -11,8 +11,8 @@ void destroy_window();
 
 void start_render();
 void end_render();
-void render_sprite(ImageAsset image_asset, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h);
-void render_nine_slice(ImageAsset image_asset, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h,
+void render_sprite(ImageAsset image_asset, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h);
+void render_nine_slice(ImageAsset image_asset, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
 					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale);
 
 int window_width();

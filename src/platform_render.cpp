@@ -68,23 +68,16 @@ void end_render() {
 	SDL_RenderPresent(renderer);
 }
 
-void render_sprite(ImageAsset image_asset, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h) {
+void render_sprite(ImageAsset image_asset, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h) {
 	SDL_Texture* texture = load_sprite(image_asset);
-
-	int atlas_x = (index * atlas_w) % texture->w;
-	int atlas_y = ((index * atlas_w) / texture->w) * atlas_h;
-	SDL_FRect from_rect = {(float)atlas_x, (float)atlas_y, (float)atlas_w, (float)atlas_h};
-	SDL_FRect to_rect = {x, y, w, h};
-
+	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
+	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
 }
 
-void render_nine_slice(ImageAsset image_asset, float x, float y, float w, float h, u8 index, u32 atlas_w, u32 atlas_h,
+void render_nine_slice(ImageAsset image_asset, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
 					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale) {
 	SDL_Texture* texture = load_sprite(image_asset);
-
-	int atlas_x = (index * atlas_w) % texture->w;
-	int atlas_y = ((index * atlas_w) / texture->w) * atlas_h;
 
 	float last_segment_width = (float)atlas_w - slice_x - slice_w;
 	float last_segment_height = (float)atlas_h - slice_y - slice_h;

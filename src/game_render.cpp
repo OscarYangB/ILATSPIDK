@@ -1,9 +1,8 @@
 #include "game_render.h"
-#include "entt/entity/fwd.hpp"
+#include "image_assets.h"
 #include "kerry_anim_controller.h"
 #include "platform_render.h"
 #include "game.h"
-#include "player_movement_controller.h"
 
 Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.0f; // Gameplay code can write to this
@@ -23,28 +22,37 @@ static float render_scale() {
 void render_system() {
 	start_render();
 
-	auto sprites = ecs.view<const SpriteComponent, const TransformComponent>(entt::exclude_t<PlayerMovementComponent>()); // Clean this up
-	for (auto [entity, sprite, transform] : sprites.each()) {
-		Vector2 position = world_to_pixel(transform.position);
-		float width = sprite.render_width();
-		float height = sprite.render_height();
-		if (position.x > window_width() || position.y > window_height()) continue; // Cull off screen stuff
-		if (position.x + width < 0.f || position.y + height < 0.f) continue;
-	    render_sprite(sprite.image_asset, position.x, position.y, width, height, sprite.atlas_index, sprite.width, sprite.height);
-	}
+	update_animation();
 
-	update_animation(); // This is for a temporary test
+	auto sprites = ecs.view<SpriteComponent>();
+	for (auto [entity, sprite] : sprites.each()) {
+		TransformComponent* transform = ecs.try_get<TransformComponent>(entity);
+		AnchoredTransformComponent* anchored_transform = ecs.try_get<AnchoredTransformComponent>(entity);
+		NineSliceComponent* nine_slice = ecs.try_get<NineSliceComponent>(entity);
 
-	auto ui_sprites = ecs.view<const SpriteComponent, const AnchoredTransformComponent>(); // Can use component sorting to do render order here
-	for (auto [entity, sprite, transform] : ui_sprites.each()) {
-		if (NineSliceComponent* slice = ecs.try_get<NineSliceComponent>(entity); slice != nullptr) {
-			Vector2 position = transform.render_position();
-			render_nine_slice(sprite.image_asset, position.x, position.y, transform.render_width(), transform.render_height(),
-							  sprite.atlas_index, sprite.width, sprite.height, slice->x, slice->y, slice->w, slice->h, window_scale());
-		} else {
-			Vector2 position = transform.render_position();
-			render_sprite(sprite.image_asset, position.x, position.y, transform.render_width(), transform.render_height(),
-						  sprite.atlas_index, sprite.width, sprite.height);
+		Vector2 position = anchored_transform ? anchored_transform->render_position() : world_to_pixel(transform->position);
+
+		AtlasIndex* data; int size;
+		sprite.renderable->draw(data, size);
+
+		for (int i = 0; i < size; i++) {
+			u16 index = static_cast<u16>(data[i]);
+			u16 atlas_x = atlas_data[index].x;
+			u16 atlas_y = atlas_data[index].y;
+			u16 atlas_w = atlas_data[index].w;
+			u16 atlas_h = atlas_data[index].h;
+			u16 render_w = anchored_transform ? anchored_transform->render_width() : atlas_w * render_scale();
+			u16 render_h = anchored_transform ? anchored_transform->render_height() : atlas_h * render_scale();
+
+			if (position.x > window_width() || position.y > window_height()) continue;
+			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
+
+			if (nine_slice) {
+				render_nine_slice(atlas_to_asset[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,
+								  nine_slice->x, nine_slice->y, nine_slice->w, nine_slice->h, window_scale());
+			} else {
+				render_sprite(atlas_to_asset[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h);
+			}
 		}
 	}
 
@@ -87,14 +95,6 @@ Vector2 AnchoredTransformComponent::render_position() const  {
 	}
 
 	return Vector2{x, y};
-}
-
-float SpriteComponent::render_width() const {
-	return width * render_scale();
-}
-
-float SpriteComponent::render_height() const {
-	return height * render_scale();
 }
 
 float AnchoredTransformComponent::render_width() const {

@@ -1,34 +1,60 @@
 #pragma once
 
+#include "image_assets.h"
 #include "vector2.h"
 #include "definitions.h"
+#include "entt/entt.hpp"
 
 enum class ImageAsset;
 
 struct TransformComponent {
-  Vector2 position;
+	Vector2 position = {0.f, 0.f};
+};
+
+struct Renderable : entt::type_list<void(AtlasIndex*&, int&), void(AtlasIndex& data, int& index)> {
+	template<typename Base>
+	struct type : Base {
+		void draw(AtlasIndex*& data, int& size) {
+			return entt::poly_call<0>(*this, data, size);
+		}
+
+		void write(AtlasIndex& data, int& index) {
+			return entt::poly_call<1>(*this, data, index);
+		}
+	};
+
+	template<typename Type>
+	using impl = entt::value_list<&Type::draw, &Type::write>;
+};
+
+template<int N>
+struct SpriteGroup {
+	std::array<AtlasIndex, N> array = {};
+
+	void draw(AtlasIndex*& data, int& size) {
+		data = array.data();
+		size = array.size();
+	}
+
+	void write(AtlasIndex& data, int& index) {
+		array[index] = data;
+	}
 };
 
 struct SpriteComponent {
-  ImageAsset image_asset;
-  u16 width;
-  u16 height;
-  u8 atlas_index;
-
-  float render_width() const;
-  float render_height() const;
+	entt::poly<Renderable> renderable;
 };
 
 enum class VerticalAnchor {
-  TOP,
-  BOTTOM,
-  CENTER,
+	TOP,
+	BOTTOM,
+	CENTER,
 };
 
 enum class HorizontalAnchor {
-  LEFT,
-  RIGHT,
-  CENTER,
+	LEFT,
+	RIGHT,
+	CENTER,
 };
 
 struct AnchoredTransformComponent {

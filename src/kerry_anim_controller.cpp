@@ -1,111 +1,9 @@
 #include "kerry_anim_controller.h"
 #include "game.h"
 #include "game_render.h"
+#include "image_assets.h"
 #include "player_movement_controller.h"
-#include "platform_render.h" // Should not use platform_render
 #include <array>
-
-// This entire file is disgusting dont look at it its just a test avert your eyes please
-enum KerryAnimation {
-	KERRY_FRONT_CAPE_1,
-	KERRY_FRONT_CAPE_2,
-	KERRY_FRONT_CAPE_3,
-	KERRY_FRONT_CAPE_4,
-	KERRY_FRONT_CAPE_5,
-	KERRY_FRONT_CAPE_6,
-	KERRY_FRONT_RIGHT_LEG_1,
-	KERRY_FRONT_RIGHT_LEG_2,
-	KERRY_FRONT_RIGHT_LEG_3,
-	KERRY_FRONT_RIGHT_LEG_4,
-	KERRY_FRONT_LEFT_LEG_1,
-	KERRY_FRONT_LEFT_LEG_2,
-	KERRY_FRONT_LEFT_LEG_3,
-	KERRY_FRONT_LEFT_LEG_4,
-	KERRY_FRONT_FLOWER_1,
-	KERRY_FRONT_FLOWER_2,
-	KERRY_FRONT_FLOWER_3,
-	KERRY_FRONT_FLOWER_4,
-	KERRY_FRONT_FLOWER_5,
-	KERRY_FRONT_FLOWER_6,
-	KERRY_FRONT_BODY_1,
-	KERRY_FRONT_BODY_2,
-	KERRY_FRONT_BODY_3,
-	KERRY_FRONT_BODY_BLINK,
-
-	KERRY_RIGHT_FLOWER_1,
-	KERRY_RIGHT_FLOWER_2,
-	KERRY_RIGHT_FLOWER_3,
-	KERRY_RIGHT_FLOWER_4,
-	KERRY_RIGHT_FLOWER_5,
-	KERRY_RIGHT_FLOWER_6,
-	KERRY_RIGHT_RIGHT_LEG_1,
-	KERRY_RIGHT_RIGHT_LEG_2,
-	KERRY_RIGHT_RIGHT_LEG_3,
-	KERRY_RIGHT_RIGHT_LEG_4,
-	KERRY_RIGHT_LEFT_LEG_1,
-	KERRY_RIGHT_LEFT_LEG_2,
-	KERRY_RIGHT_LEFT_LEG_3,
-	KERRY_RIGHT_LEFT_LEG_4,
-	KERRY_RIGHT_BODY_1,
-	KERRY_RIGHT_BODY_2,
-	KERRY_RIGHT_BODY_3,
-	KERRY_RIGHT_BODY_BLINK,
-	KERRY_RIGHT_CAPE_1,
-	KERRY_RIGHT_CAPE_2,
-	KERRY_RIGHT_CAPE_3,
-	KERRY_RIGHT_CAPE_4,
-	KERRY_RIGHT_CAPE_5,
-	KERRY_RIGHT_CAPE_6,
-
-	KERRY_LEFT_FLOWER_1,
-	KERRY_LEFT_FLOWER_2,
-	KERRY_LEFT_FLOWER_3,
-	KERRY_LEFT_FLOWER_4,
-	KERRY_LEFT_FLOWER_5,
-	KERRY_LEFT_FLOWER_6,
-	KERRY_LEFT_RIGHT_LEG_1,
-	KERRY_LEFT_RIGHT_LEG_2,
-	KERRY_LEFT_RIGHT_LEG_3,
-	KERRY_LEFT_RIGHT_LEG_4,
-	KERRY_LEFT_LEFT_LEG_1,
-	KERRY_LEFT_LEFT_LEG_2,
-	KERRY_LEFT_LEFT_LEG_3,
-	KERRY_LEFT_LEFT_LEG_4,
-	KERRY_LEFT_BODY_1,
-	KERRY_LEFT_BODY_2,
-	KERRY_LEFT_BODY_3,
-	KERRY_LEFT_BODY_BLINK,
-	KERRY_LEFT_CAPE_1,
-	KERRY_LEFT_CAPE_2,
-	KERRY_LEFT_CAPE_3,
-	KERRY_LEFT_CAPE_4,
-	KERRY_LEFT_CAPE_5,
-	KERRY_LEFT_CAPE_6,
-
-	KERRY_BACK_FLOWER_1,
-	KERRY_BACK_FLOWER_2,
-	KERRY_BACK_FLOWER_3,
-	KERRY_BACK_FLOWER_4,
-	KERRY_BACK_FLOWER_5,
-	KERRY_BACK_FLOWER_6,
-	KERRY_BACK_BODY_1,
-	KERRY_BACK_BODY_2,
-	KERRY_BACK_BODY_3,
-	KERRY_BACK_RIGHT_LEG_1,
-	KERRY_BACK_RIGHT_LEG_2,
-	KERRY_BACK_RIGHT_LEG_3,
-	KERRY_BACK_RIGHT_LEG_4,
-	KERRY_BACK_LEFT_LEG_1,
-	KERRY_BACK_LEFT_LEG_2,
-	KERRY_BACK_LEFT_LEG_3,
-	KERRY_BACK_LEFT_LEG_4,
-	KERRY_BACK_CAPE_1,
-	KERRY_BACK_CAPE_2,
-	KERRY_BACK_CAPE_3,
-	KERRY_BACK_CAPE_4,
-	KERRY_BACK_CAPE_5,
-	KERRY_BACK_CAPE_6,
-};
 
 static u8 body_index;
 static u8 leg_idle_index;
@@ -145,7 +43,7 @@ void update_animation() {
 		leg_timer -= 0.1;
 		leg_moving_index++; leg_moving_index %= 6;
 	}
-	auto view = ecs.view<SpriteComponent, PlayerMovementComponent, TransformComponent>();
+	auto view = ecs.view<SpriteComponent, const PlayerMovementComponent, const TransformComponent>();
 
 	for (auto [entity, sprite, movement, transform] : view.each()) {
 		std::array<u8, 5> sprite_order;
@@ -159,44 +57,42 @@ void update_animation() {
 
 		switch(movement.direction) {
 			case CharacterDirection::UP: {
-				body_sprite = KERRY_BACK_BODY_1 + body_index;
-				left_leg_sprite = KERRY_BACK_LEFT_LEG_1 + get_moving_left_leg_sprite();
-				right_leg_sprite = KERRY_BACK_RIGHT_LEG_1 + get_moving_right_leg_sprite();
-				flower_sprite = KERRY_BACK_FLOWER_1 + wind_index;
-				cape_sprite = KERRY_BACK_CAPE_1 + wind_index;
+				body_sprite = static_cast<u32>(AtlasIndex::KERRY_UP_BODY_1) + body_index;
+				left_leg_sprite = static_cast<u32>(AtlasIndex::KERRY_UP_LEFT_LEG_1) + get_moving_left_leg_sprite();
+				right_leg_sprite = static_cast<u32>(AtlasIndex::KERRY_UP_RIGHT_LEG_1) + get_moving_right_leg_sprite();
+				flower_sprite = static_cast<u32>(AtlasIndex::KERRY_UP_FLOWER_1) + wind_index;
+				cape_sprite = static_cast<u32>(AtlasIndex::KERRY_UP_CAPE_1) + wind_index;
 				sprite_order = {flower_sprite, body_sprite, left_leg_sprite, right_leg_sprite, cape_sprite};
 			} break;
 			case CharacterDirection::DOWN: {
-				body_sprite = KERRY_FRONT_BODY_1 + body_index;
-				left_leg_sprite = KERRY_FRONT_LEFT_LEG_1 + get_moving_left_leg_sprite();
-				right_leg_sprite = KERRY_FRONT_RIGHT_LEG_1 + get_moving_right_leg_sprite();
-				flower_sprite = KERRY_FRONT_FLOWER_1 + wind_index;
-				cape_sprite = KERRY_FRONT_CAPE_1 + wind_index;
+				body_sprite = static_cast<u32>(AtlasIndex::KERRY_DOWN_BODY_1) + body_index;
+				left_leg_sprite = static_cast<u32>(AtlasIndex::KERRY_DOWN_LEFT_LEG_1) + get_moving_left_leg_sprite();
+				right_leg_sprite = static_cast<u32>(AtlasIndex::KERRY_DOWN_RIGHT_LEG_1) + get_moving_right_leg_sprite();
+				flower_sprite = static_cast<u32>(AtlasIndex::KERRY_DOWN_FLOWER_1) + wind_index;
+				cape_sprite = static_cast<u32>(AtlasIndex::KERRY_DOWN_CAPE_1) + wind_index;
 				sprite_order = {cape_sprite, left_leg_sprite, right_leg_sprite, flower_sprite, body_sprite};
 			} break;
 			case CharacterDirection::LEFT: {
-				body_sprite = KERRY_LEFT_BODY_1 + body_index;
-				left_leg_sprite = KERRY_LEFT_LEFT_LEG_1 + get_moving_left_leg_sprite();
-				right_leg_sprite = KERRY_LEFT_RIGHT_LEG_1 + get_moving_right_leg_sprite();
-				flower_sprite = KERRY_LEFT_FLOWER_1 + wind_index;
-				cape_sprite = KERRY_LEFT_CAPE_1 + wind_index;
+				body_sprite = static_cast<u32>(AtlasIndex::KERRY_LEFT_BODY_1) + body_index;
+				left_leg_sprite = static_cast<u32>(AtlasIndex::KERRY_LEFT_LEFT_LEG_1) + get_moving_left_leg_sprite();
+				right_leg_sprite = static_cast<u32>(AtlasIndex::KERRY_LEFT_RIGHT_LEG_1) + get_moving_right_leg_sprite();
+				flower_sprite = static_cast<u32>(AtlasIndex::KERRY_LEFT_FLOWER_1) + wind_index;
+				cape_sprite = static_cast<u32>(AtlasIndex::KERRY_LEFT_CAPE_1) + wind_index;
 				sprite_order = {flower_sprite, left_leg_sprite, right_leg_sprite, body_sprite, cape_sprite};
 			} break;
 			case CharacterDirection::RIGHT: {
-				body_sprite = KERRY_RIGHT_BODY_1 + body_index;
-				left_leg_sprite = KERRY_RIGHT_LEFT_LEG_1 + get_moving_left_leg_sprite();
-				right_leg_sprite = KERRY_RIGHT_RIGHT_LEG_1 + get_moving_right_leg_sprite();
-				flower_sprite = KERRY_RIGHT_FLOWER_1 + wind_index;
-				cape_sprite = KERRY_RIGHT_CAPE_1 + wind_index;
+				body_sprite = static_cast<u32>(AtlasIndex::KERRY_RIGHT_BODY_1) + body_index;
+				left_leg_sprite = static_cast<u32>(AtlasIndex::KERRY_RIGHT_LEFT_LEG_1) + get_moving_left_leg_sprite();
+				right_leg_sprite = static_cast<u32>(AtlasIndex::KERRY_RIGHT_RIGHT_LEG_1) + get_moving_right_leg_sprite();
+				flower_sprite = static_cast<u32>(AtlasIndex::KERRY_RIGHT_FLOWER_1) + wind_index;
+				cape_sprite = static_cast<u32>(AtlasIndex::KERRY_RIGHT_CAPE_1) + wind_index;
 				sprite_order = {flower_sprite, left_leg_sprite, right_leg_sprite, body_sprite, cape_sprite};
 			} break;
 		}
 
-		for (u8 index : sprite_order) {
-			Vector2 position = world_to_pixel(transform.position);
-			float width = sprite.render_width();
-			float height = sprite.render_height();
-			render_sprite(sprite.image_asset, position.x, position.y, width, height, index, sprite.width, sprite.height);
+		for (int i = 0; i < sprite_order.size(); i++) {
+			AtlasIndex index = static_cast<AtlasIndex>(sprite_order[i]);
+			sprite.renderable->write(index, i);
 		}
 	}
 }

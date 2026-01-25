@@ -1,9 +1,9 @@
 #pragma once
 
 struct Button {
-	void (*on_hover)();
-	void (*on_click)();
-	void (*on_unhover)();
+	void (*on_hover)() = nullptr;
+	void (*on_click)() = nullptr;
+	void (*on_unhover)() = nullptr;
 
 	bool is_hovered;
 	bool is_clicked;

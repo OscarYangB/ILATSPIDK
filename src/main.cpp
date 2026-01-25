@@ -1,6 +1,5 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
-#include "entt/core/type_traits.hpp"
 #include "image_assets.h"
 #include "audio_assets.h"
 #include "game_audio.h"
@@ -15,30 +14,6 @@
 #include "button.h"
 #include "player_movement_controller.h"
 
-// EXPERIMENT WITH COMPILE TIME POLYMORPHISM. NOT ACTUALLY USED
-struct Renderable : entt::type_list<void(int*&, int&)> {
-	template<typename Base>
-	struct type : Base {
-		void draw(int*& data, int& size) {
-			return entt::poly_call<0>(*this, data, size);
-		}
-	};
-
-	template<typename Type>
-	using impl = entt::value_list<&Type::draw>;
-};
-
-template<int N>
-struct TemplateStruct {
-	std::array<int, N> array = {};
-
-	void draw(int*& data, int& size) {
-		data = array.data();
-		size = array.size();
-	}
-};
-// END EXPERIMENT
-
 static u64 start_frame_time = 0.0;
 
 void button_hovered() {
@@ -49,41 +24,39 @@ void button_clicked() {
 	std::cout << "button clicked\n";
 }
 
-//using id = entt::ident<TemplateStruct<1>, TemplateStruct<5>>;
-
 void start() {
-	const entt::entity entity = ecs.create(); // Use scopes here to initialize maybe
-	ecs.emplace<SpriteComponent>(entity, ImageAsset::KERRY_IMAGE, u16{200}, u16{300}, u8{12});
-	ecs.emplace<TransformComponent>(entity, Vector2{0.0f, 0.0f});
-	ecs.emplace<PlayerMovementComponent>(entity, 200.f, CharacterDirection::DOWN);
-
-	const entt::entity entity2 = ecs.create();
-	ecs.emplace<SpriteComponent>(entity2, ImageAsset::CAPTAIN_ORANGE_IMAGE, u16{200}, u16{300}, u8{12});
-	ecs.emplace<TransformComponent>(entity2, Vector2{500.0f, 500.0f});
-
-	const entt::entity background = ecs.create();
-	ecs.emplace<SpriteComponent>(background, ImageAsset::TEST_BACKGROUND_IMAGE, u16{2339}, u16{1654}, u8{0});
-	ecs.emplace<TransformComponent>(background, Vector2{-1500.0f, 1000.0f});
-
-	const entt::entity button = ecs.create();
-	ecs.emplace<SpriteComponent>(button, ImageAsset::TEST_BUTTON_IMAGE, u16{400}, u16{200}, u8{0});
-	ecs.emplace<AnchoredTransformComponent>(button, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
-										   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
-	ecs.emplace<Button>(button, button_hovered, button_clicked, nullptr);
-	ecs.emplace<NineSliceComponent>(button, u16{40}, u16{30}, u16{320}, u16{150});
-
-	const entt::entity text_entity = ecs.create();
-	ecs.emplace<TextComponent>(text_entity, "hello world", u8{255}, u8{0}, u8{0}, u8{100});
-	ecs.emplace<AnchoredTransformComponent>(text_entity, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
-											Vector2{0.0f, 0.0f}, u16{800}, u16{400});
-	ecs.emplace<entt::poly<Renderable>>(text_entity, TemplateStruct<4>());
-
-	auto view = ecs.view<entt::poly<Renderable>, TextComponent>();
-	for (auto [entity, renderable, text] : view.each()) {
-		int* data;
-		int size = -2;
-		renderable->draw(data, size);
-		std::cout << "\n\n\n" << std::to_string(size) << "\n";
+	{
+		const entt::entity entity = ecs.create();
+		auto& sprite = ecs.emplace<SpriteComponent>(entity);
+		sprite.renderable = {SpriteGroup<5>{}};
+		ecs.emplace<TransformComponent>(entity);
+		auto& movement = ecs.emplace<PlayerMovementComponent>(entity);
+		movement.speed = 200.f;
+	}
+	{
+		// const entt::entity background = ecs.create();
+		// auto& sprite = ecs.emplace<SpriteComponent>(background);
+		// sprite.renderable = {SpriteGroup<1>{AtlasIndex::TEST_BACKGROUND}};
+		// auto& transform = ecs.emplace<TransformComponent>(background);
+		// transform.position = Vector2{-1500.0f, 1000.0f};
+	}
+	{
+		const entt::entity entity = ecs.create();
+		auto& sprite = ecs.emplace<SpriteComponent>(entity);
+		sprite.renderable = {SpriteGroup<1>{AtlasIndex::TEST_BUTTON}};
+		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+		transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = 800; transform.height = 400;
+		auto& button = ecs.emplace<Button>(entity);
+		button.on_hover = button_hovered; button.on_click = button_clicked;
+		auto& nine = ecs.emplace<NineSliceComponent>(entity);
+		nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
+	}
+	{
+		const entt::entity entity = ecs.create();
+		auto& text = ecs.emplace<TextComponent>(entity);
+		text.text = "hello world"; text.r = 255; text.g = 0; text.b = 100; text.size = 100;
+		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+		transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = 800; transform.height = 400;
 	}
 
 	init_audio();
