@@ -4,7 +4,7 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
 #include "SDL3/SDL_video.h"
-#include "game_assets.h"
+#include "image_assets.h"
 #include <cstdlib>
 #define SDL_STB_FONT_IMPL
 #include "../external/sdl-stb-font/sdlStbFont.h"

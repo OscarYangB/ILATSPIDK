@@ -2,7 +2,7 @@
 #include "SDL3/SDL_audio.h"
 #include "SDL3/SDL_iostream.h"
 #include "SDL3/SDL_stdinc.h"
-#include "game_assets.h"
+#include "audio_assets.h"
 
 SDL_AudioStream* audio_stream = nullptr;
 std::vector<PlayingAudio> playing_audio;

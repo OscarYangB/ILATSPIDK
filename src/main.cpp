@@ -1,7 +1,8 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
-#include "entt/entity/fwd.hpp"
-#include "game_assets.h"
+#include "entt/core/type_traits.hpp"
+#include "image_assets.h"
+#include "audio_assets.h"
 #include "game_audio.h"
 #include "game_render.h"
 #include <SDL3/SDL.h>
@@ -14,6 +15,30 @@
 #include "button.h"
 #include "player_movement_controller.h"
 
+// EXPERIMENT WITH COMPILE TIME POLYMORPHISM. NOT ACTUALLY USED
+struct Renderable : entt::type_list<void(int*&, int&)> {
+	template<typename Base>
+	struct type : Base {
+		void draw(int*& data, int& size) {
+			return entt::poly_call<0>(*this, data, size);
+		}
+	};
+
+	template<typename Type>
+	using impl = entt::value_list<&Type::draw>;
+};
+
+template<int N>
+struct TemplateStruct {
+	std::array<int, N> array = {};
+
+	void draw(int*& data, int& size) {
+		data = array.data();
+		size = array.size();
+	}
+};
+// END EXPERIMENT
+
 static u64 start_frame_time = 0.0;
 
 void button_hovered() {
@@ -23,6 +48,8 @@ void button_hovered() {
 void button_clicked() {
 	std::cout << "button clicked\n";
 }
+
+//using id = entt::ident<TemplateStruct<1>, TemplateStruct<5>>;
 
 void start() {
 	const entt::entity entity = ecs.create(); // Use scopes here to initialize maybe
@@ -48,7 +75,16 @@ void start() {
 	const entt::entity text_entity = ecs.create();
 	ecs.emplace<TextComponent>(text_entity, "hello world", u8{255}, u8{0}, u8{0}, u8{100});
 	ecs.emplace<AnchoredTransformComponent>(text_entity, HorizontalAnchor::CENTER, VerticalAnchor::BOTTOM,
-										   Vector2{0.0f, 0.0f}, u16{800}, u16{400});
+											Vector2{0.0f, 0.0f}, u16{800}, u16{400});
+	ecs.emplace<entt::poly<Renderable>>(text_entity, TemplateStruct<4>());
+
+	auto view = ecs.view<entt::poly<Renderable>, TextComponent>();
+	for (auto [entity, renderable, text] : view.each()) {
+		int* data;
+		int size = -2;
+		renderable->draw(data, size);
+		std::cout << "\n\n\n" << std::to_string(size) << "\n";
+	}
 
 	init_audio();
 	play_audio(AudioAsset::SUCCESS_AUDIO);
