@@ -19,7 +19,7 @@ static float render_scale() {
 	return camera_scale * window_scale();
 }
 
-void render_system() {
+void update_render() {
 	start_render();
 
 	update_animation();

@@ -4,7 +4,7 @@
 #include "game.h"
 #include "game_input.h"
 
-void button_system() {
+void update_button() {
 	auto buttons = ecs.view<const SpriteComponent, Button, const AnchoredTransformComponent>();
 
 	for (auto [entity, sprite, button, transform] : buttons.each()) {

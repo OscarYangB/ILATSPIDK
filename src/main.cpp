@@ -65,31 +65,10 @@ void start() {
 
 void update() {
 	update_input();
-	button_system();
+	update_button();
 	update_movement();
 	update_sprite_resources();
-	render_system();
-
-	// TO REMOVE--this is just to test moving the camera
-	// if (input_held(UP)) {
-	// 	camera_position.y += 300.0f * delta_time;
-	// }
-	// if (input_held(LEFT)) {
-	// 	camera_position.x -= 300.0f * delta_time;
-	// }
-	// if (input_held(DOWN)) {
-	// 	camera_position.y -= 300.0f * delta_time;
-	// }
-	// if (input_held(RIGHT)) {
-	// 	camera_position.x += 300.0f * delta_time;
-	// }
-	if (input_held(INTERACT)) {
-		camera_scale += 0.5f * delta_time;
-	}
-	if (input_held(INVENTORY)) {
-		camera_scale -= 0.5f * delta_time;
-	}
-
+	update_render();
 	input_end_frame();
 }
 
@@ -127,8 +106,6 @@ int main(int argc, char* argv[]) {
         }
 
         update();
-
-        // Do game logic, present a frame, etc.
     }
 
 	destroy_window();

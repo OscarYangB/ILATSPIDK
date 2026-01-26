@@ -87,6 +87,6 @@ struct TextComponent {
 extern Vector2 camera_position;
 extern float camera_scale;
 
-void render_system();
+void update_render();
 Vector2 world_to_pixel(Vector2 in);
 void update_sprite_resources();

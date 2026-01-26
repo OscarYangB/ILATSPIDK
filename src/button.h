@@ -9,4 +9,4 @@ struct Button {
 	bool is_clicked;
 };
 
-void button_system();
+void update_button();
