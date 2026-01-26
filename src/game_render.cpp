@@ -1,5 +1,4 @@
 #include "game_render.h"
-#include "entt/entity/fwd.hpp"
 #include "image_assets.h"
 #include "kerry_anim_controller.h"
 #include "platform_render.h"
