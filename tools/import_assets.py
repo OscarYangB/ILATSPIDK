@@ -27,7 +27,7 @@ atlas_struct_text += "int h;\n"
 atlas_struct_text += "};\n\n"
 atlas_enum_text = "enum class AtlasIndex {\n"
 atlas_data_text = "constexpr AtlasData atlas_data[] {\n"
-atlas_to_image_text = "constexpr ImageAsset atlas_to_asset[] {"
+atlas_to_image_text = "constexpr ImageAsset atlas_to_asset[] {\n"
 
 audio_enum_text = "enum class AudioAsset {\n"
 audio_array_text = "constexpr const inline char* audio_data[] {\n"
@@ -95,7 +95,8 @@ image_file_text += atlas_enum_text
 image_file_text += atlas_struct_text
 atlas_data_text += "};\n\n"
 image_file_text += atlas_data_text
-atlas_to_image_text += "};\n\n"
+atlas_to_image_text += "};\n"
+atlas_to_image_text += "constexpr int atlas_to_image_index(AtlasIndex atlas_index) { return static_cast<int>(atlas_to_asset[static_cast<int>(atlas_index)]); }\n\n"
 image_file_text += atlas_to_image_text
 
 audio_enum_text += "};\n\n"

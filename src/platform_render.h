@@ -15,6 +15,9 @@ void render_sprite(ImageAsset image_asset, float from_x, float from_y, float fro
 void render_nine_slice(ImageAsset image_asset, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
 					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale);
 
+void load_sprite(int index);
+void unload_sprite(int index);
+
 int window_width();
 int window_height();
 

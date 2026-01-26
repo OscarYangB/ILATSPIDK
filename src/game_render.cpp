@@ -1,4 +1,5 @@
 #include "game_render.h"
+#include "entt/entity/fwd.hpp"
 #include "image_assets.h"
 #include "kerry_anim_controller.h"
 #include "platform_render.h"
@@ -63,6 +64,27 @@ void render_system() {
 	}
 
 	end_render();
+}
+
+void update_sprite_resources() { // Going to load/unload the textures based on what existing entities need. Watch out--could become a performance concern
+	bool is_loaded[NUMBER_OF_IMAGES];
+	auto view = ecs.view<SpriteComponent>();
+
+	for (auto [entity, sprite] : view.each()) {
+		AtlasIndex* index; int size;
+		sprite.renderable->draw(index, size);
+		for (int i = 0; i < size; i++) {
+			is_loaded[atlas_to_image_index(index[i])] = true;
+		}
+	}
+
+	for (int i = 0; i < sizeof is_loaded; i++) {
+		if (is_loaded[i]) {
+			load_sprite(i);
+		} else {
+			unload_sprite(i);
+		}
+	}
 }
 
 Vector2 world_to_pixel(Vector2 in) {

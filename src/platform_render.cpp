@@ -37,27 +37,31 @@ void destroy_window() {
     SDL_Quit();
 }
 
-// Lazy load the textures into memory for now.
-// Could be interesting to do some sort of reference counting
-// There could be a component to async load all the resources an entity needs
-static SDL_Texture* load_sprite(ImageAsset image_asset) {
-	u8 image_index = static_cast<u8>(image_asset);
-
-	if (loaded_sprites[image_index] == nullptr) {
-		SDL_IOStream* stream = SDL_IOFromConstMem(image_data[image_index], image_sizes[image_index]);
-		SDL_Surface* surface = SDL_LoadPNG_IO(stream, true);
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-		SDL_DestroySurface(surface);
-		loaded_sprites[image_index] = texture;
+// Should probably be async
+void load_sprite(int index) {
+	if (loaded_sprites[index] != nullptr) {
+		return; // Sprite already loaded
 	}
 
+	SDL_IOStream* stream = SDL_IOFromConstMem(image_data[index], image_sizes[index]);
+	SDL_Surface* surface = SDL_LoadPNG_IO(stream, true);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_DestroySurface(surface);
+	loaded_sprites[index] = texture;
+}
+
+static SDL_Texture* get_sprite(ImageAsset image_asset) {
+	u8 image_index = static_cast<u8>(image_asset);
 	return loaded_sprites[image_index];
 }
 
-static void unload_sprite(ImageAsset image_asset) {
-	u8 image_index = static_cast<u8>(image_asset);
-	SDL_DestroyTexture(loaded_sprites[image_index]);
-	loaded_sprites[image_index] = nullptr;
+void unload_sprite(int index) {;
+	if (loaded_sprites[index] == nullptr) {
+		return; // Sprite wasn't loaded
+	}
+
+	SDL_DestroyTexture(loaded_sprites[index]);
+	loaded_sprites[index] = nullptr;
 }
 
 void start_render() {
@@ -69,7 +73,8 @@ void end_render() {
 }
 
 void render_sprite(ImageAsset image_asset, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h) {
-	SDL_Texture* texture = load_sprite(image_asset);
+	SDL_Texture* texture = get_sprite(image_asset);
+	if (texture == nullptr) return;
 	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
 	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
@@ -77,7 +82,8 @@ void render_sprite(ImageAsset image_asset, float from_x, float from_y, float fro
 
 void render_nine_slice(ImageAsset image_asset, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
 					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale) {
-	SDL_Texture* texture = load_sprite(image_asset);
+	SDL_Texture* texture = get_sprite(image_asset);
+	if (texture == nullptr) return;
 
 	float last_segment_width = (float)atlas_w - slice_x - slice_w;
 	float last_segment_height = (float)atlas_h - slice_y - slice_h;

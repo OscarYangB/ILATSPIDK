@@ -271,7 +271,8 @@ constexpr AtlasData atlas_data[] {
 	{800, 2700, 200, 300},
 };
 
-constexpr ImageAsset atlas_to_asset[] {	ImageAsset::CAPTAIN_ORANGE_IMAGE,
+constexpr ImageAsset atlas_to_asset[] {
+	ImageAsset::CAPTAIN_ORANGE_IMAGE,
 	ImageAsset::KERRY_IMAGE,
 	ImageAsset::TEST_BACKGROUND_IMAGE,
 	ImageAsset::TEST_BUTTON_IMAGE,
@@ -371,4 +372,5 @@ constexpr ImageAsset atlas_to_asset[] {	ImageAsset::CAPTAIN_ORANGE_IMAGE,
 	ImageAsset::TEST_ATLAS_IMAGE,
 	ImageAsset::TEST_ATLAS_IMAGE,
 };
+constexpr int atlas_to_image_index(AtlasIndex atlas_index) { return static_cast<int>(atlas_to_asset[static_cast<int>(atlas_index)]); }
 

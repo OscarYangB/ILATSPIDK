@@ -25,7 +25,7 @@ void button_clicked() {
 }
 
 void start() {
-	{
+	{ // Kerry
 		const entt::entity entity = ecs.create();
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
 		sprite.renderable = {SpriteGroup<5>{}};
@@ -33,14 +33,14 @@ void start() {
 		auto& movement = ecs.emplace<PlayerMovementComponent>(entity);
 		movement.speed = 200.f;
 	}
-	{
+	{ // Background
 		// const entt::entity background = ecs.create();
 		// auto& sprite = ecs.emplace<SpriteComponent>(background);
 		// sprite.renderable = {SpriteGroup<1>{AtlasIndex::TEST_BACKGROUND}};
 		// auto& transform = ecs.emplace<TransformComponent>(background);
 		// transform.position = Vector2{-1500.0f, 1000.0f};
 	}
-	{
+	{ // Button
 		const entt::entity entity = ecs.create();
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
 		sprite.renderable = {SpriteGroup<1>{AtlasIndex::TEST_BUTTON}};
@@ -51,7 +51,7 @@ void start() {
 		auto& nine = ecs.emplace<NineSliceComponent>(entity);
 		nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
 	}
-	{
+	{ // Text
 		const entt::entity entity = ecs.create();
 		auto& text = ecs.emplace<TextComponent>(entity);
 		text.text = "hello world"; text.r = 255; text.g = 0; text.b = 100; text.size = 100;
@@ -67,6 +67,7 @@ void update() {
 	update_input();
 	button_system();
 	update_movement();
+	update_sprite_resources();
 	render_system();
 
 	// TO REMOVE--this is just to test moving the camera
@@ -108,6 +109,7 @@ int main(int argc, char* argv[]) {
 		const u64 frame_time = 8000000; // In nanoseconds
 		const u64 time_elapsed = SDL_GetTicksNS() - start_frame_time;
 		if (time_elapsed < frame_time) {
+			//std::cout << "sleeping for: " + std::to_string(frame_time - time_elapsed);
 			SDL_DelayNS(frame_time - time_elapsed);
 		}
 

@@ -89,3 +89,4 @@ extern float camera_scale;
 
 void render_system();
 Vector2 world_to_pixel(Vector2 in);
+void update_sprite_resources();
