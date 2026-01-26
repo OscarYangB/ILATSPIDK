@@ -2,15 +2,15 @@
 #include "SDL3/SDL_timer.h"
 #include "image_assets.h"
 #include "audio_assets.h"
-#include "game_audio.h"
-#include "game_render.h"
+#include "audio.h"
+#include "render.h"
 #include <SDL3/SDL.h>
 #include <iostream>
 #include <entt/entt.hpp>
 #include <SDL3/SDL_surface.h>
 #include "game.h"
 #include "platform_render.h"
-#include "game_input.h"
+#include "input.h"
 #include "button.h"
 #include "player_movement_controller.h"
 

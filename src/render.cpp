@@ -1,4 +1,4 @@
-#include "game_render.h"
+#include "render.h"
 #include "image_assets.h"
 #include "kerry_anim_controller.h"
 #include "platform_render.h"

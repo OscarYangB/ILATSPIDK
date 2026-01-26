@@ -1,7 +1,7 @@
 #include "player_movement_controller.h"
 #include "game.h"
-#include "game_input.h"
-#include "game_render.h"
+#include "input.h"
+#include "render.h"
 
 void update_movement() {
 	auto view = ecs.view<TransformComponent, PlayerMovementComponent>();

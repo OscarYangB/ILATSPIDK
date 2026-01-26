@@ -1,6 +1,6 @@
 #include "kerry_anim_controller.h"
 #include "game.h"
-#include "game_render.h"
+#include "render.h"
 #include "image_assets.h"
 #include "player_movement_controller.h"
 #include <array>

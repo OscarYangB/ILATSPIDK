@@ -1,8 +1,8 @@
 #include "button.h"
 #include "entt/entt.hpp"
-#include "game_render.h"
+#include "render.h"
 #include "game.h"
-#include "game_input.h"
+#include "input.h"
 
 void update_button() {
 	auto buttons = ecs.view<const SpriteComponent, Button, const AnchoredTransformComponent>();
