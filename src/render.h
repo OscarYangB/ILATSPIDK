@@ -9,6 +9,9 @@ enum class ImageAsset;
 
 struct TransformComponent {
 	Vector2 position = {0.f, 0.f};
+
+	bool move(const entt::entity& entity_to_move, const Vector2& new_position);
+	bool can_move(const entt::entity& entity_to_move, const Vector2& new_position);
 };
 
 struct Renderable : entt::type_list<void(AtlasIndex*&, int&), void(AtlasIndex& data, int& index)> {

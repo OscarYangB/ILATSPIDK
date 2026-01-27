@@ -2,23 +2,27 @@
 #include <cmath>
 #include <stdexcept>
 
-Vector2 Vector2::operator+(const Vector2& other) {
+bool Vector2::operator==(const Vector2& other) const {
+	return x == other.x && y == other.y;
+}
+
+Vector2 Vector2::operator+(const Vector2& other) const {
 	return Vector2{x + other.x, y + other.y};
 }
 
-Vector2 Vector2::operator-(const Vector2& other) {
+Vector2 Vector2::operator-(const Vector2& other) const {
 	return Vector2{x - other.x, y - other.y};
 }
 
-float Vector2::operator*(const Vector2& other) {
+float Vector2::operator*(const Vector2& other) const {
 	return x * other.x + y * other.y;
 }
 
-Vector2 Vector2::operator*(const float other) {
+Vector2 Vector2::operator*(const float other) const {
 	return Vector2{x * other, y * other};
 }
 
-Vector2 Vector2::operator/(const float other) {
+Vector2 Vector2::operator/(const float other) const {
 	return Vector2{x / other, y / other};
 }
 

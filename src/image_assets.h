@@ -19,6 +19,10 @@ constexpr inline char kerry[] {
 	#embed "..\assets\kerry.png"
 };
 
+constexpr inline char table[] { 
+	#embed "..\assets\table.png"
+};
+
 constexpr inline char test_background[] { 
 	#embed "..\assets\test_background.png"
 };
@@ -36,6 +40,7 @@ constexpr inline char test_atlas[] {
 enum class ImageAsset {
 	CAPTAIN_ORANGE_IMAGE,
 	KERRY_IMAGE,
+	TABLE_IMAGE,
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
 	TEST_ATLAS_IMAGE,
@@ -44,6 +49,7 @@ enum class ImageAsset {
 constexpr const inline char* image_data[] {
 	captain_orange,
 	kerry,
+	table,
 	test_background,
 	test_button,
 	test_atlas,
@@ -52,17 +58,19 @@ constexpr const inline char* image_data[] {
 constexpr int image_sizes[] {
 	sizeof(captain_orange),
 	sizeof(kerry),
+	sizeof(table),
 	sizeof(test_background),
 	sizeof(test_button),
 	sizeof(test_atlas),
 };
 
-constexpr int NUMBER_OF_IMAGES = 5;
+constexpr int NUMBER_OF_IMAGES = 6;
 
 
 enum class AtlasIndex {
 	CAPTAIN_ORANGE,
 	KERRY,
+	TABLE,
 	TEST_BACKGROUND,
 	TEST_BUTTON,
 	KERRY_DOWN_CAPE_1,
@@ -172,6 +180,7 @@ struct AtlasData {
 constexpr AtlasData atlas_data[] {
 	{0, 0, 1200, 4800},
 	{0, 0, 2000, 3000},
+	{0, 0, 300, 200},
 	{0, 0, 2339, 1654},
 	{0, 0, 400, 200},
 	{0, 0, 200, 300},
@@ -274,6 +283,7 @@ constexpr AtlasData atlas_data[] {
 constexpr ImageAsset atlas_to_asset[] {
 	ImageAsset::CAPTAIN_ORANGE_IMAGE,
 	ImageAsset::KERRY_IMAGE,
+	ImageAsset::TABLE_IMAGE,
 	ImageAsset::TEST_BACKGROUND_IMAGE,
 	ImageAsset::TEST_BUTTON_IMAGE,
 	ImageAsset::TEST_ATLAS_IMAGE,

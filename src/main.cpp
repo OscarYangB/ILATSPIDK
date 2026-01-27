@@ -1,8 +1,10 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
+#include "collider_data.h"
 #include "image_assets.h"
 #include "audio_assets.h"
 #include "audio.h"
+#include "physics.h"
 #include "render.h"
 #include <SDL3/SDL.h>
 #include <iostream>
@@ -32,6 +34,17 @@ void start() {
 		ecs.emplace<TransformComponent>(entity);
 		auto& movement = ecs.emplace<PlayerMovementComponent>(entity);
 		movement.speed = 200.f;
+		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
+		collider = KERRY_COLLIDER;
+	}
+	{ // TABLE
+		const entt::entity entity = ecs.create();
+		auto& sprite = ecs.emplace<SpriteComponent>(entity);
+		sprite.renderable = {SpriteGroup<1>{AtlasIndex::TABLE}};
+		auto& transform = ecs.emplace<TransformComponent>(entity);
+		transform.position = {0.f, 0.f};
+		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
+		collider = TABLE_COLLIDER;
 	}
 	{ // Background
 		// const entt::entity background = ecs.create();

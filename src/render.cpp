@@ -1,6 +1,7 @@
 #include "render.h"
 #include "image_assets.h"
 #include "kerry_anim_controller.h"
+#include "physics.h"
 #include "platform_render.h"
 #include "game.h"
 
@@ -124,4 +125,31 @@ float AnchoredTransformComponent::render_width() const {
 
 float AnchoredTransformComponent::render_height() const {
 	return height * window_scale();
+}
+
+bool TransformComponent::move(const entt::entity& entity_to_move, const Vector2& new_position) {
+	if (can_move(entity_to_move, new_position)) {
+		position = new_position;
+		return true;
+	}
+
+	return false;
+}
+
+bool TransformComponent::can_move(const entt::entity& entity_to_move, const Vector2& new_position) {
+	if (BoxColliderComponent* collider_to_move = ecs.try_get<BoxColliderComponent>(entity_to_move); collider_to_move != nullptr) {
+		auto view = ecs.view<BoxColliderComponent, TransformComponent>();
+
+		for (auto [entity, collider, transform] : view.each()) {
+			if (entity == entity_to_move) continue;
+
+			if (is_colliding(transform.position, new_position, collider, *collider_to_move)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	return true; // No collider on entity_to_move
 }
