@@ -60,7 +60,7 @@ void update_render() {
 	auto text_view = ecs.view<const TextComponent, const AnchoredTransformComponent>();
 	for (auto [entity, text, transform] : text_view.each()) {
 		Vector2 position = transform.render_position();
-		render_text(text.text, position.x, position.y, text.r, text.b, text.g, text.size * window_scale());
+		render_text(text.text, position.x, position.y, transform.render_width(), text.r, text.b, text.g, text.size * window_scale());
 	}
 
 	end_render();

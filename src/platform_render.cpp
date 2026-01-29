@@ -124,15 +124,20 @@ int window_height() {
 	return h;
 }
 
-void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b, u8 size) {
-	sdl_stb_prerendered_text text_render;
-
+void render_text(const char* text, u16 x, u16 y, u16 w, u8 r, u8 g, u8 b, u8 size) {
 	sdl_stb_font_cache font_cache;
 	font_cache.faceSize = size;
 	font_cache.bindRenderer(renderer);
 	font_cache.loadFont(atkinson_hyperlegible, sizeof atkinson_hyperlegible);
-	font_cache.renderTextToObject(&text_render, text);
+	std::vector<sttfont_formatted_text> broken_string;
+	font_cache.breakString(text, broken_string, w);
 
-	text_render.drawWithColorMod(x, y, r, g, b, 255);
-	text_render.freeTexture();
+	u16 height_accumulation = y;
+	for (auto& string : broken_string) {
+		sdl_stb_prerendered_text text_render;
+		font_cache.renderTextToObject(&text_render, string);
+		text_render.drawWithColorMod(x, height_accumulation, r, g, b, 255);
+		text_render.freeTexture();
+		height_accumulation += font_cache.getTextHeight(string);
+	}
 }

@@ -21,4 +21,4 @@ void unload_sprite(int index);
 int window_width();
 int window_height();
 
-void render_text(const char* text, u16 x, u16 y, u8 r, u8 g, u8 b, u8 size);
+void render_text(const char* text, u16 x, u16 y, u16 w, u8 r, u8 g, u8 b, u8 size);
