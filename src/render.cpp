@@ -1,4 +1,5 @@
 #include "render.h"
+#include "entt/entity/fwd.hpp"
 #include "image_assets.h"
 #include "kerry_anim_controller.h"
 #include "physics.h"
@@ -24,6 +25,17 @@ void update_render() {
 	start_render();
 
 	update_animation();
+
+	ecs.sort<SpriteComponent>([](const entt::entity& first, const entt::entity& second) { // Sort render order using y position
+		BoxColliderComponent* first_collider = ecs.try_get<BoxColliderComponent>(first);
+		BoxColliderComponent* second_collider = ecs.try_get<BoxColliderComponent>(second);
+		TransformComponent* first_transform = ecs.try_get<TransformComponent>(first);
+		TransformComponent* second_transform = ecs.try_get<TransformComponent>(second);
+
+		if (!first_collider || !first_transform) return true;
+		if (!second_collider || !second_transform) return false;
+		return first_collider->top_left.y + first_transform->position.y > second_collider->top_left.y + second_transform->position.y;
+	});
 
 	auto sprites = ecs.view<SpriteComponent>();
 	for (auto [entity, sprite] : sprites.each()) {
