@@ -5,6 +5,8 @@
 struct SDL_Surface;
 struct SDL_Texture;
 enum class ImageAsset;
+enum class VerticalAnchor;
+enum class HorizontalAnchor;
 
 bool start_window();
 void destroy_window();
@@ -21,4 +23,4 @@ void unload_sprite(int index);
 int window_width();
 int window_height();
 
-void render_text(const char* text, u16 x, u16 y, u16 w, u8 r, u8 g, u8 b, u8 size);
+void render_text(const char* text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, HorizontalAnchor x_align, VerticalAnchor y_align);

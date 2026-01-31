@@ -5,6 +5,7 @@
 #include "SDL3/SDL_surface.h"
 #include "SDL3/SDL_video.h"
 #include "image_assets.h"
+#include "render.h"
 #include <cstdlib>
 #define SDL_STB_FONT_IMPL
 #include "../external/sdl-stb-font/sdlStbFont.h"
@@ -124,7 +125,7 @@ int window_height() {
 	return h;
 }
 
-void render_text(const char* text, u16 x, u16 y, u16 w, u8 r, u8 g, u8 b, u8 size) {
+void render_text(const char* text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, HorizontalAnchor x_align, VerticalAnchor y_align) {
 	sdl_stb_font_cache font_cache;
 	font_cache.faceSize = size;
 	font_cache.bindRenderer(renderer);
@@ -132,11 +133,22 @@ void render_text(const char* text, u16 x, u16 y, u16 w, u8 r, u8 g, u8 b, u8 siz
 	std::vector<sttfont_formatted_text> broken_string;
 	font_cache.breakString(text, broken_string, w);
 
+	u16 total_height = 0.f;
+	for (auto& string : broken_string) total_height += font_cache.getTextHeight(string);
+	if (y_align == VerticalAnchor::CENTER) y += h / 2 - total_height / 2;
+	if (y_align == VerticalAnchor::BOTTOM) y += h - total_height;
+
 	u16 height_accumulation = y;
 	for (auto& string : broken_string) {
 		sdl_stb_prerendered_text text_render;
 		font_cache.renderTextToObject(&text_render, string);
-		text_render.drawWithColorMod(x, height_accumulation, r, g, b, 255);
+
+		u16 render_x = x;
+		u16 text_width = font_cache.getTextWidth(string);
+		if (x_align == HorizontalAnchor::CENTER) render_x += w / 2 - text_width / 2;
+		if (x_align == HorizontalAnchor::RIGHT) render_x += w - text_width;
+
+		text_render.drawWithColorMod(render_x, height_accumulation, r, g, b, 255);
 		text_render.freeTexture();
 		height_accumulation += font_cache.getTextHeight(string);
 	}

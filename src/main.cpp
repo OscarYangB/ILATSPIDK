@@ -67,7 +67,10 @@ void start() {
 	{ // Text
 		const entt::entity entity = ecs.create();
 		auto& text = ecs.emplace<TextComponent>(entity);
-		text.text = "hello world hello world hello world hellow world hwllo world hellow world"; text.r = 255; text.g = 0; text.b = 100; text.size = 100;
+		text.text = "hello world hello world hello world hellow world hwllo world hellow world hello world hello world hellow world";
+		text.r = 255; text.g = 0; text.b = 100; text.size = 100;
+		text.x_align = HorizontalAnchor::RIGHT;
+		text.y_align = VerticalAnchor::BOTTOM;
 		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
 		transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = 800; transform.height = 400;
 	}

@@ -85,6 +85,9 @@ struct TextComponent {
 	u8 g;
 	u8 b;
 	u8 size;
+
+	HorizontalAnchor x_align = HorizontalAnchor::LEFT;
+	VerticalAnchor y_align = VerticalAnchor::TOP;
 };
 
 extern Vector2 camera_position;
