@@ -1,0 +1,42 @@
+#include "interaction.h"
+#include "game.h"
+#include "input.h"
+#include "player_movement_controller.h"
+#include "render.h"
+
+void update_interact() {
+	if (!input_down_this_frame(InputType:: INTERACT)) {
+		return;
+	}
+
+	constexpr float INTERACTION_RANGE = 100.f;
+
+	auto view = ecs.view<InteractionComponent, TransformComponent>();
+
+	auto player_view = ecs.view<PlayerMovementComponent, TransformComponent, SpriteComponent>();
+	auto [player_entity, player_movement, player_transform, player_sprite] = *player_view.each().begin(); // Should be only one
+
+	Vector2 direction = Vector2::down();
+	switch (player_movement.direction) {
+	case CharacterDirection::UP:
+		direction = Vector2::up();
+		break;
+	case CharacterDirection::DOWN:
+		direction = Vector2::down();
+		break;
+	case CharacterDirection::LEFT:
+		direction = Vector2::left();
+		break;
+	case CharacterDirection::RIGHT:
+		direction = Vector2::right();
+		break;
+	}
+
+	std::vector<InteractionComponent*> results {};
+	float player_w; float player_h;
+	player_sprite.bounding_box_center(player_w, player_h);
+	raytest<InteractionComponent>(results, player_transform.position + Vector2{player_w, -player_h}, direction, INTERACTION_RANGE);
+	for (InteractionComponent* component : results) {
+		if (component && component->on_interact) component->on_interact();
+	}
+}

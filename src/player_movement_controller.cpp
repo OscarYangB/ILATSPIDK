@@ -9,18 +9,18 @@ void update_movement() {
 	for (auto [entity, transform, movement] : view.each()) {
 		Vector2 movement_direction = Vector2::zero();
 
-		if (input_held(RIGHT) && !input_held(LEFT)) {
+		if (input_held(InputType::RIGHT) && !input_held(InputType::LEFT)) {
 			movement.direction = CharacterDirection::RIGHT;
 			movement_direction.x = 1.f;
-		} else if (input_held(LEFT) && !input_held(RIGHT)) {
+		} else if (input_held(InputType::LEFT) && !input_held(InputType::RIGHT)) {
 			movement.direction = CharacterDirection::LEFT;
 			movement_direction.x = -1.f;
 		}
 
-		if (input_held(UP) && !input_held(DOWN)) {
+		if (input_held(InputType::UP) && !input_held(InputType::DOWN)) {
 			movement.direction = CharacterDirection::UP;
 			movement_direction.y = 1.f;
-		} else if (input_held(DOWN) && !input_held(UP)) {
+		} else if (input_held(InputType::DOWN) && !input_held(InputType::UP)) {
 			movement.direction = CharacterDirection::DOWN;
 			movement_direction.y = -1.f;
 		}

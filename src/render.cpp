@@ -20,6 +20,29 @@ static float render_scale() {
 	return camera_scale * window_scale();
 }
 
+
+struct DebugLine {
+	Vector2 start;
+	Vector2 end;
+};
+std::vector<DebugLine> debug_lines {};
+void debug_draw(const Vector2& start, const Vector2& end) {
+#ifndef NDEBUG
+	debug_lines.push_back({start, end});
+#endif
+}
+
+void draw_debug_lines() {
+#ifndef NDEBUG
+	for (const DebugLine& line : debug_lines) {
+		platform_debug_draw(line.start, line.end);
+	}
+
+	debug_lines.clear();
+#endif
+}
+
+
 void update_render() {
 	start_render();
 
@@ -33,7 +56,7 @@ void update_render() {
 
 		if (!first_collider || !first_transform) return true;
 		if (!second_collider || !second_transform) return false;
-		return first_collider->top_left.y + first_transform->position.y > second_collider->top_left.y + second_transform->position.y;
+		return first_collider->box.top_left.y + first_transform->position.y > second_collider->box.top_left.y + second_transform->position.y;
 	});
 
 	auto sprites = ecs.view<SpriteComponent>();
@@ -75,6 +98,8 @@ void update_render() {
 					text.x_align, text.y_align);
 	}
 
+	draw_debug_lines();
+
 	end_render();
 }
 
@@ -99,7 +124,7 @@ void update_sprite_resources() { // Going to load/unload the textures based on w
 	}
 }
 
-Vector2 world_to_pixel(Vector2 in) {
+Vector2 world_to_pixel(const Vector2& in) {
 	return Vector2{(in.x - camera_position.x) * render_scale() + window_width() / 2.0f,
 				   (-in.y + camera_position.y) * render_scale() + window_height() / 2.0f};
 }
@@ -164,4 +189,27 @@ bool TransformComponent::can_move(const entt::entity& entity_to_move, const Vect
 	}
 
 	return true; // No collider on entity_to_move
+}
+
+void SpriteComponent::bounding_box(u16& out_w, u16& out_h) {
+	out_w = 0;
+	out_h = 0;
+
+	AtlasIndex* data; int size;
+	renderable->draw(data, size);
+
+	for (int i = 0; i < size; i++) {
+		int index = static_cast<int>(*data);
+		u16 w = atlas_data[index].w;
+		u16 h = atlas_data[index].h;
+		if (w > out_w) out_w = w;
+		if (h > out_h) out_h = h;
+	}
+}
+
+void SpriteComponent::bounding_box_center(float& out_w, float& out_h) {
+	u16 w; u16 h;
+	bounding_box(w, h);
+	out_w = w / 2.f;
+	out_h = h / 2.f;
 }

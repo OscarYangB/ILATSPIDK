@@ -46,6 +46,9 @@ struct SpriteGroup {
 
 struct SpriteComponent {
 	entt::poly<Renderable> renderable;
+
+	void bounding_box(u16& out_w, u16& out_h);
+	void bounding_box_center(float& out_w, float& out_h);
 };
 
 enum class VerticalAnchor {
@@ -94,5 +97,7 @@ extern Vector2 camera_position;
 extern float camera_scale;
 
 void update_render();
-Vector2 world_to_pixel(Vector2 in);
+Vector2 world_to_pixel(const Vector2& in);
 void update_sprite_resources();
+
+void debug_draw(const Vector2& start, const Vector2& end);

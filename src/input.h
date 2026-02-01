@@ -4,7 +4,7 @@
 
 struct SDL_KeyboardEvent;
 
-enum InputType {
+enum class InputType {
 	UP,
 	DOWN,
 	LEFT,

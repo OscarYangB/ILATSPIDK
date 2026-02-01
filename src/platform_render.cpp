@@ -153,3 +153,15 @@ void render_text(const char* text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b,
 		height_accumulation += font_cache.getTextHeight(string);
 	}
 }
+
+void platform_debug_draw(const Vector2& start, const Vector2& end) {
+#ifndef NDEBUG
+	Vector2 pixel_start = world_to_pixel(start);
+	Vector2 pixel_end = world_to_pixel(end);
+	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+	for (int i = 0; i < 5; i++) { // Thiccccck line
+		SDL_RenderLine(renderer, pixel_start.x + i, pixel_start.y + i, pixel_end.x + i, pixel_end.y + i);
+	}
+	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+#endif
+}

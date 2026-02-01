@@ -17,6 +17,8 @@ struct Vector2 {
 	Vector2 normalized();
 	float magnitude();
 
+	static float distance(const Vector2& first, const Vector2& second);
+
 	static inline Vector2 zero() { return Vector2{0.f, 0.f}; }
 	static inline Vector2 one() { return Vector2{1.f, 1.f}; }
 	static inline Vector2 up() { return Vector2{0.f, 1.f}; }

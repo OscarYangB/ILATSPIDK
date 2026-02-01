@@ -62,3 +62,7 @@ Vector2 Vector2::normalized() {
 float Vector2::magnitude() {
 	return std::sqrt(x * x + y * y);
 }
+
+float Vector2::distance(const Vector2& first, const Vector2& second) {
+	return (first - second).magnitude();
+}

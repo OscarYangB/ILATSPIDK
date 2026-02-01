@@ -15,6 +15,7 @@
 #include "input.h"
 #include "button.h"
 #include "player_movement_controller.h"
+#include "interaction.h"
 
 static u64 start_frame_time = 0.0;
 
@@ -45,6 +46,10 @@ void start() {
 		transform.position = {0.f, 0.f};
 		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
 		collider = TABLE_COLLIDER;
+		auto& interaction = ecs.emplace<InteractionComponent>(entity);
+		u16 w; u16 h; sprite.bounding_box(w, h);
+		interaction.box = Box{(float)w, -(float)h}; // TODO Precompute the *visible* bounding box
+		interaction.on_interact = button_clicked;
 	}
 	{ // Background
 		// const entt::entity background = ecs.create();
@@ -81,6 +86,7 @@ void start() {
 
 void update() {
 	update_input();
+	update_interact();
 	update_button();
 	update_movement();
 	update_sprite_resources();

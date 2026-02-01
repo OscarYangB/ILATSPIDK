@@ -17,8 +17,8 @@ void update_button() {
 				if (button.on_hover) button.on_hover();
 			}
 
-			if (input_down_this_frame(MOUSE_CLICK)) {
-				handle_input(MOUSE_CLICK);
+			if (input_down_this_frame(InputType::MOUSE_CLICK)) {
+				handle_input(InputType::MOUSE_CLICK);
 				if (button.on_click) button.on_click();
 
 				button.is_clicked = true;
