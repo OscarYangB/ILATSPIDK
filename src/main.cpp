@@ -4,6 +4,7 @@
 #include "image_assets.h"
 #include "audio_assets.h"
 #include "audio.h"
+#include "kerry_anim_controller.h"
 #include "physics.h"
 #include "render.h"
 #include <SDL3/SDL.h>
@@ -16,6 +17,7 @@
 #include "button.h"
 #include "player_movement_controller.h"
 #include "interaction.h"
+#include "animation.h"
 
 static u64 start_frame_time = 0.0;
 
@@ -82,13 +84,18 @@ void start() {
 
 	init_audio();
 	play_audio(AudioAsset::SUCCESS_AUDIO);
+
+	using namespace std::placeholders;
+	play_animation(20.f, 5.0f, ContinuousAnimation<float>{&camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); }});
 }
 
 void update() {
+	update_generic_animation();
 	update_input();
 	update_interact();
 	update_button();
 	update_movement();
+	update_character_animation();
 	update_sprite_resources();
 	update_render();
 	input_end_frame();

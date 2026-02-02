@@ -29,7 +29,7 @@ u8 get_moving_right_leg_sprite() {
 	}
 }
 
-void update_animation() {
+void update_character_animation() {
 	timer += delta_time;
 	if (timer > 0.4) {
 		timer -= 0.4;

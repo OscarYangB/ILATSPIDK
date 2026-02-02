@@ -23,7 +23,7 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 		playing_audio[i].position += samples_to_play;
 	}
 
-	std::erase_if(playing_audio, [](PlayingAudio audio) {
+	std::erase_if(playing_audio, [](const PlayingAudio& audio) {
 		if (audio.position == audio.length) {
 			SDL_free(audio.data);
 			return true;

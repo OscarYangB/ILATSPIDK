@@ -1,3 +1,3 @@
 #pragma once
 
-void update_animation();
+void update_character_animation();

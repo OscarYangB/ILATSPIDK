@@ -1,6 +1,5 @@
 #include "render.h"
 #include "image_assets.h"
-#include "kerry_anim_controller.h"
 #include "physics.h"
 #include "platform_render.h"
 #include "game.h"
@@ -45,8 +44,6 @@ void draw_debug_lines() {
 
 void update_render() {
 	start_render();
-
-	update_animation();
 
 	ecs.sort<SpriteComponent>([](const entt::entity& first, const entt::entity& second) { // Sort render order using y position
 		BoxColliderComponent* first_collider = ecs.try_get<BoxColliderComponent>(first);
