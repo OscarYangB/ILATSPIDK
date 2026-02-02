@@ -8,6 +8,7 @@ void update_interact() {
 	if (!input_down_this_frame(InputType:: INTERACT)) {
 		return;
 	}
+	handle_input(InputType::INTERACT);
 
 	constexpr float INTERACTION_RANGE = 100.f;
 

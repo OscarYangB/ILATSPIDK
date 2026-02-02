@@ -66,7 +66,7 @@ void handle_input(InputType input_type) {
 }
 
 void input_end_frame() {
-	for (Input input : inputs) {
+	for (Input& input : inputs) {
 		input.is_handled = true;
 	}
 }

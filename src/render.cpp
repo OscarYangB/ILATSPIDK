@@ -23,21 +23,23 @@ static float render_scale() {
 struct DebugLine {
 	Vector2 start;
 	Vector2 end;
+	double time_left;
 };
 std::vector<DebugLine> debug_lines {};
 void debug_draw(const Vector2& start, const Vector2& end) {
 #ifndef NDEBUG
-	debug_lines.push_back({start, end});
+	debug_lines.push_back({start, end, 0.3});
 #endif
 }
 
 void draw_debug_lines() {
 #ifndef NDEBUG
-	for (const DebugLine& line : debug_lines) {
+	for (DebugLine& line : debug_lines) {
 		platform_debug_draw(line.start, line.end);
+		line.time_left -= delta_time;
 	}
 
-	debug_lines.clear();
+	std::erase_if(debug_lines, [](const DebugLine& line) { return line.time_left < 0.f; });
 #endif
 }
 

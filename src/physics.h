@@ -8,10 +8,7 @@ struct Box {
 	Vector2 top_left;
 	Vector2 bottom_right;
 
-	inline float x0() { return top_left.x; };
-	inline float x1() { return bottom_right.x; };
-	inline float y0() { return bottom_right.y; };
-	inline float y1() { return top_left.y; };
+	Box operator+(const Vector2& offset) const;
 };
 
 struct BoxColliderComponent {
@@ -20,30 +17,32 @@ struct BoxColliderComponent {
 
 bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComponent& first_collider, const BoxColliderComponent& second_collider);
 bool line_segments_intersect(const Vector2& start_1, const Vector2& end_1, const Vector2& start_2, const Vector2& end_2);
+bool point_in_box(const Box& box, const Vector2& vector);
 
 template<typename BoxComponent>
 void raytest(std::vector<BoxComponent*>& out, const Vector2& position, const Vector2& direction, float length) {
+	Vector2 line_end = position + direction * length;
 	auto view = ecs.view<BoxComponent, TransformComponent>();
 
-	//debug_draw(position, position + direction * length);
+	//debug_draw(position, line_end);
 
 	for (auto [entity, component, transform] : view.each()) {
-		Vector2 bottom_left = Vector2{component.box.x0(), component.box.y0()} + transform.position;
-		Vector2 bottom_right = Vector2{component.box.x1(), component.box.y0()} + transform.position;
-		Vector2 top_left = Vector2{component.box.x0(), component.box.y1()} + transform.position;
-		Vector2 top_right = Vector2{component.box.x1(), component.box.y1()} + transform.position;
+		Box offset_box = component.box + transform.position;
+		Vector2 bottom_left = {offset_box.top_left.x, offset_box.bottom_right.y};
+		Vector2 top_right = {offset_box.bottom_right.x, offset_box.top_left.y};
 
 		/*
-		debug_draw(top_left, top_right);
-		debug_draw(top_right, bottom_right);
-		debug_draw(bottom_right, bottom_left);
-		debug_draw(bottom_left, top_left);
+		debug_draw(offset_box.top_left, top_right);
+		debug_draw(top_right, offset_box.bottom_right);
+		debug_draw(offset_box.bottom_right, bottom_left);
+		debug_draw(bottom_left, offset_box.top_left);
 		*/
 
-		if (line_segments_intersect(position, position + direction * length, top_left, top_right) ||
-			line_segments_intersect(position, position + direction * length, top_right, bottom_right) ||
-			line_segments_intersect(position, position + direction * length, bottom_right, bottom_left) ||
-			line_segments_intersect(position, position + direction * length, bottom_left, top_left)) {
+		if (point_in_box(offset_box, position) || point_in_box(offset_box, line_end) ||
+			line_segments_intersect(position, line_end, offset_box.top_left, top_right) ||
+			line_segments_intersect(position, line_end, top_right, offset_box.bottom_right) ||
+			line_segments_intersect(position, line_end, offset_box.bottom_right, bottom_left) ||
+			line_segments_intersect(position, line_end, bottom_left, offset_box.top_left)) {
 			out.push_back(&component);
 		}
 	}

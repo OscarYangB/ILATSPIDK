@@ -1,5 +1,9 @@
 #include "physics.h"
 
+Box Box::operator+(const Vector2& offset) const {
+	return {top_left + offset, bottom_right + offset};
+}
+
 bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComponent& first_collider, const BoxColliderComponent& second_collider) {
 	Vector2 first_top_left = first_position + first_collider.box.top_left;
 	Vector2 first_bottom_right = first_position + first_collider.box.bottom_right;
@@ -13,6 +17,13 @@ bool is_colliding(const Vector2& first_position, const Vector2& second_position,
 	return true;
 }
 
+bool point_in_box(const Box& box, const Vector2& point) {
+	return point.x > box.top_left.x &&
+		   point.x < box.bottom_right.x &&
+		   point.y > box.bottom_right.y &&
+		   point.y < box.top_left.y;
+}
+
 // From Graphics Gems III Chapter IV Part 6
 bool line_segments_intersect(const Vector2& start_1, const Vector2& end_1, const Vector2& start_2, const Vector2& end_2) {
 	Vector2 A = end_1 - start_1;
@@ -21,16 +32,29 @@ bool line_segments_intersect(const Vector2& start_1, const Vector2& end_1, const
 
 	float denominator = A.y * B.x - A.x * B.y;
 
-	if (denominator <= 0.f) {
+	if (denominator == 0.f) {
+		return false; // Line segments are collinear
+	}
+
+	float alpha = (B.y * C.x - B.x * C.y);
+
+	if (denominator > 0.f) {
+		if (alpha < 0.f || alpha > denominator) {
+			return false;
+		}
+	} else if (alpha > 0.f || alpha < denominator) {
 		return false;
 	}
 
-	float alpha = (B.y * C.x - B.x * C.y) / denominator;
-	float beta  = (A.x * C.y - A.y * C.x) / denominator;
+	float beta  = (A.x * C.y - A.y * C.x);
 
-	if (alpha > 0.f && alpha < 1.f && beta > 0.f && beta < 1.f) {
-		return true;
+	if (denominator > 0.f) {
+		if (beta < 0.f || beta > denominator) {
+		return false;
+		}
+	} else if (beta > 0.f || beta < denominator) {
+		return false;
 	}
 
-	return false;
+	return true;
 }

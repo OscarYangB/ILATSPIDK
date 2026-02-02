@@ -50,7 +50,7 @@ void start() {
 		collider = TABLE_COLLIDER;
 		auto& interaction = ecs.emplace<InteractionComponent>(entity);
 		u16 w; u16 h; sprite.bounding_box(w, h);
-		interaction.box = Box{(float)w, -(float)h}; // TODO Precompute the *visible* bounding box
+		interaction.box = Box{{0.f, 0.f}, {(float)w, -(float)h}}; // TODO Precompute the *visible* bounding box
 		interaction.on_interact = button_clicked;
 	}
 	{ // Background
@@ -85,8 +85,7 @@ void start() {
 	init_audio();
 	play_audio(AudioAsset::SUCCESS_AUDIO);
 
-	using namespace std::placeholders;
-	play_animation(20.f, 5.0f, ContinuousAnimation<float>{&camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); }});
+	//play_animation(20.f, 5.0f, ContinuousAnimation<float>{&camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); }});
 }
 
 void update() {
