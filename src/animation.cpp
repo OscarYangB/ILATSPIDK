@@ -11,7 +11,7 @@ void Animation::progress_time() {
 std::vector<Animation> animations {};
 
 void play_animation(double duration, double delay, entt::poly<Updater> updater) {
-	animations.push_back(Animation{duration, delay, 0.f, updater});
+	animations.push_back(Animation{duration, delay, updater});
 }
 
 void update_generic_animation() {

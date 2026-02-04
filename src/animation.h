@@ -19,8 +19,9 @@ struct Updater : entt::type_list<void(const Animation& animation)> {
 struct Animation {
 	double duration;
 	double delay;
-	double time_elapsed;
 	entt::poly<Updater> updater;
+
+	double time_elapsed = 0.0;
 
 	bool is_finished() const;
 	void progress_time();
@@ -30,10 +31,11 @@ struct Animation {
 template <typename T>
 using Curve = T (*)(const Animation& animation, T current_value);
 
-template <typename ComponentType, typename MemberType, MemberType ComponentType::*member>
+template <typename MemberType, typename ComponentType>
 struct ComponentAnimation {
 	entt::entity entity;
 	Curve<MemberType> curve;
+	MemberType ComponentType::* member;
 
 	void update(const Animation& animation) {
 		if (!ecs.valid(entity)) {
@@ -65,6 +67,16 @@ extern std::vector<Animation> animations;
 
 void play_animation(double duration, double delay, entt::poly<Updater> updater);
 void update_generic_animation();
+
+template <typename MemberType, typename ComponentType, typename CurveType>
+void play_animation(double duration, double delay, MemberType ComponentType::* member, entt::entity entity, CurveType curve) {
+	animations.push_back(Animation{duration, delay, ComponentAnimation<MemberType, ComponentType>{entity, curve, member}});
+}
+
+template <typename T, typename CurveType>
+void play_animation(double duration, double delay, T* to_animate, CurveType curve) {
+	animations.push_back(Animation{duration, delay, PointerAnimation<T>{to_animate, curve}});
+}
 
 template<typename T>
 T linear_curve(T rate, const Animation& animation, T current_value) {

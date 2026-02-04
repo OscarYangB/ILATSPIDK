@@ -54,10 +54,9 @@ void start() {
 		interaction.box = Box{{0.f, 0.f}, {(float)w, -(float)h}}; // TODO Precompute the *visible* bounding box
 		interaction.on_interact = button_clicked;
 
-		/*play_animation(20.f, 0.0f, ComponentAnimation<TransformComponent, Vector2, &TransformComponent::position>{entity,
-					[](const Animation& animation, Vector2 current_value) {
-						return Vector2{current_value.x, sinusoid_curve(1080.f, 1.f, 0.f, animation, current_value.y)};
-					}});*/
+		/*play_animation(20.0, 0.0, &TransformComponent::position, entity, [](const Animation& animation, Vector2 current_value) {
+			return Vector2{current_value.x, sinusoid_curve(1080.f, 1.f, 0.f, animation, current_value.y)};
+		});*/
 	}
 	{ // Background
 		// const entt::entity background = ecs.create();
@@ -92,8 +91,7 @@ void start() {
 	init_audio();
 	play_audio(AudioAsset::SUCCESS_AUDIO);
 
-	//play_animation(2.f, 0.0f, nullptr, PointerAnimation<float>{&camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); }});
-
+	//play_animation(2.f, 0.0f, &camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); });
 }
 
 void update() {
