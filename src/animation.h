@@ -1,25 +1,14 @@
 #pragma once
 
-#include "entt/entt.hpp"
 #include "game.h"
-#include <cmath>
-#include <math.h>
 
-template <typename T>
-struct ContinuousAnimation {
-	T* to_animate;
-	T (*curve)(T current_value, double delta_time, double time_elapsed);
+struct Animation;
 
-	void update(double time_elapsed) {
-		*to_animate = curve(*to_animate, delta_time, time_elapsed); // Need to be careful of segfaults when using this
-	}
-};
-
-struct Updater : entt::type_list<void(double time_elapsed)> {
+struct Updater : entt::type_list<void(const Animation& animation)> {
 	template<typename Base>
 	struct type : Base {
-		void update(double time_elapsed) {
-			return entt::poly_call<0>(*this, time_elapsed);
+		void update(const Animation& animation) {
+			return entt::poly_call<0>(*this, animation);
 		}
 	};
 
@@ -35,6 +24,41 @@ struct Animation {
 
 	bool is_finished() const;
 	void progress_time();
+	double get_animation_time() const;
+};
+
+template <typename T>
+using Curve = T (*)(const Animation& animation, T current_value);
+
+template <typename ComponentType, typename MemberType, MemberType ComponentType::*member>
+struct ComponentAnimation {
+	entt::entity entity;
+	Curve<MemberType> curve;
+
+	void update(const Animation& animation) {
+		if (!ecs.valid(entity)) {
+			return;
+		}
+
+		ComponentType* component = ecs.try_get<ComponentType>(entity);
+		if (component == nullptr) {
+			return;
+		}
+
+		component->*member = curve(animation, component->*member);
+	}
+};
+
+template <typename T>
+struct PointerAnimation {
+	/* When using this, make sure this pointer remains valid throughout the animation
+	   (ie. it's a global variable or the owner stops the animation when it dies) */
+	T* to_animate;
+	Curve<T> curve;
+
+	void update(const Animation& animation) {
+		*to_animate = curve(animation, *to_animate);
+	}
 };
 
 extern std::vector<Animation> animations;
@@ -43,11 +67,12 @@ void play_animation(double duration, double delay, entt::poly<Updater> updater);
 void update_generic_animation();
 
 template<typename T>
-T linear_curve(T rate, T current_value, double delta_time, double time_elapsed) {
+T linear_curve(T rate, const Animation& animation, T current_value) {
 	return current_value + rate * delta_time;
 }
 
 template<typename T>
-T sinusoid_curve(T amplitude, T frequency, T phase, T current_value, double delta_time, double time_elapsed) {
-	return current_value + amplitude * std::sin(frequency * M_PI * 2.0 * time_elapsed + phase);
+T sinusoid_curve(T amplitude, T frequency, T phase, const Animation& animation, T current_value) {
+	T f = frequency * M_PI * 2.0;
+	return current_value + std::cos(f * animation.get_animation_time() + phase) * amplitude * f * delta_time; // Major  determinism issues when it lags
 }

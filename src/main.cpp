@@ -1,3 +1,4 @@
+
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_timer.h"
 #include "collider_data.h"
@@ -52,6 +53,11 @@ void start() {
 		u16 w; u16 h; sprite.bounding_box(w, h);
 		interaction.box = Box{{0.f, 0.f}, {(float)w, -(float)h}}; // TODO Precompute the *visible* bounding box
 		interaction.on_interact = button_clicked;
+
+		/*play_animation(20.f, 0.0f, ComponentAnimation<TransformComponent, Vector2, &TransformComponent::position>{entity,
+					[](const Animation& animation, Vector2 current_value) {
+						return Vector2{current_value.x, sinusoid_curve(1080.f, 1.f, 0.f, animation, current_value.y)};
+					}});*/
 	}
 	{ // Background
 		// const entt::entity background = ecs.create();
@@ -79,13 +85,15 @@ void start() {
 		text.x_align = HorizontalAnchor::RIGHT;
 		text.y_align = VerticalAnchor::BOTTOM;
 		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+		using namespace entt::literals;
 		transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = 800; transform.height = 400;
 	}
 
 	init_audio();
 	play_audio(AudioAsset::SUCCESS_AUDIO);
 
-	//play_animation(20.f, 5.0f, ContinuousAnimation<float>{&camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); }});
+	//play_animation(2.f, 0.0f, nullptr, PointerAnimation<float>{&camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); }});
+
 }
 
 void update() {
@@ -116,7 +124,7 @@ int main(int argc, char* argv[]) {
 		const u64 frame_time = 8000000; // In nanoseconds
 		const u64 time_elapsed = SDL_GetTicksNS() - start_frame_time;
 		if (time_elapsed < frame_time) {
-			//std::cout << "sleeping for: " + std::to_string(frame_time - time_elapsed);
+			//std::cout << "sleeping for: " + std::to_string(frame_time - time_elapsed) << "\n";
 			SDL_DelayNS(frame_time - time_elapsed);
 		}
 
