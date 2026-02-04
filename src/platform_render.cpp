@@ -159,9 +159,7 @@ void platform_debug_draw(const Vector2& start, const Vector2& end) {
 	Vector2 pixel_start = world_to_pixel(start);
 	Vector2 pixel_end = world_to_pixel(end);
 	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-	for (int i = 0; i < 5; i++) { // Thiccccck line
-		SDL_RenderLine(renderer, pixel_start.x + i, pixel_start.y + i, pixel_end.x + i, pixel_end.y + i);
-	}
+	SDL_RenderLine(renderer, pixel_start.x, pixel_start.y, pixel_end.x, pixel_end.y);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 #endif
 }

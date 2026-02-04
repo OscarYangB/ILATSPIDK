@@ -50,8 +50,7 @@ void start() {
 		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
 		collider = TABLE_COLLIDER;
 		auto& interaction = ecs.emplace<InteractionComponent>(entity);
-		u16 w; u16 h; sprite.bounding_box(w, h);
-		interaction.box = Box{{0.f, 0.f}, {(float)w, -(float)h}}; // TODO Precompute the *visible* bounding box
+		interaction.box = sprite.bounding_box();
 		interaction.on_interact = button_clicked;
 
 		/*play_animation(20.0, 0.0, &TransformComponent::position, entity, [](const Animation& animation, Vector2 current_value) {

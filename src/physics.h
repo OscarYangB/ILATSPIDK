@@ -9,6 +9,7 @@ struct Box {
 	Vector2 bottom_right;
 
 	Box operator+(const Vector2& offset) const;
+	Vector2 center();
 };
 
 struct BoxColliderComponent {

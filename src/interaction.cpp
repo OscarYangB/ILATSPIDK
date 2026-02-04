@@ -34,9 +34,7 @@ void update_interact() {
 	}
 
 	std::vector<InteractionComponent*> results {};
-	float player_w; float player_h;
-	player_sprite.bounding_box_center(player_w, player_h);
-	raytest<InteractionComponent>(results, player_transform.position + Vector2{player_w, -player_h}, direction, INTERACTION_RANGE);
+	raytest<InteractionComponent>(results, player_transform.position + player_sprite.bounding_box().center(), direction, INTERACTION_RANGE);
 	for (InteractionComponent* component : results) {
 		if (component && component->on_interact) component->on_interact();
 	}

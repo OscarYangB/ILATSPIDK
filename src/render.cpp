@@ -190,25 +190,23 @@ bool TransformComponent::can_move(const entt::entity& entity_to_move, const Vect
 	return true; // No collider on entity_to_move
 }
 
-void SpriteComponent::bounding_box(u16& out_w, u16& out_h) {
-	out_w = 0;
-	out_h = 0;
-
+Box SpriteComponent::bounding_box() {
 	AtlasIndex* data; int size;
 	renderable->draw(data, size);
 
-	for (int i = 0; i < size; i++) {
-		int index = static_cast<int>(*data);
-		u16 w = atlas_data[index].w;
-		u16 h = atlas_data[index].h;
-		if (w > out_w) out_w = w;
-		if (h > out_h) out_h = h;
-	}
-}
+	int index = static_cast<int>(*data);
+	u16 left = atlas_data[index].visible_left; // These use downward-positive y-coordinates
+	u16 right = atlas_data[index].visible_right;
+	u16 up = atlas_data[index].visible_up;
+	u16 down = atlas_data[index].visible_down;
 
-void SpriteComponent::bounding_box_center(float& out_w, float& out_h) {
-	u16 w; u16 h;
-	bounding_box(w, h);
-	out_w = w / 2.f;
-	out_h = h / 2.f;
+	for (int i = 1; i < size; i++) {
+		int index = static_cast<int>(*(data + i));
+		left = std::min(left, atlas_data[index].visible_left);
+		right = std::max(right, atlas_data[index].visible_right);
+		up = std::min(up, atlas_data[index].visible_up);
+		down = std::max(down, atlas_data[index].visible_down);
+	}
+
+	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
 }

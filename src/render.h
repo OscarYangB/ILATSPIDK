@@ -6,6 +6,7 @@
 #include "entt/entt.hpp"
 
 enum class ImageAsset;
+struct Box;
 
 struct TransformComponent {
 	Vector2 position = {0.f, 0.f};
@@ -47,8 +48,7 @@ struct SpriteGroup {
 struct SpriteComponent {
 	entt::poly<Renderable> renderable;
 
-	void bounding_box(u16& out_w, u16& out_h);
-	void bounding_box_center(float& out_w, float& out_h);
+	Box bounding_box();
 };
 
 enum class VerticalAnchor {

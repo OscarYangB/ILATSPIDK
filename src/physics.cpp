@@ -4,6 +4,10 @@ Box Box::operator+(const Vector2& offset) const {
 	return {top_left + offset, bottom_right + offset};
 }
 
+Vector2 Box::center() {
+	return {(top_left.x + bottom_right.x) / 2.f, (bottom_right.y + top_left.y) / 2.f};
+}
+
 bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComponent& first_collider, const BoxColliderComponent& second_collider) {
 	Vector2 first_top_left = first_position + first_collider.box.top_left;
 	Vector2 first_bottom_right = first_position + first_collider.box.bottom_right;
