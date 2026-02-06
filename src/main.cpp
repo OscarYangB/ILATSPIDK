@@ -1,6 +1,3 @@
-
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_timer.h"
 #include "collider_data.h"
 #include "image_assets.h"
 #include "audio_assets.h"
@@ -11,7 +8,6 @@
 #include <SDL3/SDL.h>
 #include <iostream>
 #include <entt/entt.hpp>
-#include <SDL3/SDL_surface.h>
 #include "game.h"
 #include "platform_render.h"
 #include "input.h"
