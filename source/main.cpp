@@ -1,6 +1,6 @@
 #include "collider_data.h"
 #include "image_assets.h"
-#include "audio_assets.h"
+//#include "audio_assets.h"
 #include "audio.h"
 #include "kerry_anim_controller.h"
 #include "physics.h"
@@ -84,7 +84,7 @@ void start() {
 	}
 
 	init_audio();
-	play_audio(AudioAsset::SUCCESS_AUDIO);
+	//play_audio(AudioAsset::SUCCESS_AUDIO);
 
 	//play_animation(2.f, 0.0f, &camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); });
 }
