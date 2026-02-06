@@ -108,8 +108,8 @@ audio_size_text += "};\n\n"
 audio_file_text += audio_size_text
 audio_file_text += "constexpr int NUMBER_OF_SOUNDS = %s;\n\n\n"%number_of_sounds
 
-with open("../src/image_assets.h", "w") as header:
+with open("../source/image_assets.h", "w") as header:
     header.write(image_file_text)
 
-with open("../src/audio_assets.h", "w") as header:
+with open("../source/audio_assets.h", "w") as header:
     header.write(audio_file_text)
