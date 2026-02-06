@@ -64,15 +64,15 @@ enum class HorizontalAnchor {
 };
 
 struct AnchoredTransformComponent {
-  HorizontalAnchor x_anchor;
-  VerticalAnchor y_anchor;
-  Vector2 relative_position;
-  u16 width;
-  u16 height;
+	HorizontalAnchor x_anchor;
+	VerticalAnchor y_anchor;
+	Vector2 relative_position;
+	u16 width;
+	u16 height;
 
-  Vector2 render_position() const;
-  float render_width() const;
-  float render_height() const;
+	Vector2 render_position() const;
+	float render_width() const;
+	float render_height() const;
 };
 
 struct NineSliceComponent {
