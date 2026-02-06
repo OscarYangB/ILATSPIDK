@@ -9,6 +9,6 @@ add_subdirectory("external/entt")
 add_subdirectory("external/SDL")
 
 project("ILATSPIDK")
-file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
 add_executable(ILATSPIDK "${MY_SOURCES}")
 target_link_libraries(ILATSPIDK PRIVATE EnTT::EnTT SDL3::SDL3-static)
