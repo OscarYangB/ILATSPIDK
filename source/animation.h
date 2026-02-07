@@ -26,6 +26,7 @@ struct Animation {
 	bool is_finished() const;
 	void progress_time();
 	double get_animation_time() const;
+	double get_delta_time() const;
 };
 
 template <typename T>
@@ -78,13 +79,31 @@ void play_animation(double duration, double delay, T* to_animate, CurveType curv
 	animations.push_back(Animation{duration, delay, PointerAnimation<T>{to_animate, curve}});
 }
 
-template<typename T>
+template <typename T>
 T linear_curve(T rate, const Animation& animation, T current_value) {
-	return current_value + rate * delta_time;
+	return current_value + rate * animation.get_delta_time();
 }
 
-template<typename T>
-T sinusoid_curve(T amplitude, T frequency, T phase, const Animation& animation, T current_value) {
-	T f = frequency * M_PI * 2.0;
-	return current_value + std::cos(f * animation.get_animation_time() + phase) * amplitude * f * delta_time; // Major  determinism issues when it lags
+template <typename T, typename Curve>
+T evaluate_curve_change(const Animation& animation, T current_value, Curve&& curve) {
+	T value_at_previous_time = curve(animation.get_animation_time());
+	T value_at_current_time = curve(animation.get_animation_time() + animation.get_delta_time());
+	return current_value + (value_at_current_time - value_at_previous_time);
+}
+
+template <typename T>
+T sinusoid_curve(float amplitude, float frequency, float phase, const Animation& animation, T current_value) {
+	auto sinusoid_function = [amplitude, frequency, phase] (double time) -> double {
+		double w = frequency * M_PI * 2.0;
+		return amplitude * std::sin(w * time + phase);
+	};
+	return evaluate_curve_change(animation, static_cast<double>(current_value), sinusoid_function);
+}
+
+template <typename T>
+T linear_increment(double rate, T multiplier, const Animation& animation, T current_value) {
+	auto increment_function = [rate, multiplier] (double time) -> T {
+		return std::floor(time / rate) * multiplier;
+	};
+	return evaluate_curve_change(animation, current_value, increment_function);
 }

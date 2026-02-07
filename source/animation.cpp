@@ -4,8 +4,12 @@ bool Animation::is_finished() const {
 	return get_animation_time() >= duration;
 }
 
+double Animation::get_delta_time() const {
+	return std::min(FIXED_DELTA_TIME, duration - get_animation_time());
+}
+
 void Animation::progress_time() {
-	time_elapsed += std::min(delta_time, duration - get_animation_time());
+	time_elapsed += get_delta_time();
 }
 
 std::vector<Animation> animations {};

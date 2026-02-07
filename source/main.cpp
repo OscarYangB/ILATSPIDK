@@ -48,9 +48,9 @@ void start() {
 		interaction.box = sprite.bounding_box();
 		interaction.on_interact = button_clicked;
 
-		/*play_animation(20.0, 0.0, &TransformComponent::position, entity, [](const Animation& animation, Vector2 current_value) {
-			return Vector2{current_value.x, sinusoid_curve(1080.f, 1.f, 0.f, animation, current_value.y)};
-		});*/
+		play_animation(20.0, 0.0, &TransformComponent::position, entity, [](const Animation& animation, Vector2 current_value) {
+			return Vector2{current_value.x, sinusoid_curve(500.f, 1.f, 0.f, animation, current_value.y)};
+		});
 	}
 	{ // Background
 		// const entt::entity background = ecs.create();
@@ -85,11 +85,10 @@ void start() {
 	init_audio();
 	//play_audio(AudioAsset::SUCCESS_AUDIO);
 
-	//play_animation(2.f, 0.0f, &camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); });
+	//play_animation(10.f, 0.0f, &camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); });
 }
 
 void update() {
-	update_generic_animation();
 	update_input();
 	update_interact();
 	update_button();
@@ -98,6 +97,12 @@ void update() {
 	update_sprite_resources();
 	update_render();
 	input_end_frame();
+}
+
+double fixed_update_timer = 0.0;
+
+void fixed_update() {
+	update_generic_animation();
 }
 
 int main(int argc, char* argv[]) {
@@ -123,8 +128,13 @@ int main(int argc, char* argv[]) {
 		delta_time = (SDL_GetTicksNS() - start_frame_time) / 1000000000.0;
 		start_frame_time = SDL_GetTicksNS();
 
-        SDL_Event event;
+		fixed_update_timer += delta_time;
+		while (fixed_update_timer > FIXED_DELTA_TIME) {
+			fixed_update();
+			fixed_update_timer -= FIXED_DELTA_TIME;
+		}
 
+        SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) {
                 done = true;

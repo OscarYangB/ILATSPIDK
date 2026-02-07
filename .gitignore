@@ -1,5 +1,5 @@
 build/*
-!build/*.bat
+!build/build.bat
 external/*
 assets/*
 .cache/*
