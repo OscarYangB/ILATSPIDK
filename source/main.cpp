@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
 		const u64 time_elapsed = SDL_GetTicksNS() - start_frame_time;
 		if (time_elapsed < frame_time) {
 			//std::cout << "sleeping for: " + std::to_string(frame_time - time_elapsed) << "\n";
-			SDL_DelayNS(frame_time - time_elapsed);
+			//SDL_DelayNS(frame_time - time_elapsed); // Do this if based on a setting or if VSync is busted
 		}
 
 		delta_time = (SDL_GetTicksNS() - start_frame_time) / 1000000000.0;

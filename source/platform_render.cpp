@@ -28,6 +28,7 @@ bool start_window() {
         return false;
     }
 
+	SDL_SetRenderVSync(renderer, 1); // Make this a setting
     SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_DISABLED);
 
     return true;

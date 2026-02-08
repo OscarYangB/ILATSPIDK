@@ -43,6 +43,9 @@ void draw_debug_lines() {
 #endif
 }
 
+void render_fps_counter() {
+	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 255, 0, 0, 50, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
+}
 
 void update_render() {
 	start_render();
@@ -98,6 +101,7 @@ void update_render() {
 	}
 
 	draw_debug_lines();
+	//render_fps_counter();
 
 	end_render();
 }
