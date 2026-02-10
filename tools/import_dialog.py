@@ -1,0 +1,150 @@
+import os
+
+file_text = "#pragma once\n"
+file_text += "#include \"dialog_structures.h\"\n\n"
+
+dialog_data : list[str] = []
+
+speaker_list = []
+function_list = []
+check_list = []
+
+line_index = 0
+
+def add_line_label():
+    global dialog_data
+    dialog_data[-1] += f"/* {line_index:03d} */"
+
+def write_line(line : str):
+    global dialog_data
+    global line_index
+    line_index += 1
+    dialog_data[-1] += f"/* {line_index:03d} */"
+    dialog_data[-1] += line
+
+def add_dialog(file_name : str):
+    global dialog_data
+    dialog_data[-1] += "constexpr Dialog %s[] {\n"%file_name.upper()
+
+def add_line(line, speaker):
+    write_line("\tDialogLine { \"%s\", %s },\n"%(line, speaker))
+
+def add_choice(line):
+    write_line("\tDialogChoice { \"%s\", | },\n"%(line))
+
+def add_check(check):
+    global function_list
+    if check not in check_list:
+        check_list.append(check)
+    write_line("\tDialogCheck { %s, | },\n"%(check))
+
+def add_function(function):
+    global function_list
+    if function not in function_list:
+        function_list.append(function)
+    write_line("\tDialogFunction { %s },\n"%(function))
+
+def add_jump(index):
+    write_line("\tDialogJump { %s },\n"%index)
+
+def parse_dialog(file : str):
+    global line_index
+    line_index = 0
+
+    variable_to_line = {}
+    line_to_variable = {}
+    line_to_line = {}
+    stack = [[]]
+
+    file = file.replace("\t", "")
+    file = file.replace("}\n{", "}{") # This makes closures easier to parse
+    lines = file.split("\n")
+    for line in lines:
+        line = line.lstrip().rstrip()
+        if line == "":
+            continue
+        if line == "end":
+            add_jump(0)
+            continue
+        if line.startswith("}{"):
+            add_jump("|")
+            add_choice(line.removeprefix("}{").lstrip())
+            stack[-1].append(line_index)
+            continue
+        if line.startswith("}"):
+            nodes = stack.pop()
+            for j in range(len(nodes) - 1):
+                line_to_line[nodes[j]] = nodes[j+1]
+                line_to_line[nodes[j + 1] - 1] = line_index + 1
+            line_to_line[nodes[-1]] = 0
+            continue
+        if line.startswith("{"):
+            # TODO function check option
+            line = line.removeprefix("{").lstrip()
+            if line.startswith("[") and line.endswith("]"):
+                line = line.removeprefix("[").removesuffix("]")
+                add_check(line)
+            else:
+                add_choice(line)
+            stack.append([line_index])
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            line = line.removeprefix("[").removesuffix("]")
+            add_function(line)
+            continue
+        parsed_line = line.split(": ")
+        prefix = parsed_line[0]
+        data = parsed_line[1]
+        if prefix == "goto":
+            add_jump("|")
+            line_to_variable[line_index] = data
+        elif prefix == "var":
+            variable_to_line[data] = line_index + 1
+        else:
+            speaker = prefix.upper()
+            if speaker not in speaker_list:
+                speaker_list.append(speaker)
+            add_line(data, "Speaker::" + speaker)
+
+    for line in line_to_variable:
+        end_line = variable_to_line[line_to_variable[line]]
+        line_to_line[line] = end_line
+    global dialog_data
+    dialog_data[-1] += "};\n\n"
+    dialog_data_lines = dialog_data[-1].split("\n")
+    print(variable_to_line)
+    print(line_to_variable)
+    print(line_to_line)
+    for line in line_to_line:
+        dialog_data_lines[line] = dialog_data_lines[line].replace("|", str(line_to_line[line]))
+    dialog_data[-1] = '\n'.join(dialog_data_lines)
+
+for (root, dirs, files) in os.walk("..\\assets"):
+    for file in files:
+        split = file.split('.', 1)
+        extension = split[1]
+        full_path = os.path.join(root, file);
+
+        if extension == "dlg":
+            with open(full_path) as file:
+                dialog_data.append("")
+                add_dialog(split[0])
+                parse_dialog(file.read())
+
+file_text += "enum class Speaker {\n"
+for speaker in speaker_list:
+    file_text += "\t%s,\n"%speaker
+file_text += "};\n\n"
+
+for function in function_list:
+    file_text += f"void {function}();\n"
+
+for check in check_list:
+    file_text += f"bool {check}();\n"
+file_text += "\n"
+
+for dialog_entry in dialog_data:
+    file_text += dialog_entry
+
+with open("../source/dialog_data.h", "w") as header:
+    header.write(file_text)
