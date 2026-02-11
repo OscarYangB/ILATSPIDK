@@ -5,7 +5,7 @@
 #include "SDL3/SDL_events.h"
 #include <queue>
 
-static Input inputs[static_cast<int>(InputType::_count)] = {};
+static Input inputs[NUMBER_OF_INPUT_TYPES] = {};
 static std::queue<InputEvent> input_events = {};
 float mouse_x = 0.0f;
 float mouse_y = 0.0f;

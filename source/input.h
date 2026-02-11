@@ -17,6 +17,8 @@ enum class InputType {
 	_count
 };
 
+constexpr u8 NUMBER_OF_INPUT_TYPES = static_cast<int>(InputType::_count);
+
 struct Input {
 	u16 default_binding; // TODO
 	bool is_down;

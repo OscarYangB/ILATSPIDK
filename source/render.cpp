@@ -51,13 +51,25 @@ void update_render() {
 	start_render();
 
 	ecs.sort<SpriteComponent>([](const entt::entity& first, const entt::entity& second) { // Sort render order using y position
+		// true -> second is above
+		// false -> first is above
+
+		// UI
+		AnchoredTransformComponent* first_anchored_transform = ecs.try_get<AnchoredTransformComponent>(first);
+		if (first_anchored_transform) return false;
+		AnchoredTransformComponent* second_anchored_transform = ecs.try_get<AnchoredTransformComponent>(second);
+		if (second_anchored_transform) return true;
+
 		BoxColliderComponent* first_collider = ecs.try_get<BoxColliderComponent>(first);
 		BoxColliderComponent* second_collider = ecs.try_get<BoxColliderComponent>(second);
 		TransformComponent* first_transform = ecs.try_get<TransformComponent>(first);
 		TransformComponent* second_transform = ecs.try_get<TransformComponent>(second);
 
+		// Background
 		if (!first_collider || !first_transform) return true;
 		if (!second_collider || !second_transform) return false;
+
+		// Foreground
 		return first_collider->box.top_left.y + first_transform->position.y > second_collider->box.top_left.y + second_transform->position.y;
 	});
 

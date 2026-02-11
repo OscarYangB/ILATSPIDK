@@ -66,7 +66,7 @@ enum class HorizontalAnchor {
 struct AnchoredTransformComponent {
 	HorizontalAnchor x_anchor;
 	VerticalAnchor y_anchor;
-	Vector2 relative_position;
+	Vector2 relative_position = Vector2::zero();
 	u16 width;
 	u16 height;
 
@@ -84,10 +84,10 @@ struct NineSliceComponent {
 
 struct TextComponent {
 	const char* text;
-	u8 r;
-	u8 g;
-	u8 b;
-	u8 size;
+	u8 r = 0;
+	u8 g = 0;
+	u8 b = 0;
+	u8 size = 50;
 
 	HorizontalAnchor x_align = HorizontalAnchor::LEFT;
 	VerticalAnchor y_align = VerticalAnchor::TOP;

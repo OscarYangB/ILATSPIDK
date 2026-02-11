@@ -28,13 +28,3 @@ struct DialogJump {
 };
 
 using Dialog = std::variant<DialogLine, DialogChoice, DialogCheck, DialogFunction, DialogJump>;
-
-struct DialogVisitor {
-	u16 index = 1;
-
-	u16 operator()(const DialogLine&);
-	u16 operator()(const DialogChoice&);
-	u16 operator()(const DialogCheck&);
-	u16 operator()(const DialogFunction&);
-	u16 operator()(const DialogJump&);
-};

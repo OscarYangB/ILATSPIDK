@@ -5,9 +5,9 @@
 #include "input.h"
 
 void update_button() {
-	auto buttons = ecs.view<const SpriteComponent, Button, const AnchoredTransformComponent>();
+	auto buttons = ecs.view<ButtonComponent, const AnchoredTransformComponent>();
 
-	for (auto [entity, sprite, button, transform] : buttons.each()) {
+	for (auto [entity, button, transform] : buttons.each()) {
 		Vector2 position = transform.render_position();
 
 		if (mouse_x > position.x && mouse_x < position.x + transform.render_width() &&

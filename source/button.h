@@ -1,6 +1,6 @@
 #pragma once
 
-struct Button {
+struct ButtonComponent {
 	void (*on_hover)() = nullptr;
 	void (*on_click)() = nullptr;
 	void (*on_unhover)() = nullptr;
