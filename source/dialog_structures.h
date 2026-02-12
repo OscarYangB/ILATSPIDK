@@ -12,6 +12,7 @@ struct DialogLine {
 struct DialogChoice {
 	const char* line;
 	u16 next_choice;
+	bool (*check)() = nullptr;
 };
 
 struct DialogCheck {

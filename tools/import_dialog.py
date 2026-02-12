@@ -30,8 +30,17 @@ def add_dialog(file_name : str):
 def add_line(line, speaker):
     write_line("\tDialogLine { \"%s\", %s },\n"%(line, speaker))
 
-def add_choice(line):
-    write_line("\tDialogChoice { \"%s\", | },\n"%(line))
+def add_choice(line : str):
+    choice_check = "nullptr"
+    if line.startswith("["):
+        line = line.removeprefix("[")
+        split = line.split("]")
+        choice_check = split[0]
+        line = split[1].lstrip()
+        global function_list
+        if choice_check not in check_list:
+            check_list.append(choice_check)
+    write_line("\tDialogChoice { \"%s\", |, %s },\n"%(line, choice_check))
 
 def add_check(check):
     global function_list
@@ -63,6 +72,8 @@ def parse_dialog(file : str):
     for line in lines:
         line = line.lstrip().rstrip()
         if line == "":
+            continue
+        if line.startswith("#"):
             continue
         if line == "end":
             add_jump(0)
@@ -114,9 +125,9 @@ def parse_dialog(file : str):
     global dialog_data
     dialog_data[-1] += "};\n\n"
     dialog_data_lines = dialog_data[-1].split("\n")
-    print(variable_to_line)
-    print(line_to_variable)
-    print(line_to_line)
+    #print(variable_to_line)
+    #print(line_to_variable)
+    #print(line_to_line)
     for line in line_to_line:
         dialog_data_lines[line] = dialog_data_lines[line].replace("|", str(line_to_line[line]))
     dialog_data[-1] = '\n'.join(dialog_data_lines)

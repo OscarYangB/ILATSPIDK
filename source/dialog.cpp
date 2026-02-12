@@ -133,7 +133,9 @@ void DialogVisitor::operator()(const DialogChoice& choice) {
 	const DialogChoice* current_choice = &choice;
 	u16 current_index = index + 1;
 	while (true) {
-		make_choice_button(current_choice->line, current_index);
+		if (current_choice->check == nullptr || current_choice->check()) {
+			make_choice_button(current_choice->line, current_index);
+		}
 
 		if (current_choice->next_choice == 0) {
 			break;
