@@ -23,13 +23,13 @@ bool start_window() {
         return false;
     }
 
-    if (!SDL_CreateWindowAndRenderer("I Love All The Strange People I Don't Know", 640, 480, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer("I Love All The Strange People I Don't Know", 1920, 1080, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return false;
     }
 
 	SDL_SetRenderVSync(renderer, 1); // Make this a setting
-    SDL_SetRenderLogicalPresentation(renderer, 640, 480, SDL_LOGICAL_PRESENTATION_DISABLED);
+    SDL_SetRenderLogicalPresentation(renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_DISABLED);
 
     return true;
 }
@@ -126,7 +126,7 @@ int window_height() {
 	return h;
 }
 
-void render_text(const char* text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, HorizontalAnchor x_align, VerticalAnchor y_align) {
+void render_text(const char* text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, u16 mask, HorizontalAnchor x_align, VerticalAnchor y_align) {
 	sdl_stb_font_cache font_cache;
 	font_cache.faceSize = size;
 	font_cache.bindRenderer(renderer);
@@ -140,9 +140,12 @@ void render_text(const char* text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b,
 	if (y_align == VerticalAnchor::BOTTOM) y += h - total_height;
 
 	u16 height_accumulation = y;
+	u16 mask_index = mask;
 	for (auto& string : broken_string) {
+		std::string masked_string = mask == 0 ? string.getString() : string.substr(0, std::min(static_cast<u16>(string.size()), mask_index));
+		mask_index -= std::min(static_cast<u16>(string.size()), mask_index);
 		sdl_stb_prerendered_text text_render;
-		font_cache.renderTextToObject(&text_render, string);
+		font_cache.renderTextToObject(&text_render, masked_string);
 
 		u16 render_x = x;
 		u16 text_width = font_cache.getTextWidth(string);

@@ -88,6 +88,7 @@ struct TextComponent {
 	u8 g = 0;
 	u8 b = 0;
 	u8 size = 50;
+	u16 mask = 0; // How many characters to display? 0 means all
 
 	HorizontalAnchor x_align = HorizontalAnchor::LEFT;
 	VerticalAnchor y_align = VerticalAnchor::TOP;

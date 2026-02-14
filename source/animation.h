@@ -1,13 +1,14 @@
 #pragma once
 
 #include "game.h"
+#include "definitions.h"
 
 struct Animation;
 
-struct Updater : entt::type_list<void(const Animation& animation)> {
+struct Updater : entt::type_list<void(Animation& animation)> {
 	template<typename Base>
 	struct type : Base {
-		void update(const Animation& animation) {
+		void update(Animation& animation) {
 			return entt::poly_call<0>(*this, animation);
 		}
 	};
@@ -20,8 +21,10 @@ struct Animation {
 	double duration;
 	double delay;
 	entt::poly<Updater> updater;
+	u64 id;
 
 	double time_elapsed = 0.0;
+	bool should_remove = false;
 
 	bool is_finished() const;
 	void progress_time();
@@ -30,21 +33,29 @@ struct Animation {
 };
 
 template <typename T>
-using Curve = T (*)(const Animation& animation, T current_value);
+using Curve = T (*)(Animation& animation, T current_value);
 
-template <typename MemberType, typename ComponentType>
+template <typename MemberType, typename ComponentType, typename RemoveFunctionType>
 struct ComponentAnimation {
 	entt::entity entity;
 	Curve<MemberType> curve;
 	MemberType ComponentType::* member;
+	RemoveFunctionType remove_if;
 
-	void update(const Animation& animation) {
+	void update(Animation& animation) {
 		if (!ecs.valid(entity)) {
+			animation.should_remove = true;
 			return;
 		}
 
 		ComponentType* component = ecs.try_get<ComponentType>(entity);
 		if (component == nullptr) {
+			animation.should_remove = true;
+			return;
+		}
+
+		if (remove_if != nullptr && remove_if(*component)) {
+			animation.should_remove = true;
 			return;
 		}
 
@@ -59,24 +70,27 @@ struct PointerAnimation {
 	T* to_animate;
 	Curve<T> curve;
 
-	void update(const Animation& animation) {
+	void update(Animation& animation) {
 		*to_animate = curve(animation, *to_animate);
 	}
 };
 
 extern std::vector<Animation> animations;
+u64 register_animation(Animation animation);
 
-void play_animation(double duration, double delay, entt::poly<Updater> updater);
+u64 play_animation(double duration, double delay, entt::poly<Updater> updater);
 void update_generic_animation();
+void stop_animation(u64 id);
+bool animation_playing(u64 id);
 
-template <typename MemberType, typename ComponentType, typename CurveType>
-void play_animation(double duration, double delay, MemberType ComponentType::* member, entt::entity entity, CurveType curve) {
-	animations.push_back(Animation{duration, delay, ComponentAnimation<MemberType, ComponentType>{entity, curve, member}});
+template <typename MemberType, typename ComponentType, typename CurveType, typename RemoveFunctionType>
+u64 play_animation(double duration, double delay, MemberType ComponentType::* member, entt::entity entity, CurveType curve, RemoveFunctionType remove_if = nullptr) {
+	return register_animation(Animation{duration, delay, ComponentAnimation<MemberType, ComponentType, RemoveFunctionType>{entity, curve, member, remove_if}});
 }
 
 template <typename T, typename CurveType>
-void play_animation(double duration, double delay, T* to_animate, CurveType curve) {
-	animations.push_back(Animation{duration, delay, PointerAnimation<T>{to_animate, curve}});
+u64 play_animation(double duration, double delay, T* to_animate, CurveType curve) {
+	return register_animation(Animation{duration, delay, PointerAnimation<T>{to_animate, curve}});
 }
 
 template <typename T>
@@ -103,7 +117,7 @@ T sinusoid_curve(float amplitude, float frequency, float phase, const Animation&
 template <typename T>
 T linear_increment(double rate, T multiplier, const Animation& animation, T current_value) {
 	auto increment_function = [rate, multiplier] (double time) -> T {
-		return std::floor(time / rate) * multiplier;
+		return std::floor(time * rate) * multiplier;
 	};
 	return evaluate_curve_change(animation, current_value, increment_function);
 }

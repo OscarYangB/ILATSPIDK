@@ -50,7 +50,7 @@ void start() {
 		interaction.box = sprite.bounding_box();
 		interaction.on_interact = [](){ start_dialog(TABLE_DIALOG[0]); };
 
-		// play_animation(20.0, 0.0, &TransformComponent::position, entity, [](const Animation& animation, Vector2 current_value) {
+		// play_animation(20.0, 0.0, &TransformComponent::position, entity, [](Animation& animation, Vector2 current_value) {
 		// 	return Vector2{current_value.x, sinusoid_curve(500.f, 1.f, 0.f, animation, current_value.y)};
 		// });
 	}
@@ -93,7 +93,7 @@ void start() {
 void update() {
 	update_input();
 	if (!in_dialog()) update_interact();
-	update_dialog_input();
+	update_dialog();
 	update_button();
 	if (!in_dialog()) update_movement();
 	update_character_animation();

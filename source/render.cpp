@@ -44,7 +44,7 @@ void draw_debug_lines() {
 }
 
 void render_fps_counter() {
-	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 255, 0, 0, 50, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
+	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 255, 0, 0, 50, 0, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
 }
 
 void update_render() {
@@ -105,15 +105,15 @@ void update_render() {
 		}
 	}
 
-	auto text_view = ecs.view<const TextComponent, const AnchoredTransformComponent>();
+	auto text_view = ecs.view<TextComponent, const AnchoredTransformComponent>();
 	for (auto [entity, text, transform] : text_view.each()) {
 		Vector2 position = transform.render_position();
 		render_text(text.text, position.x, position.y, transform.render_width(), transform.render_height(), text.r, text.b, text.g, text.size * window_scale(),
-					text.x_align, text.y_align);
+					text.mask, text.x_align, text.y_align);
 	}
 
 	draw_debug_lines();
-	//render_fps_counter();
+	render_fps_counter();
 
 	end_render();
 }

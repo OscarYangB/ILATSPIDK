@@ -7,7 +7,7 @@ void start_dialog(const Dialog& new_dialog);
 void progress_dialog();
 void end_dialog();
 
-void update_dialog_input();
+void update_dialog();
 bool in_dialog();
 
 struct DialogVisitor {
@@ -22,7 +22,6 @@ struct DialogVisitor {
 };
 
 struct ChoiceButton {
-	entt::entity button = entt::null;
-	entt::entity text = entt::null;
+	entt::entity entity = entt::null;
 	u16 jump_index = 0;
 };

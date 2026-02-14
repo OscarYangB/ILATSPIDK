@@ -6,9 +6,13 @@
 
 entt::entity background = entt::null;
 entt::entity dialog_text = entt::null;
-u16 text_index = 0; // TODO
 const Dialog* dialog = nullptr;
-DialogVisitor visitor;
+DialogVisitor visitor {};
+
+constexpr double DIALOG_ANIMATION_RATE = 50.0;
+constexpr double DIALOG_ANIMATION_DELTA = 1.0 / DIALOG_ANIMATION_RATE;
+constexpr double PUNCTUATION_PAUSE = 0.2;
+double dialog_animation_timer = DIALOG_ANIMATION_DELTA;
 
 std::vector<ChoiceButton> choice_buttons = {};
 
@@ -19,7 +23,6 @@ constexpr float Y_MARGIN = 50.f;
 constexpr float CHOICE_BUTTON_HEIGHT = 100.f;
 
 void start_dialog(const Dialog& new_dialog) {
-	text_index = 0;
 	visitor.index = 1;
 	dialog = &new_dialog;
 
@@ -37,7 +40,6 @@ void start_dialog(const Dialog& new_dialog) {
 		auto& transform = ecs.emplace<AnchoredTransformComponent>(dialog_text);
 		transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = WIDTH - X_MARGIN; transform.height = HEIGHT - Y_MARGIN;
 		auto& text_component = ecs.emplace<TextComponent>(dialog_text);
-		text_component.text = "test";
 	}
 
 	progress_dialog();
@@ -53,7 +55,7 @@ void progress_dialog() {
 		std::visit(visitor, *(dialog + visitor.index - 1));
 		if (visitor.index == 0) {
 			end_dialog();
-			break;
+			return;
 		}
 	} while (visitor.proceed);
 }
@@ -65,7 +67,7 @@ void end_dialog() {
 	dialog_text = entt::null;
 }
 
-void update_dialog_input() {
+static void update_dialog_input() {
 	if (visitor.index == 0) {
 		return;
 	}
@@ -74,16 +76,51 @@ void update_dialog_input() {
 		return;
 	}
 
+	if (ecs.get<TextComponent>(dialog_text).mask != 0) {
+		return; // Wait until animatino finishes
+	}
+
 	if (input_down_this_frame(InputType::INTERACT)) {
 		handle_input(InputType::INTERACT);
 		progress_dialog();
 	}
 }
 
+static void update_dialog_animation() {
+	if (dialog_text == entt::null) {
+		return;
+	}
+
+	auto& text_component = ecs.get<TextComponent>(dialog_text);
+
+	if (text_component.mask == 0) {
+		return;
+	}
+
+	dialog_animation_timer -= delta_time;
+
+	if (dialog_animation_timer > 0.0) {
+		return;
+	}
+
+	text_component.mask++;
+	if (text_component.mask >= strlen(text_component.text)) {
+		text_component.mask = 0;
+		return;
+	}
+	char last_character = text_component.text[text_component.mask - 1];
+	bool punctuation = last_character == '.' || last_character == '?' || last_character == '!';
+	dialog_animation_timer += punctuation ? PUNCTUATION_PAUSE : DIALOG_ANIMATION_DELTA;
+}
+
+void update_dialog() {
+	update_dialog_input();
+	update_dialog_animation();
+}
+
 void delete_choice_buttons() {
 	for (const ChoiceButton& button : choice_buttons) {
-		ecs.destroy(button.button);
-		ecs.destroy(button.text);
+		ecs.destroy(button.entity);
 	}
 
 	choice_buttons.clear();
@@ -91,7 +128,7 @@ void delete_choice_buttons() {
 
 void choice_made() {
 	for (const ChoiceButton& button : choice_buttons) {
-		const ButtonComponent& button_component = ecs.get<ButtonComponent>(button.button);
+		const ButtonComponent& button_component = ecs.get<ButtonComponent>(button.entity);
 		if (button_component.is_hovered) {
 			visitor.index = button.jump_index;
 			delete_choice_buttons();
@@ -106,25 +143,24 @@ void make_choice_button(const char* choice_text, u16 jump_index) {
 	transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = WIDTH; transform.height = CHOICE_BUTTON_HEIGHT;
 	transform.relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_buttons.size()};
 
-	auto text = ecs.create();
-	auto& text_transform = ecs.emplace<AnchoredTransformComponent>(text);
+	auto entity = ecs.create();
+	auto& text_transform = ecs.emplace<AnchoredTransformComponent>(entity);
 	text_transform = transform;
-	auto& text_component = ecs.emplace<TextComponent>(text);
+	auto& text_component = ecs.emplace<TextComponent>(entity);
 	text_component.text = choice_text;
-
-	auto button = ecs.create();
-	auto& button_component = ecs.emplace<ButtonComponent>(button);
+	auto& button_component = ecs.emplace<ButtonComponent>(entity);
 	button_component.on_click = choice_made;
-	auto& button_transform = ecs.emplace<AnchoredTransformComponent>(button);
-	button_transform = transform;
 
-	choice_buttons.push_back(ChoiceButton{button, text, jump_index});
+	choice_buttons.push_back(ChoiceButton{entity, jump_index});
 }
 
 
 void DialogVisitor::operator()(const DialogLine& line) {
-	ecs.get<TextComponent>(dialog_text).text = line.line;
+	TextComponent& text = ecs.get<TextComponent>(dialog_text);
+	text.text = line.line;
 	index++;
+	text.mask = 1;
+	dialog_animation_timer = DIALOG_ANIMATION_DELTA;
 }
 
 void DialogVisitor::operator()(const DialogChoice& choice) {

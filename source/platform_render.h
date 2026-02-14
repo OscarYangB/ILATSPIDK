@@ -24,6 +24,6 @@ void unload_sprite(int index);
 int window_width();
 int window_height();
 
-void render_text(const char* text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, HorizontalAnchor x_align, VerticalAnchor y_align);
+void render_text(const char* text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, u16 mask, HorizontalAnchor x_align, VerticalAnchor y_align);
 
 void platform_debug_draw(const Vector2& start, const Vector2& end);

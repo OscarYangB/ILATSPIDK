@@ -84,7 +84,7 @@ constexpr Dialog TABLE_DIALOG[] {
 /* 012 */	DialogJump { 0 },
 /* 013 */	DialogJump { 21 },
 /* 014 */	DialogChoice { "Kerry: I don't think so...", 19, nullptr },
-/* 015 */	DialogLine { "That's quite a rude thing to say don't you think?", Speaker::TABLE },
+/* 015 */	DialogLine { "That's quite a rude thing to say don't you think? I think that you should take a deep breath. Just to calm yourself down!", Speaker::TABLE },
 /* 016 */	DialogLine { "I'm sorry", Speaker::KERRY },
 /* 017 */	DialogLine { "You better be!", Speaker::TABLE },
 /* 018 */	DialogJump { 21 },
