@@ -24,6 +24,7 @@ constexpr float Y_MARGIN = 50.f;
 constexpr float CHOICE_BUTTON_HEIGHT = 100.f;
 
 void start_dialog(const Dialog& new_dialog) {
+	input_mode_stack.push(InputMode::DIALOG);
 	visitor.index = 1;
 	dialog = &new_dialog;
 
@@ -62,6 +63,7 @@ void progress_dialog() {
 }
 
 void end_dialog() {
+	input_mode_stack.pop();
 	ecs.destroy(background);
 	ecs.destroy(dialog_text);
 	background = entt::null;

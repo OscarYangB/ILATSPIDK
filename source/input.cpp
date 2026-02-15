@@ -5,10 +5,11 @@
 #include "SDL3/SDL_events.h"
 #include <queue>
 
-static Input inputs[NUMBER_OF_INPUT_TYPES] = {};
-static std::queue<InputEvent> input_events = {};
-float mouse_x = 0.0f;
-float mouse_y = 0.0f;
+static Input inputs[NUMBER_OF_INPUT_TYPES] {};
+static std::queue<InputEvent> input_events {};
+float mouse_x {0.0f};
+float mouse_y {0.0f};
+std::stack<InputMode> input_mode_stack {{InputMode::EXPLORE}};
 
 static void update_input_state(InputType input_type, bool is_down) {
 	int index = static_cast<int>(input_type);
@@ -69,4 +70,8 @@ void input_end_frame() {
 	for (Input& input : inputs) {
 		input.is_handled = true;
 	}
+}
+
+InputMode get_current_input_mode() {
+	return input_mode_stack.top();
 }

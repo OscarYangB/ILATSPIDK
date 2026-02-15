@@ -1,6 +1,7 @@
 #pragma once
 
 #include "definitions.h"
+#include <stack>
 
 struct SDL_KeyboardEvent;
 
@@ -31,6 +32,15 @@ struct InputEvent {
 	bool down;
 };
 
+enum class InputMode {
+	EXPLORE,
+	COMBAT,
+	DIALOG,
+	MENU
+};
+
+extern std::stack<InputMode> input_mode_stack;
+
 extern float mouse_x;
 extern float mouse_y;
 
@@ -42,3 +52,5 @@ bool input_down_this_frame(InputType input_type);
 bool input_released_this_frame(InputType input_type);
 void handle_input(InputType input_type);
 void input_end_frame();
+
+InputMode get_current_input_mode();

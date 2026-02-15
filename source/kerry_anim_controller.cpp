@@ -4,6 +4,7 @@
 #include "image_assets.h"
 #include "player_movement_controller.h"
 #include <array>
+#include "input.h"
 
 static u8 body_index;
 static u8 leg_idle_index;
@@ -53,7 +54,7 @@ void update_character_animation() {
 		u8 flower_sprite;
 		u8 cape_sprite;
 
-		if (!movement.is_moving) leg_moving_index = 0;
+		if (!movement.is_moving || get_current_input_mode() != InputMode::EXPLORE) leg_moving_index = 0;
 
 		switch(movement.direction) {
 			case CharacterDirection::UP: {

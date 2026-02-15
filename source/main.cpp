@@ -91,16 +91,35 @@ void start() {
 	//play_animation(10.f, 0.0f, &camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); });
 }
 
-void update() {
-	update_input();
-	if (!in_dialog()) update_interact();
-	update_dialog();
+static void update_process_input() {
+	switch(get_current_input_mode()) {
+		case InputMode::EXPLORE: {
+			update_interact();
+			update_movement();
+			break;
+		}
+		case InputMode::DIALOG: {
+			update_dialog();
+			break;
+		}
+		case InputMode::MENU: {
+			break;
+		}
+		case InputMode::COMBAT: {
+			break;
+		}
+	}
+
 	update_button();
-	if (!in_dialog()) update_movement();
+	input_end_frame();
+}
+
+static void update() {
+	update_input();
+	update_process_input();
 	update_character_animation();
 	update_sprite_resources();
 	update_render();
-	input_end_frame();
 
 	auto [sprite, transform] = ecs.get<SpriteComponent, TransformComponent>(player_character);
 	camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
