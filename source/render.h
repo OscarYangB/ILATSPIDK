@@ -49,6 +49,7 @@ struct SpriteComponent {
 	entt::poly<Renderable> renderable;
 
 	Box bounding_box();
+	Box visible_bounding_box();
 };
 
 enum class VerticalAnchor {

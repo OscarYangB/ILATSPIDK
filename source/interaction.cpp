@@ -12,10 +12,7 @@ void update_interact() {
 
 	constexpr float INTERACTION_RANGE = 100.f;
 
-	auto view = ecs.view<InteractionComponent, TransformComponent>();
-
-	auto player_view = ecs.view<PlayerMovementComponent, TransformComponent, SpriteComponent>();
-	auto [player_entity, player_movement, player_transform, player_sprite] = *player_view.each().begin(); // Should be only one
+	auto [player_movement, player_transform, player_sprite] = ecs.get<PlayerMovementComponent, TransformComponent, SpriteComponent>(player_character);
 
 	Vector2 direction = Vector2::down();
 	switch (player_movement.direction) {

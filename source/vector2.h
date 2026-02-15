@@ -18,6 +18,7 @@ struct Vector2 {
 	float magnitude();
 
 	static float distance(const Vector2& first, const Vector2& second);
+	static Vector2 lerp(const Vector2& first, const Vector2& second, float scalar);
 
 	static constexpr Vector2 zero() { return Vector2{0.f, 0.f}; }
 	static constexpr Vector2 one() { return Vector2{1.f, 1.f}; }

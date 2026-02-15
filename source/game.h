@@ -3,6 +3,7 @@
 #include "entt/entt.hpp"
 
 extern entt::registry ecs;
+extern entt::entity player_character;
 extern double delta_time;
 
 constexpr double FIXED_UPDATE_RATE = 60.0;

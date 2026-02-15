@@ -11,8 +11,9 @@ DialogVisitor visitor {};
 
 constexpr double DIALOG_ANIMATION_RATE = 50.0;
 constexpr double DIALOG_ANIMATION_DELTA = 1.0 / DIALOG_ANIMATION_RATE;
-constexpr double PUNCTUATION_PAUSE = 0.2;
+constexpr double PUNCTUATION_PAUSE = 0.18;
 double dialog_animation_timer = DIALOG_ANIMATION_DELTA;
+bool is_dialog_animating = false;
 
 std::vector<ChoiceButton> choice_buttons = {};
 
@@ -76,8 +77,8 @@ static void update_dialog_input() {
 		return;
 	}
 
-	if (ecs.get<TextComponent>(dialog_text).mask != 0) {
-		return; // Wait until animatino finishes
+	if (is_dialog_animating) {
+		return;
 	}
 
 	if (input_down_this_frame(InputType::INTERACT)) {
@@ -103,9 +104,12 @@ static void update_dialog_animation() {
 		return;
 	}
 
+	// Play sound from tone row based on chance
+
 	text_component.mask++;
 	if (text_component.mask >= strlen(text_component.text)) {
 		text_component.mask = 0;
+		is_dialog_animating = false;
 		return;
 	}
 	char last_character = text_component.text[text_component.mask - 1];
@@ -159,8 +163,10 @@ void DialogVisitor::operator()(const DialogLine& line) {
 	TextComponent& text = ecs.get<TextComponent>(dialog_text);
 	text.text = line.line;
 	index++;
+
 	text.mask = 1;
 	dialog_animation_timer = DIALOG_ANIMATION_DELTA;
+	is_dialog_animating = true;
 }
 
 void DialogVisitor::operator()(const DialogChoice& choice) {

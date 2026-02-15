@@ -113,7 +113,7 @@ void update_render() {
 	}
 
 	draw_debug_lines();
-	render_fps_counter();
+	//render_fps_counter();
 
 	end_render();
 }
@@ -207,6 +207,23 @@ bool TransformComponent::can_move(const entt::entity& entity_to_move, const Vect
 }
 
 Box SpriteComponent::bounding_box() {
+	AtlasIndex* data; int size;
+	renderable->draw(data, size);
+
+	int index = static_cast<int>(*data);
+	u16 w = atlas_data[index].w;
+	u16 h = atlas_data[index].h;
+
+	for (int i = 1; i < size; i++) {
+		int index = static_cast<int>(*(data + i));
+		w = std::max(w, atlas_data[index].w);
+		h = std::max(h, atlas_data[index].h);
+	}
+
+	return {{0.f, 0.f}, {(float)w, -((float)h)}};
+}
+
+Box SpriteComponent::visible_bounding_box() {
 	AtlasIndex* data; int size;
 	renderable->draw(data, size);
 

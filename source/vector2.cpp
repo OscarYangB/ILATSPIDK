@@ -66,3 +66,7 @@ float Vector2::magnitude() {
 float Vector2::distance(const Vector2& first, const Vector2& second) {
 	return (first - second).magnitude();
 }
+
+Vector2 Vector2::lerp(const Vector2& first, const Vector2& second, float scalar) {
+	return { std::lerp(first.x, second.x, scalar), std::lerp(first.y, second.y, scalar) };
+}

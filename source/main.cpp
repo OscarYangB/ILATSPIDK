@@ -37,6 +37,7 @@ void start() {
 		movement.speed = 200.f;
 		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
 		collider = KERRY_COLLIDER;
+		player_character = entity;
 	}
 	{ // TABLE
 		const entt::entity entity = ecs.create();
@@ -100,6 +101,9 @@ void update() {
 	update_sprite_resources();
 	update_render();
 	input_end_frame();
+
+	auto [sprite, transform] = ecs.get<SpriteComponent, TransformComponent>(player_character);
+	camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
 }
 
 double fixed_update_timer = 0.0;
