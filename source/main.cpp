@@ -18,6 +18,7 @@
 #include "dialog.h"
 #include "spawn.h"
 #include "character_animation.h"
+#include "combat.h"
 
 static u64 start_frame_time = 0.0;
 
@@ -112,8 +113,12 @@ static void update_process_input() {
 static void update() {
 	update_input();
 	update_process_input();
+
+	update_combat();
+
 	update_character_animation();
 	update_cycle_animations();
+
 	update_sprite_resources();
 	update_render();
 

@@ -12,6 +12,7 @@ enum class Speaker {
 };
 
 void give_flower();
+void start_table_fight();
 bool has_flower();
 bool has_cat();
 
@@ -82,14 +83,15 @@ constexpr Dialog TABLE_DIALOG[] {
 /* 010 */	DialogChoice { "Kerry: Uhhh... sure", 0, nullptr },
 /* 011 */	DialogLine { "Come on in!", Speaker::TABLE },
 /* 012 */	DialogJump { 0 },
-/* 013 */	DialogJump { 21 },
-/* 014 */	DialogChoice { "Kerry: I don't think so...", 19, nullptr },
+/* 013 */	DialogJump { 22 },
+/* 014 */	DialogChoice { "Kerry: I don't think so...", 20, nullptr },
 /* 015 */	DialogLine { "That's quite a rude thing to say don't you think? I think that you should take a deep breath. Just to calm yourself down!", Speaker::TABLE },
 /* 016 */	DialogLine { "I'm sorry", Speaker::KERRY },
 /* 017 */	DialogLine { "You better be!", Speaker::TABLE },
-/* 018 */	DialogJump { 21 },
-/* 019 */	DialogChoice { "Kerry: Here's a cat!", 0, has_cat },
-/* 020 */	DialogLine { "Thank you!", Speaker::TABLE },
-/* 021 */	DialogJump { 0 },
+/* 018 */	DialogFunction { start_table_fight },
+/* 019 */	DialogJump { 22 },
+/* 020 */	DialogChoice { "Kerry: Here's a cat!", 0, has_cat },
+/* 021 */	DialogLine { "Thank you!", Speaker::TABLE },
+/* 022 */	DialogJump { 0 },
 };
 

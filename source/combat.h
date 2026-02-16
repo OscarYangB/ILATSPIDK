@@ -3,9 +3,10 @@
 #include <vector>
 #include "definitions.h"
 #include "image_data.h"
+#include <optional>
 
 struct CharacterComponent;
-using Characters = std::vector<CharacterComponent>;
+using Characters = std::vector<CharacterComponent*>;
 
 struct CardData {
 	const char* name;
@@ -26,9 +27,6 @@ struct PlayedCard {
 	u8 bars_until_activate;
 	Card card = nullptr;
 	Characters targets = {};
-
-	bool is_valid();
-	void invalidate();
 };
 
 enum CharacterType : u8 {
@@ -66,7 +64,7 @@ struct CharacterComponent {
 	std::vector<Card> deck;
 	std::vector<Card> hand;
 	std::vector<StatusEffect> status_effects;
-	PlayedCard played_card;
+	std::optional<PlayedCard> played_card;
 
 	void init_from_data(const CharacterDataComponent& new_data);
 	inline bool is_alive() { return health > 0.f; }
@@ -94,11 +92,11 @@ struct Combat {
 	void update();
 };
 
-extern Combat combat;
-extern bool in_combat;
+extern std::optional<Combat> combat;
 
-void start_combat(const Characters& characters);
 void update_combat();
+void start_combat();
+void end_combat();
 
 enum class CardID {
 	FIREBALL,
