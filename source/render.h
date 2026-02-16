@@ -1,6 +1,6 @@
 #pragma once
 
-#include "image_assets.h"
+#include "image_data.h"
 #include "vector2.h"
 #include "definitions.h"
 #include "entt/entt.hpp"
@@ -16,7 +16,7 @@ struct TransformComponent {
 };
 
 struct SpriteComponent {
-	std::vector<AtlasIndex> sprites;
+	std::vector<Sprite> sprites;
 
 	Box bounding_box();
 	Box visible_bounding_box();

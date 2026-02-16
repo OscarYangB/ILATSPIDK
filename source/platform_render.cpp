@@ -4,7 +4,7 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
 #include "SDL3/SDL_video.h"
-#include "image_assets.h"
+#include "image_data.h"
 #include "render.h"
 #include <cstdlib>
 #define SDL_STB_FONT_IMPL
@@ -45,15 +45,15 @@ void load_sprite(int index) {
 		return; // Sprite already loaded
 	}
 
-	SDL_IOStream* stream = SDL_IOFromConstMem(image_data[index], image_sizes[index]);
+	SDL_IOStream* stream = SDL_IOFromConstMem(image_file_data[index], image_file_sizes[index]);
 	SDL_Surface* surface = SDL_LoadPNG_IO(stream, true);
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 	SDL_DestroySurface(surface);
 	loaded_sprites[index] = texture;
 }
 
-static SDL_Texture* get_sprite(ImageAsset image_asset) {
-	u8 image_index = static_cast<u8>(image_asset);
+static SDL_Texture* get_sprite(ImageFile image_file) {
+	u8 image_index = static_cast<u8>(image_file);
 	return loaded_sprites[image_index];
 }
 
@@ -74,17 +74,17 @@ void end_render() {
 	SDL_RenderPresent(renderer);
 }
 
-void render_sprite(ImageAsset image_asset, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h) {
-	SDL_Texture* texture = get_sprite(image_asset);
+void render_sprite(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h) {
+	SDL_Texture* texture = get_sprite(image_file);
 	if (texture == nullptr) return;
 	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
 	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
 }
 
-void render_nine_slice(ImageAsset image_asset, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
+void render_nine_slice(ImageFile image_file, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
 					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale) {
-	SDL_Texture* texture = get_sprite(image_asset);
+	SDL_Texture* texture = get_sprite(image_file);
 	if (texture == nullptr) return;
 
 	float last_segment_width = (float)atlas_w - slice_x - slice_w;

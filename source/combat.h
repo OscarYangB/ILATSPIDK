@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "definitions.h"
-#include "image_assets.h"
+#include "image_data.h"
 
 struct CharacterComponent;
 using Characters = std::vector<CharacterComponent>;
@@ -41,7 +41,7 @@ struct StatusEffect {
 	float seconds_timer;
 	u8 bar_timer;
 	u8 turn_timer;
-	AtlasIndex icon;
+	Sprite icon;
 
 	void (*on_add)();
 	/* void update(); // TODO */
@@ -55,7 +55,7 @@ struct CharacterDataComponent {
 	float starting_shield = 0.f;
 	CharacterType type;
 	std::vector<Card> starting_deck;
-	AtlasIndex icon;
+	Sprite icon;
 };
 
 struct CharacterComponent {

@@ -35,7 +35,7 @@ void start_dialog(const Dialog& new_dialog) {
 		auto& nine = ecs.emplace<NineSliceComponent>(background);
 		nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
 		auto& sprite = ecs.emplace<SpriteComponent>(background);
-		sprite.sprites = {AtlasIndex::TEST_BUTTON};
+		sprite.sprites = {Sprite::TEST_BUTTON};
 	}
 	{
 		dialog_text = ecs.create();

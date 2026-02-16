@@ -1,5 +1,5 @@
 #include "collider_data.h"
-#include "image_assets.h"
+#include "image_data.h"
 #include "audio.h"
 #include "kerry_anim_controller.h"
 #include "physics.h"
@@ -11,7 +11,7 @@
 #include "platform_render.h"
 #include "input.h"
 #include "button.h"
-#include "player_movement_controller.h"
+#include "movement_controller.h"
 #include "interaction.h"
 #include "animation.h"
 #include "dialog_data.h"
@@ -34,7 +34,7 @@ void start() {
 	{ // TABLE
 		const entt::entity entity = ecs.create();
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
-		sprite.sprites = {AtlasIndex::TABLE};
+		sprite.sprites = {Sprite::TABLE};
 		auto& transform = ecs.emplace<TransformComponent>(entity);
 		transform.position = {0.f, 0.f};
 		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
@@ -50,7 +50,7 @@ void start() {
 	{ // Background
 		const entt::entity background = ecs.create();
 		auto& sprite = ecs.emplace<SpriteComponent>(background);
-		sprite.sprites = {AtlasIndex::TEST_BACKGROUND};
+		sprite.sprites = {Sprite::TEST_BACKGROUND};
 		auto& transform = ecs.emplace<TransformComponent>(background);
 		transform.position = Vector2{-1000.0f, 700.0f};
 	}

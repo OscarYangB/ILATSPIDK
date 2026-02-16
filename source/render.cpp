@@ -1,5 +1,5 @@
 #include "render.h"
-#include "image_assets.h"
+#include "image_data.h"
 #include "physics.h"
 #include "platform_render.h"
 #include "game.h"
@@ -81,12 +81,12 @@ void update_render() {
 
 		Vector2 position = anchored_transform ? anchored_transform->render_position() : world_to_pixel(transform->position);
 
-		for (AtlasIndex sprite_index : sprite.sprites) {
+		for (Sprite sprite_index : sprite.sprites) {
 			u16 index = static_cast<u16>(sprite_index);
-			u16 atlas_x = atlas_data[index].x;
-			u16 atlas_y = atlas_data[index].y;
-			u16 atlas_w = atlas_data[index].w;
-			u16 atlas_h = atlas_data[index].h;
+			u16 atlas_x = sprite_atlas_transform[index].x;
+			u16 atlas_y = sprite_atlas_transform[index].y;
+			u16 atlas_w = sprite_atlas_transform[index].w;
+			u16 atlas_h = sprite_atlas_transform[index].h;
 			u16 render_w = anchored_transform ? anchored_transform->render_width() : atlas_w * render_scale();
 			u16 render_h = anchored_transform ? anchored_transform->render_height() : atlas_h * render_scale();
 
@@ -94,10 +94,10 @@ void update_render() {
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
 			if (nine_slice) {
-				render_nine_slice(atlas_to_asset[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,
+				render_nine_slice(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,
 								  nine_slice->x, nine_slice->y, nine_slice->w, nine_slice->h, window_scale());
 			} else {
-				render_sprite(atlas_to_asset[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h);
+				render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h);
 			}
 		}
 	}
@@ -120,8 +120,8 @@ void update_sprite_resources() { // Going to load/unload the textures based on w
 	auto view = ecs.view<SpriteComponent>();
 
 	for (auto [entity, sprite] : view.each()) {
-		for (AtlasIndex sprite : sprite.sprites) {
-			is_loaded[atlas_to_image_index(sprite)] = true;
+		for (Sprite sprite : sprite.sprites) {
+			is_loaded[sprite_to_image_file_index(sprite)] = true;
 		}
 	}
 
@@ -203,13 +203,13 @@ bool TransformComponent::can_move(const entt::entity& entity_to_move, const Vect
 
 Box SpriteComponent::bounding_box() {
 	int index = static_cast<int>(sprites[0]);
-	u16 w = atlas_data[index].w;
-	u16 h = atlas_data[index].h;
+	u16 w = sprite_atlas_transform[index].w;
+	u16 h = sprite_atlas_transform[index].h;
 
 	for (int i = 1; i < sprites.size(); i++) {
 		index = static_cast<int>(sprites[i]);
-		w = std::max(w, atlas_data[index].w);
-		h = std::max(h, atlas_data[index].h);
+		w = std::max(w, sprite_atlas_transform[index].w);
+		h = std::max(h, sprite_atlas_transform[index].h);
 	}
 
 	return {{0.f, 0.f}, {(float)w, -((float)h)}};
@@ -217,17 +217,17 @@ Box SpriteComponent::bounding_box() {
 
 Box SpriteComponent::visible_bounding_box() {
 	int index = static_cast<int>(sprites[0]);
-	u16 left = atlas_data[index].visible_left; // These use downward-positive y-coordinates
-	u16 right = atlas_data[index].visible_right;
-	u16 up = atlas_data[index].visible_up;
-	u16 down = atlas_data[index].visible_down;
+	u16 left = sprite_atlas_transform[index].visible_left; // These use downward-positive y-coordinates
+	u16 right = sprite_atlas_transform[index].visible_right;
+	u16 up = sprite_atlas_transform[index].visible_up;
+	u16 down = sprite_atlas_transform[index].visible_down;
 
 	for (int i = 1; i < sprites.size(); i++) {
 		index = static_cast<int>(sprites[i]);
-		left = std::min(left, atlas_data[index].visible_left);
-		right = std::max(right, atlas_data[index].visible_right);
-		up = std::min(up, atlas_data[index].visible_up);
-		down = std::max(down, atlas_data[index].visible_down);
+		left = std::min(left, sprite_atlas_transform[index].visible_left);
+		right = std::max(right, sprite_atlas_transform[index].visible_right);
+		up = std::min(up, sprite_atlas_transform[index].visible_up);
+		down = std::max(down, sprite_atlas_transform[index].visible_down);
 	}
 
 	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};

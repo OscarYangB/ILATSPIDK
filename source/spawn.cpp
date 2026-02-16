@@ -1,7 +1,7 @@
 #include "spawn.h"
 #include "game.h"
 #include "render.h"
-#include "player_movement_controller.h"
+#include "movement_controller.h"
 #include "physics.h"
 #include "collider_data.h"
 #include "combat.h"
@@ -11,7 +11,7 @@ entt::entity spawn_player() {
 	const entt::entity entity = ecs.create();
 
 	auto& sprite = ecs.emplace<SpriteComponent>(entity);
-	sprite.sprites = {AtlasIndex::KERRY, AtlasIndex::KERRY, AtlasIndex::KERRY, AtlasIndex::KERRY, AtlasIndex::KERRY};
+	sprite.sprites = {Sprite::KERRY, Sprite::KERRY, Sprite::KERRY, Sprite::KERRY, Sprite::KERRY};
 
 	ecs.emplace<TransformComponent>(entity);
 
@@ -42,7 +42,7 @@ entt::entity spawn_grakeny() { // WIP
 	//collider = KERRY_COLLIDER;
 
 	auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
-	animation.sprites = {{AtlasIndex::CAPTAIN_ORANGE, AtlasIndex::KERRY_DOWN_BODY_2}};
+	animation.sprites = {{Sprite::CAPTAIN_ORANGE, Sprite::KERRY_DOWN_BODY_2}};
 
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);
 	character.starting_health = 100.f;

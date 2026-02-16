@@ -2,7 +2,7 @@
 
 #include "definitions.h"
 
-struct AtlasData {
+struct SpriteAtlasTransform {
 	u16 x;
 	u16 y;
 	u16 w;

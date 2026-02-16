@@ -1,10 +1,10 @@
 #pragma once
 
 #include "entt/entt.hpp"
-#include "image_assets.h"
+#include "image_data.h"
 
 struct CycleAnimationComponent {
-	std::vector<AtlasIndex> sprites;
+	std::vector<Sprite> sprites;
 	double frequency;
 
 	u8 index = 0;

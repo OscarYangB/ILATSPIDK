@@ -1,7 +1,7 @@
 #include "interaction.h"
 #include "game.h"
 #include "input.h"
-#include "player_movement_controller.h"
+#include "movement_controller.h"
 #include "render.h"
 
 void update_interact() {
