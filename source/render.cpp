@@ -74,15 +74,15 @@ void update_render() {
 	});
 
 	auto sprites = ecs.view<SpriteComponent>();
-	for (auto [entity, sprite] : sprites.each()) {
+	for (auto [entity, sprite_component] : sprites.each()) {
 		TransformComponent* transform = ecs.try_get<TransformComponent>(entity);
 		AnchoredTransformComponent* anchored_transform = ecs.try_get<AnchoredTransformComponent>(entity);
 		NineSliceComponent* nine_slice = ecs.try_get<NineSliceComponent>(entity);
 
 		Vector2 position = anchored_transform ? anchored_transform->render_position() : world_to_pixel(transform->position);
 
-		for (Sprite sprite_index : sprite.sprites) {
-			u16 index = static_cast<u16>(sprite_index);
+		for (Sprite sprite : sprite_component.sprites) {
+			u16 index = static_cast<u16>(sprite);
 			u16 atlas_x = sprite_atlas_transform[index].x;
 			u16 atlas_y = sprite_atlas_transform[index].y;
 			u16 atlas_w = sprite_atlas_transform[index].w;
