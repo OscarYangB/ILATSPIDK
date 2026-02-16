@@ -70,7 +70,7 @@ void update_render() {
 		if (!second_collider || !second_transform) return false;
 
 		// Foreground
-		return first_collider->box.top_left.y + first_transform->position.y > second_collider->box.top_left.y + second_transform->position.y;
+		return first_collider->box.left_top.y + first_transform->position.y > second_collider->box.left_top.y + second_transform->position.y;
 	});
 
 	auto sprites = ecs.view<SpriteComponent>();

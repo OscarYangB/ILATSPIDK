@@ -30,19 +30,20 @@ entt::entity spawn_player() {
 	return entity;
 }
 
-entt::entity spawn_grakeny() { // WIP
+entt::entity spawn_grakeny() {
 	const entt::entity entity = ecs.create();
 
 	auto& sprite = ecs.emplace<SpriteComponent>(entity);
-	sprite.sprites = {};
+	sprite.sprites = {Sprite::GRAKENY_1};
 
 	ecs.emplace<TransformComponent>(entity);
 
 	auto& collider = ecs.emplace<BoxColliderComponent>(entity);
-	//collider = KERRY_COLLIDER;
+	collider = GRAKENY_COLLIDER;
 
 	auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
-	animation.sprites = {{Sprite::CAPTAIN_ORANGE, Sprite::KERRY_DOWN_BODY_2}};
+	animation.sprites = {{Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}};
+	animation.frequency = 2.f;
 
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);
 	character.starting_health = 100.f;

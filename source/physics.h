@@ -5,8 +5,8 @@
 #include "render.h"
 
 struct Box {
-	Vector2 top_left;
-	Vector2 bottom_right;
+	Vector2 left_top;
+	Vector2 right_bottom;
 
 	Box operator+(const Vector2& offset) const;
 	Vector2 center();
@@ -29,21 +29,21 @@ void raytest(std::vector<BoxComponent*>& out, const Vector2& position, const Vec
 
 	for (auto [entity, component, transform] : view.each()) {
 		Box offset_box = component.box + transform.position;
-		Vector2 bottom_left = {offset_box.top_left.x, offset_box.bottom_right.y};
-		Vector2 top_right = {offset_box.bottom_right.x, offset_box.top_left.y};
+		Vector2 bottom_left = {offset_box.left_top.x, offset_box.right_bottom.y};
+		Vector2 top_right = {offset_box.right_bottom.x, offset_box.left_top.y};
 
 		/*
-		debug_draw(offset_box.top_left, top_right);
-		debug_draw(top_right, offset_box.bottom_right);
-		debug_draw(offset_box.bottom_right, bottom_left);
-		debug_draw(bottom_left, offset_box.top_left);
+		debug_draw(offset_box.left_top, top_right);
+		debug_draw(top_right, offset_box.right_bottom);
+		debug_draw(offset_box.right_bottom, bottom_left);
+		debug_draw(bottom_left, offset_box.left_top);
 		*/
 
 		if (point_in_box(offset_box, position) || point_in_box(offset_box, line_end) ||
-			line_segments_intersect(position, line_end, offset_box.top_left, top_right) ||
-			line_segments_intersect(position, line_end, top_right, offset_box.bottom_right) ||
-			line_segments_intersect(position, line_end, offset_box.bottom_right, bottom_left) ||
-			line_segments_intersect(position, line_end, bottom_left, offset_box.top_left)) {
+			line_segments_intersect(position, line_end, offset_box.left_top, top_right) ||
+			line_segments_intersect(position, line_end, top_right, offset_box.right_bottom) ||
+			line_segments_intersect(position, line_end, offset_box.right_bottom, bottom_left) ||
+			line_segments_intersect(position, line_end, bottom_left, offset_box.left_top)) {
 			out.push_back(&component);
 		}
 	}

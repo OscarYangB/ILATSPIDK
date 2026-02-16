@@ -17,6 +17,7 @@
 #include "dialog_data.h"
 #include "dialog.h"
 #include "spawn.h"
+#include "character_animation.h"
 
 static u64 start_frame_time = 0.0;
 
@@ -30,6 +31,8 @@ void button_clicked() {
 
 void start() {
 	spawn_player();
+	entt::entity grakeny = spawn_grakeny();
+	ecs.get<TransformComponent>(grakeny).position = Vector2(300.f, 300.f);
 
 	{ // TABLE
 		const entt::entity entity = ecs.create();
@@ -110,6 +113,7 @@ static void update() {
 	update_input();
 	update_process_input();
 	update_character_animation();
+	update_cycle_animations();
 	update_sprite_resources();
 	update_render();
 

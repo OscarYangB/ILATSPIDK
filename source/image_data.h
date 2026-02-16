@@ -33,6 +33,10 @@ constexpr inline char test_button[] {
 	#embed "..\assets\test_button.png"
 };
 
+constexpr inline char grakeny[] { 
+	#embed "..\assets\atlas\Grakeny.png"
+};
+
 constexpr inline char test_atlas[] { 
 	#embed "..\assets\atlas\test_atlas.png"
 };
@@ -45,6 +49,7 @@ enum class ImageFile {
 	TABLE_IMAGE,
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
+	GRAKENY_IMAGE,
 	TEST_ATLAS_IMAGE,
 };
 
@@ -54,6 +59,7 @@ constexpr const inline char* image_file_data[] {
 	table,
 	test_background,
 	test_button,
+	grakeny,
 	test_atlas,
 };
 
@@ -63,10 +69,11 @@ constexpr int image_file_sizes[] {
 	sizeof(table),
 	sizeof(test_background),
 	sizeof(test_button),
+	sizeof(grakeny),
 	sizeof(test_atlas),
 };
 
-constexpr int NUMBER_OF_IMAGES = 6;
+constexpr int NUMBER_OF_IMAGES = 7;
 
 
 enum class Sprite {
@@ -75,6 +82,9 @@ enum class Sprite {
 	TABLE,
 	TEST_BACKGROUND,
 	TEST_BUTTON,
+	GRAKENY_1,
+	GRAKENY_2,
+	GRAKENY_3,
 	KERRY_DOWN_CAPE_1,
 	KERRY_DOWN_CAPE_2,
 	KERRY_DOWN_CAPE_3,
@@ -178,6 +188,9 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 0, 300, 200, 56, 56, 257, 190},
 	{0, 0, 2339, 1654, 0, 0, 2339, 1654},
 	{0, 0, 400, 200, 0, 0, 400, 200},
+	{0, 0, 200, 300, 48, 85, 150, 209},
+	{200, 0, 200, 300, 46, 84, 152, 208},
+	{0, 300, 200, 300, 44, 85, 151, 209},
 	{0, 0, 200, 300, 55, 211, 148, 267},
 	{200, 0, 200, 300, 57, 214, 155, 266},
 	{400, 0, 200, 300, 59, 219, 158, 267},
@@ -281,6 +294,9 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::TABLE_IMAGE,
 	ImageFile::TEST_BACKGROUND_IMAGE,
 	ImageFile::TEST_BUTTON_IMAGE,
+	ImageFile::GRAKENY_IMAGE,
+	ImageFile::GRAKENY_IMAGE,
+	ImageFile::GRAKENY_IMAGE,
 	ImageFile::TEST_ATLAS_IMAGE,
 	ImageFile::TEST_ATLAS_IMAGE,
 	ImageFile::TEST_ATLAS_IMAGE,

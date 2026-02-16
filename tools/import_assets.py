@@ -32,7 +32,7 @@ number_of_sounds = 0
 for (root, dirs, files) in os.walk("..\\assets"):
     for file in files:
         split = file.split('.', 1)
-        name = split[0] # remove file extension
+        name = split[0].lower() # remove file extension
         extension = split[1]
         full_path = os.path.join(root, file);
 
@@ -54,6 +54,8 @@ for (root, dirs, files) in os.walk("..\\assets"):
                     list = data["frames"]
                     for entry in list:
                         image_name = entry["filename"].upper().replace(" ", "_")
+                        image_name = image_name.replace("LAYER_1_", "")
+                        image_name = image_name.replace("__", "_")
                         image_x = entry["frame"]["x"]
                         image_y = entry["frame"]["y"]
                         image_w = entry["frame"]["w"]

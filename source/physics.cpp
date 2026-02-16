@@ -1,31 +1,31 @@
 #include "physics.h"
 
 Box Box::operator+(const Vector2& offset) const {
-	return {top_left + offset, bottom_right + offset};
+	return {left_top + offset, right_bottom + offset};
 }
 
 Vector2 Box::center() {
-	return {(top_left.x + bottom_right.x) / 2.f, (bottom_right.y + top_left.y) / 2.f};
+	return {(left_top.x + right_bottom.x) / 2.f, (right_bottom.y + left_top.y) / 2.f};
 }
 
 bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComponent& first_collider, const BoxColliderComponent& second_collider) {
-	Vector2 first_top_left = first_position + first_collider.box.top_left;
-	Vector2 first_bottom_right = first_position + first_collider.box.bottom_right;
-	Vector2 second_top_left = second_position + second_collider.box.top_left;
-	Vector2 second_bottom_right = second_position + second_collider.box.bottom_right;
+	Vector2 first_left_top = first_position + first_collider.box.left_top;
+	Vector2 first_right_bottom = first_position + first_collider.box.right_bottom;
+	Vector2 second_left_top = second_position + second_collider.box.left_top;
+	Vector2 second_right_bottom = second_position + second_collider.box.right_bottom;
 
-	if (first_bottom_right.x < second_top_left.x) return false;
-	if (first_top_left.x > second_bottom_right.x) return false;
-	if (first_bottom_right.y > second_top_left.y) return false;
-	if (first_top_left.y < second_bottom_right.y) return false;
+	if (first_right_bottom.x < second_left_top.x) return false;
+	if (first_left_top.x > second_right_bottom.x) return false;
+	if (first_right_bottom.y > second_left_top.y) return false;
+	if (first_left_top.y < second_right_bottom.y) return false;
 	return true;
 }
 
 bool point_in_box(const Box& box, const Vector2& point) {
-	return point.x > box.top_left.x &&
-		   point.x < box.bottom_right.x &&
-		   point.y > box.bottom_right.y &&
-		   point.y < box.top_left.y;
+	return point.x > box.left_top.x &&
+		   point.x < box.right_bottom.x &&
+		   point.y > box.right_bottom.y &&
+		   point.y < box.left_top.y;
 }
 
 // From Graphics Gems III Chapter IV Part 6
