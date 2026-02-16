@@ -52,7 +52,7 @@ struct StatusEffect {
 
 struct CharacterDataComponent {
 	float starting_health;
-	float starting_shield;
+	float starting_shield = 0.f;
 	CharacterType type;
 	std::vector<Card> starting_deck;
 	AtlasIndex icon;
@@ -100,13 +100,19 @@ extern bool in_combat;
 void start_combat(const Characters& characters);
 void update_combat();
 
+enum class CardID {
+	FIREBALL,
+};
+
 constexpr CardData card_data[] {
-	{"Fireball", "Shoot ball of fire", "is shooting a fireball!", 3,
-	 0, GOOD, 1,
-	 [](CharacterComponent& character, const Characters& targets){
+	{.name= "Fireball", .description = "Shoot ball of fire", .play_text = "is shooting a fireball!",
+	 .cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1,
+	 .play = [](CharacterComponent& character, const Characters& targets) {
 
 	 },
-	 [](CharacterComponent& character, const Characters& targets){
+	 .activate = [](CharacterComponent& character, const Characters& targets) {
 
 	 }},
 };
+
+std::vector<Card> make_cards(std::vector<CardID> ids);

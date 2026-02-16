@@ -81,11 +81,8 @@ void update_render() {
 
 		Vector2 position = anchored_transform ? anchored_transform->render_position() : world_to_pixel(transform->position);
 
-		AtlasIndex* data; int size;
-		sprite.renderable->draw(data, size);
-
-		for (int i = 0; i < size; i++) {
-			u16 index = static_cast<u16>(data[i]);
+		for (AtlasIndex sprite_index : sprite.sprites) {
+			u16 index = static_cast<u16>(sprite_index);
 			u16 atlas_x = atlas_data[index].x;
 			u16 atlas_y = atlas_data[index].y;
 			u16 atlas_w = atlas_data[index].w;
@@ -123,10 +120,8 @@ void update_sprite_resources() { // Going to load/unload the textures based on w
 	auto view = ecs.view<SpriteComponent>();
 
 	for (auto [entity, sprite] : view.each()) {
-		AtlasIndex* index; int size;
-		sprite.renderable->draw(index, size);
-		for (int i = 0; i < size; i++) {
-			is_loaded[atlas_to_image_index(index[i])] = true;
+		for (AtlasIndex sprite : sprite.sprites) {
+			is_loaded[atlas_to_image_index(sprite)] = true;
 		}
 	}
 
@@ -207,15 +202,12 @@ bool TransformComponent::can_move(const entt::entity& entity_to_move, const Vect
 }
 
 Box SpriteComponent::bounding_box() {
-	AtlasIndex* data; int size;
-	renderable->draw(data, size);
-
-	int index = static_cast<int>(*data);
+	int index = static_cast<int>(sprites[0]);
 	u16 w = atlas_data[index].w;
 	u16 h = atlas_data[index].h;
 
-	for (int i = 1; i < size; i++) {
-		int index = static_cast<int>(*(data + i));
+	for (int i = 1; i < sprites.size(); i++) {
+		index = static_cast<int>(sprites[i]);
 		w = std::max(w, atlas_data[index].w);
 		h = std::max(h, atlas_data[index].h);
 	}
@@ -224,17 +216,14 @@ Box SpriteComponent::bounding_box() {
 }
 
 Box SpriteComponent::visible_bounding_box() {
-	AtlasIndex* data; int size;
-	renderable->draw(data, size);
-
-	int index = static_cast<int>(*data);
+	int index = static_cast<int>(sprites[0]);
 	u16 left = atlas_data[index].visible_left; // These use downward-positive y-coordinates
 	u16 right = atlas_data[index].visible_right;
 	u16 up = atlas_data[index].visible_up;
 	u16 down = atlas_data[index].visible_down;
 
-	for (int i = 1; i < size; i++) {
-		int index = static_cast<int>(*(data + i));
+	for (int i = 1; i < sprites.size(); i++) {
+		index = static_cast<int>(sprites[i]);
 		left = std::min(left, atlas_data[index].visible_left);
 		right = std::max(right, atlas_data[index].visible_right);
 		up = std::min(up, atlas_data[index].visible_up);

@@ -16,6 +16,7 @@
 #include "animation.h"
 #include "dialog_data.h"
 #include "dialog.h"
+#include "spawn.h"
 
 static u64 start_frame_time = 0.0;
 
@@ -28,21 +29,12 @@ void button_clicked() {
 }
 
 void start() {
-	{ // Kerry
-		const entt::entity entity = ecs.create();
-		auto& sprite = ecs.emplace<SpriteComponent>(entity);
-		sprite.renderable = {SpriteGroup<5>{}};
-		ecs.emplace<TransformComponent>(entity);
-		auto& movement = ecs.emplace<PlayerMovementComponent>(entity);
-		movement.speed = 200.f;
-		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
-		collider = KERRY_COLLIDER;
-		player_character = entity;
-	}
+	spawn_player();
+
 	{ // TABLE
 		const entt::entity entity = ecs.create();
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
-		sprite.renderable = {SpriteGroup<1>{AtlasIndex::TABLE}};
+		sprite.sprites = {AtlasIndex::TABLE};
 		auto& transform = ecs.emplace<TransformComponent>(entity);
 		transform.position = {0.f, 0.f};
 		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
@@ -58,7 +50,7 @@ void start() {
 	{ // Background
 		const entt::entity background = ecs.create();
 		auto& sprite = ecs.emplace<SpriteComponent>(background);
-		sprite.renderable = {SpriteGroup<1>{AtlasIndex::TEST_BACKGROUND}};
+		sprite.sprites = {AtlasIndex::TEST_BACKGROUND};
 		auto& transform = ecs.emplace<TransformComponent>(background);
 		transform.position = Vector2{-1000.0f, 700.0f};
 	}

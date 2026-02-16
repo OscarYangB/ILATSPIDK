@@ -91,9 +91,9 @@ void update_character_animation() {
 			} break;
 		}
 
-		for (int i = 0; i < sprite_order.size(); i++) {
+		for (int i = 0; i < sprite.sprites.size(); i++) {
 			AtlasIndex index = static_cast<AtlasIndex>(sprite_order[i]);
-			sprite.renderable->write(index, i);
+			sprite.sprites[i] = index;
 		}
 	}
 }

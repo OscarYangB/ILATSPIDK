@@ -97,3 +97,9 @@ void Combat::update() {
 		}
 	}
 }
+
+std::vector<Card> make_cards(std::vector<CardID> ids) {
+	std::vector<Card> result = {};
+	for (CardID id : ids) result.push_back(&card_data[static_cast<u8>(id)]);
+	return result;
+}

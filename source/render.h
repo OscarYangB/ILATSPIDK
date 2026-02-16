@@ -15,38 +15,8 @@ struct TransformComponent {
 	bool can_move(const entt::entity& entity_to_move, const Vector2& new_position);
 };
 
-struct Renderable : entt::type_list<void(AtlasIndex*&, int&), void(AtlasIndex& data, int& index)> {
-	template<typename Base>
-	struct type : Base {
-		void draw(AtlasIndex*& data, int& size) {
-			return entt::poly_call<0>(*this, data, size);
-		}
-
-		void write(AtlasIndex& data, int& index) {
-			return entt::poly_call<1>(*this, data, index);
-		}
-	};
-
-	template<typename Type>
-	using impl = entt::value_list<&Type::draw, &Type::write>;
-};
-
-template<int N>
-struct SpriteGroup {
-	std::array<AtlasIndex, N> array = {};
-
-	void draw(AtlasIndex*& data, int& size) {
-		data = array.data();
-		size = array.size();
-	}
-
-	void write(AtlasIndex& data, int& index) {
-		array[index] = data;
-	}
-};
-
 struct SpriteComponent {
-	entt::poly<Renderable> renderable;
+	std::vector<AtlasIndex> sprites;
 
 	Box bounding_box();
 	Box visible_bounding_box();
