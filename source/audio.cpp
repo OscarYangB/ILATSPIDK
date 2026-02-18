@@ -1,8 +1,6 @@
 #include "audio.h"
-#include "SDL3/SDL_audio.h"
-#include "SDL3/SDL_iostream.h"
-#include "SDL3/SDL_stdinc.h"
 #include "audio_data.h"
+#include <SDL3/SDL.h>
 
 SDL_AudioStream* audio_stream = nullptr;
 std::vector<PlayingAudio> playing_audio;

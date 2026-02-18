@@ -6,7 +6,6 @@
 #include "entt/entt.hpp"
 
 enum class ImageAsset;
-struct Box;
 
 struct TransformComponent {
 	Vector2 position = {0.f, 0.f};
@@ -15,8 +14,16 @@ struct TransformComponent {
 	bool can_move(const entt::entity& entity_to_move, const Vector2& new_position);
 };
 
+struct Colour {
+	u8 r = 255;
+	u8 g = 255;
+	u8 b = 255;
+};
+
 struct SpriteComponent {
 	std::vector<Sprite> sprites;
+	std::unordered_map<u8, Colour> tints = {};
+	std::unordered_map<u8, Box> masks = {};
 
 	Box bounding_box();
 	Box visible_bounding_box();
@@ -38,8 +45,8 @@ struct AnchoredTransformComponent {
 	HorizontalAnchor x_anchor;
 	VerticalAnchor y_anchor;
 	Vector2 relative_position = Vector2::zero();
-	u16 width;
-	u16 height;
+	u16 width = 0;
+	u16 height = 0;
 
 	Vector2 render_position() const;
 	float render_width() const;

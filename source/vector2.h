@@ -27,3 +27,13 @@ struct Vector2 {
 	static constexpr Vector2 left() { return Vector2{-1.f, 0.f}; }
 	static constexpr Vector2 right() { return Vector2{1.f, 0.f}; }
 };
+
+struct Box {
+	Vector2 left_top;
+	Vector2 right_bottom;
+
+	Box operator+(const Vector2& offset) const;
+	Vector2 center();
+	float width();
+	float height();
+};

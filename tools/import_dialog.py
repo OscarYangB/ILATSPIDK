@@ -91,7 +91,6 @@ def parse_dialog(file : str):
             line_to_line[nodes[-1]] = 0
             continue
         if line.startswith("{"):
-            # TODO function check option
             line = line.removeprefix("{").lstrip()
             if line.startswith("[") and line.endswith("]"):
                 line = line.removeprefix("[").removesuffix("]")

@@ -1,9 +1,6 @@
 #include "input.h"
-#include "SDL3/SDL_keyboard.h"
-#include "SDL3/SDL_mouse.h"
-#include "SDL3/SDL_scancode.h"
-#include "SDL3/SDL_events.h"
 #include <queue>
+#include <SDL3/SDL.h>
 
 static Input inputs[NUMBER_OF_INPUT_TYPES] {};
 static std::queue<InputEvent> input_events {};

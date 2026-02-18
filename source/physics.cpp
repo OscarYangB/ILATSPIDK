@@ -1,13 +1,5 @@
 #include "physics.h"
 
-Box Box::operator+(const Vector2& offset) const {
-	return {left_top + offset, right_bottom + offset};
-}
-
-Vector2 Box::center() {
-	return {(left_top.x + right_bottom.x) / 2.f, (right_bottom.y + left_top.y) / 2.f};
-}
-
 bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComponent& first_collider, const BoxColliderComponent& second_collider) {
 	Vector2 first_left_top = first_position + first_collider.box.left_top;
 	Vector2 first_right_bottom = first_position + first_collider.box.right_bottom;

@@ -70,3 +70,19 @@ float Vector2::distance(const Vector2& first, const Vector2& second) {
 Vector2 Vector2::lerp(const Vector2& first, const Vector2& second, float scalar) {
 	return { std::lerp(first.x, second.x, scalar), std::lerp(first.y, second.y, scalar) };
 }
+
+Box Box::operator+(const Vector2& offset) const {
+	return {left_top + offset, right_bottom + offset};
+}
+
+Vector2 Box::center() {
+	return {(left_top.x + right_bottom.x) / 2.f, (right_bottom.y + left_top.y) / 2.f};
+}
+
+float Box::width() {
+	return right_bottom.x - left_top.x;
+}
+
+float Box::height() {
+	return left_top.y - right_bottom.y;
+}

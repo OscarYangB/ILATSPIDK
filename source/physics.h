@@ -4,14 +4,6 @@
 #include "game.h"
 #include "render.h"
 
-struct Box {
-	Vector2 left_top;
-	Vector2 right_bottom;
-
-	Box operator+(const Vector2& offset) const;
-	Vector2 center();
-};
-
 struct BoxColliderComponent {
 	Box box;
 };

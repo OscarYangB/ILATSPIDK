@@ -81,7 +81,7 @@ constexpr u8 BEATS_PER_BAR = 4;
 constexpr double BEATS_PER_SECOND = BPM / 60.0;
 constexpr double SECONDS_PER_BEAT = 1.0 / BEATS_PER_SECOND;
 constexpr double SECONDS_PER_BAR = SECONDS_PER_BEAT * BEATS_PER_BAR;
-constexpr double BARS_PER_TURN = 4;
+constexpr u8 BARS_PER_TURN = 4;
 
 struct Combat {
 	Characters characters{};

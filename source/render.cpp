@@ -1,8 +1,8 @@
 #include "render.h"
 #include "image_data.h"
-#include "physics.h"
 #include "platform_render.h"
 #include "game.h"
+#include "physics.h"
 
 Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.0f; // Gameplay code can write to this
@@ -81,23 +81,40 @@ void update_render() {
 
 		Vector2 position = anchored_transform ? anchored_transform->render_position() : world_to_pixel(transform->position);
 
-		for (Sprite sprite : sprite_component.sprites) {
-			u16 index = static_cast<u16>(sprite);
+		for (int i = 0; i < sprite_component.sprites.size(); i++) {
+			u16 index = static_cast<u16>(sprite_component.sprites[i]);
 			u16 atlas_x = sprite_atlas_transform[index].x;
 			u16 atlas_y = sprite_atlas_transform[index].y;
 			u16 atlas_w = sprite_atlas_transform[index].w;
 			u16 atlas_h = sprite_atlas_transform[index].h;
-			u16 render_w = anchored_transform ? anchored_transform->render_width() : atlas_w * render_scale();
-			u16 render_h = anchored_transform ? anchored_transform->render_height() : atlas_h * render_scale();
+			u16 render_w; u16 render_h;
+			if (anchored_transform) {
+				render_w = anchored_transform->render_width();
+				render_h = anchored_transform->render_height();
+				if (render_w == 0) render_w = atlas_w * window_scale();
+				if (render_h == 0) render_h = atlas_h * window_scale();
+			} else {
+				render_w = atlas_w * render_scale();
+				render_h = atlas_h * render_scale();
+			}
 
 			if (position.x > window_width() || position.y > window_height()) continue;
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
+
+			Colour tint = sprite_component.tints.contains(i) ? sprite_component.tints[i] : Colour{};
+			if (sprite_component.tints.contains(i)) {
+				Box mask = sprite_component.masks[i];
+				atlas_x += mask.left_top.x;
+				atlas_y += mask.left_top.y;
+				atlas_w = mask.width();
+				atlas_h = mask.height();
+			}
 
 			if (nine_slice) {
 				render_nine_slice(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,
 								  nine_slice->x, nine_slice->y, nine_slice->w, nine_slice->h, window_scale());
 			} else {
-				render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h);
+				render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
 			}
 		}
 	}

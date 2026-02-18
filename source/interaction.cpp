@@ -3,6 +3,7 @@
 #include "input.h"
 #include "movement_controller.h"
 #include "render.h"
+#include "physics.h"
 
 void update_interact() {
 	if (!input_down_this_frame(InputType:: INTERACT)) {

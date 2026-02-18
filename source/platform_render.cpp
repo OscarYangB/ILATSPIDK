@@ -1,12 +1,7 @@
 #include "platform_render.h"
 #include <SDL3/SDL.h>
-#include "SDL3/SDL_init.h"
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_surface.h"
-#include "SDL3/SDL_video.h"
 #include "image_data.h"
 #include "render.h"
-#include <cstdlib>
 #define SDL_STB_FONT_IMPL
 #include "../external/sdl-stb-font/sdlStbFont.h"
 
@@ -74,11 +69,12 @@ void end_render() {
 	SDL_RenderPresent(renderer);
 }
 
-void render_sprite(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h) {
+void render_sprite(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h, const Colour& tint) {
 	SDL_Texture* texture = get_sprite(image_file);
 	if (texture == nullptr) return;
 	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
 	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
+	SDL_SetTextureColorMod(texture, tint.r, tint.g, tint.b);
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
 }
 
