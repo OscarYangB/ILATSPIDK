@@ -8,7 +8,7 @@ enum class CharacterDirection {
 };
 
 struct PlayerMovementComponent {
-	float speed;
+	float speed{};
 	CharacterDirection direction = CharacterDirection::DOWN;
 	bool is_moving = false;
 };

@@ -18,10 +18,10 @@ struct Updater : entt::type_list<void(Animation& animation)> {
 };
 
 struct Animation {
-	double duration;
-	double delay;
-	entt::poly<Updater> updater;
-	u64 id;
+	double duration{};
+	double delay{};
+	entt::poly<Updater> updater{};
+	u64 id{};
 
 	double time_elapsed = 0.0;
 	bool should_remove = false;
@@ -37,10 +37,10 @@ using Curve = T (*)(Animation& animation, T current_value);
 
 template <typename MemberType, typename ComponentType, typename RemoveFunctionType>
 struct ComponentAnimation {
-	entt::entity entity;
-	Curve<MemberType> curve;
-	MemberType ComponentType::* member;
-	RemoveFunctionType remove_if;
+	entt::entity entity{};
+	Curve<MemberType> curve{};
+	MemberType ComponentType::* member{};
+	RemoveFunctionType remove_if{};
 
 	void update(Animation& animation) {
 		if (!ecs.valid(entity)) {
@@ -67,8 +67,8 @@ template <typename T>
 struct PointerAnimation {
 	/* When using this, make sure this pointer remains valid throughout the animation
 	   (ie. it's a global variable or the owner stops the animation when it dies) */
-	T* to_animate;
-	Curve<T> curve;
+	T* to_animate{};
+	Curve<T> curve{};
 
 	void update(Animation& animation) {
 		*to_animate = curve(animation, *to_animate);

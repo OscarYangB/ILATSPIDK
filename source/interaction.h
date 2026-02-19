@@ -4,7 +4,7 @@
 
 struct InteractionComponent {
 	void (*on_interact)() = nullptr;
-	Box box;
+	Box box{};
 };
 
 void update_interact();

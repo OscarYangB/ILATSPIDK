@@ -1,8 +1,8 @@
 #pragma once
 
 struct Vector2 {
-	float x;
-	float y;
+	float x = 0.f;
+	float y = 0.f;
 
 	bool operator==(const Vector2& other) const;
 	Vector2 operator+(const Vector2& other) const;
@@ -29,8 +29,8 @@ struct Vector2 {
 };
 
 struct Box {
-	Vector2 left_top;
-	Vector2 right_bottom;
+	Vector2 left_top{};
+	Vector2 right_bottom{};
 
 	Box operator+(const Vector2& offset) const;
 	Vector2 center();

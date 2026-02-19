@@ -4,8 +4,8 @@
 #include "image_data.h"
 
 struct CycleAnimationComponent {
-	std::vector<Sprite> sprites;
-	double frequency;
+	std::vector<Sprite> sprites{};
+	double frequency{};
 
 	u8 index = 0;
 	double timer = 0.f;

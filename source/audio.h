@@ -6,9 +6,9 @@ class SDL_AudioStream;
 enum class AudioAsset;
 
 struct PlayingAudio {
-	u8* data;
-	u32 length;
-	u32 position;
+	u8* data{};
+	u32 length{};
+	u32 position{};
 
 	inline u32 remaining_samples() { return length - position; }
 };

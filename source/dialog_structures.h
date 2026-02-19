@@ -5,13 +5,13 @@
 enum class Speaker;
 
 struct DialogLine {
-	const char* line;
-	Speaker speaker;
+	const char* line{};
+	Speaker speaker{};
 };
 
 struct DialogChoice {
-	const char* line;
-	u16 next_choice;
+	const char* line{};
+	u16 next_choice{};
 	bool (*check)() = nullptr;
 };
 
@@ -25,7 +25,7 @@ struct DialogFunction {
 };
 
 struct DialogJump {
-	u16 index;
+	u16 index{};
 };
 
 using Dialog = std::variant<DialogLine, DialogChoice, DialogCheck, DialogFunction, DialogJump>;

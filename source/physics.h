@@ -5,7 +5,7 @@
 #include "render.h"
 
 struct BoxColliderComponent {
-	Box box;
+	Box box{};
 };
 
 bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComponent& first_collider, const BoxColliderComponent& second_collider);

@@ -21,15 +21,15 @@ enum class InputType {
 constexpr u8 NUMBER_OF_INPUT_TYPES = static_cast<int>(InputType::_count);
 
 struct Input {
-	u16 default_binding; // TODO
-	bool is_down;
-	bool is_handled;
+	u16 default_binding{}; // TODO
+	bool is_down = false;
+	bool is_handled = false;
 };
 
 struct InputEvent {
-	InputType type;
-	u64 time;
-	bool down;
+	InputType type{};
+	u64 time{};
+	bool down{};
 };
 
 enum class InputMode {

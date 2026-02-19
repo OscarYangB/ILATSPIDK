@@ -9,13 +9,13 @@ struct CharacterComponent;
 using Characters = std::vector<CharacterComponent*>;
 
 struct CardData {
-	const char* name;
-	const char* description;
-	const char* play_text;
-	u8 cost;
-	u8 minigame_level; // 0 means none
-	u8 enemy_target_bitmask;
-	u8 number_of_targets;
+	const char* name{};
+	const char* description{};
+	const char* play_text{};
+	u8 cost{};
+	u8 minigame_level{}; // 0 means none
+	u8 enemy_target_bitmask{};
+	u8 number_of_targets{};
 
 	void (*play)(CharacterComponent& character, const Characters& targets);
 	void (*activate)(CharacterComponent& character, const Characters& targets);
@@ -24,7 +24,7 @@ struct CardData {
 using Card = const CardData*;
 
 struct PlayedCard {
-	u8 bars_until_activate;
+	u8 bars_until_activate{};
 	Card card = nullptr;
 	Characters targets = {};
 };
@@ -36,10 +36,10 @@ enum CharacterType : u8 {
 };
 
 struct StatusEffect {
-	float seconds_timer;
-	u8 bar_timer;
-	u8 turn_timer;
-	Sprite icon;
+	float seconds_timer{};
+	u8 bar_timer{};
+	u8 turn_timer{};
+	Sprite icon{};
 
 	void (*on_add)();
 	/* void update(); // TODO */
@@ -49,22 +49,22 @@ struct StatusEffect {
 };
 
 struct CharacterDataComponent {
-	float starting_health;
+	float starting_health{};
 	float starting_shield = 0.f;
-	CharacterType type;
-	std::vector<Card> starting_deck;
-	Sprite icon;
+	CharacterType type{};
+	std::vector<Card> starting_deck{};
+	Sprite icon{};
 };
 
 struct CharacterComponent {
-	const CharacterDataComponent* data;
-	float health;
-	float max_health;
-	float shield;
-	std::vector<Card> deck;
-	std::vector<Card> hand;
-	std::vector<StatusEffect> status_effects;
-	std::optional<PlayedCard> played_card;
+	const CharacterDataComponent* data{};
+	float health{};
+	float max_health{};
+	float shield{};
+	std::vector<Card> deck{};
+	std::vector<Card> hand{};
+	std::vector<StatusEffect> status_effects{};
+	std::optional<PlayedCard> played_card{};
 
 	void init_from_data(const CharacterDataComponent& new_data);
 	inline bool is_alive() { return health > 0.f; }
