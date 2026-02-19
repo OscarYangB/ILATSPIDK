@@ -90,6 +90,7 @@ struct Combat {
 	u8 bar_index = 0;
 
 	void update();
+	float get_bar_progress();
 };
 
 extern std::optional<Combat> combat;

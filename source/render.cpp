@@ -87,6 +87,17 @@ void update_render() {
 			u16 atlas_y = sprite_atlas_transform[index].y;
 			u16 atlas_w = sprite_atlas_transform[index].w;
 			u16 atlas_h = sprite_atlas_transform[index].h;
+
+			if (sprite_component.masks.contains(i)) {
+				Box mask = sprite_component.masks[i];
+				atlas_x += mask.left_top.x;
+				atlas_y -= mask.left_top.y;
+				atlas_w = mask.width();
+				atlas_h = mask.height();
+				position.x += mask.left_top.x;
+				position.y -= mask.left_top.y; // TODO This is wrong for y-up coords
+			}
+
 			u16 render_w; u16 render_h;
 			if (anchored_transform) {
 				render_w = anchored_transform->render_width();
@@ -102,13 +113,6 @@ void update_render() {
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
 			Colour tint = sprite_component.tints.contains(i) ? sprite_component.tints[i] : Colour{};
-			if (sprite_component.tints.contains(i)) {
-				Box mask = sprite_component.masks[i];
-				atlas_x += mask.left_top.x;
-				atlas_y += mask.left_top.y;
-				atlas_w = mask.width();
-				atlas_h = mask.height();
-			}
 
 			if (nine_slice) {
 				render_nine_slice(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,

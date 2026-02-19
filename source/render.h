@@ -18,6 +18,7 @@ struct Colour {
 	u8 r = 255;
 	u8 g = 255;
 	u8 b = 255;
+	u8 a = 255;
 };
 
 struct SpriteComponent {

@@ -1,7 +1,7 @@
 #include "combat.h"
 #include <algorithm>
 #include "game.h"
-
+#include "combat_ui.h"
 #include <iostream>
 
 std::optional<Combat> combat = std::nullopt;
@@ -87,6 +87,8 @@ void start_combat() {
 
 	combat = {characters, 0};
 
+	create_gamebar();
+
 	std::cout << "combat started" << "\n";
 }
 
@@ -121,6 +123,12 @@ void Combat::update() {
 			characters[turn_index]->on_turn_start();
 		}
 	}
+
+	update_gamebar();
+}
+
+float Combat::get_bar_progress() {
+	return timer / SECONDS_PER_BAR;
 }
 
 std::vector<Card> make_cards(std::vector<CardID> ids) {

@@ -75,7 +75,10 @@ void render_sprite(ImageFile image_file, float from_x, float from_y, float from_
 	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
 	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
 	SDL_SetTextureColorMod(texture, tint.r, tint.g, tint.b);
+	SDL_SetTextureAlphaMod(texture, tint.a);
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
+	SDL_SetTextureColorMod(texture, 255, 255, 255);
+	SDL_SetTextureAlphaMod(texture, 255);
 }
 
 void render_nine_slice(ImageFile image_file, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
