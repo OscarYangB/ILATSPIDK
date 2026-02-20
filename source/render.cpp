@@ -44,7 +44,9 @@ void draw_debug_lines() {
 }
 
 void render_fps_counter() {
+#ifndef NDEBUG
 	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 255, 0, 0, 50, 0, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
+#endif
 }
 
 void update_render() {
@@ -94,8 +96,8 @@ void update_render() {
 				atlas_y -= mask.left_top.y;
 				atlas_w = mask.width();
 				atlas_h = mask.height();
-				position.x += mask.left_top.x;
-				position.y -= mask.left_top.y; // TODO This is wrong for y-up coords
+				position.x += mask.left_top.x * window_scale();
+				position.y -= mask.left_top.y * window_scale(); // TODO This is wrong for y-up coords
 			}
 
 			u16 render_w; u16 render_h;

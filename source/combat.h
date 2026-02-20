@@ -91,6 +91,7 @@ struct Combat {
 
 	void update();
 	float get_bar_progress();
+	float get_discrete_bar_progress();
 };
 
 extern std::optional<Combat> combat;

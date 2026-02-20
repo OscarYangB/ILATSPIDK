@@ -87,7 +87,7 @@ void start_combat() {
 
 	combat = {characters, 0};
 
-	create_gamebar();
+	ui_start_combat();
 
 	std::cout << "combat started" << "\n";
 }
@@ -108,6 +108,7 @@ void Combat::update() {
 		characters[turn_index]->on_bar_end();
 
 		std::cout << "Bar has ended" << "\n";
+		ui_on_bar_end();
 
 		if (bar_index >= BARS_PER_TURN) { // Turn ends
 			bar_index = 0;
@@ -124,11 +125,15 @@ void Combat::update() {
 		}
 	}
 
-	update_gamebar();
+	ui_update_combat();
 }
 
 float Combat::get_bar_progress() {
 	return timer / SECONDS_PER_BAR;
+}
+
+float Combat::get_discrete_bar_progress() {
+	return std::floorf(get_bar_progress() * 4.f) / 4.f;
 }
 
 std::vector<Card> make_cards(std::vector<CardID> ids) {
