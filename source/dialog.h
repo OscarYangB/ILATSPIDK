@@ -21,7 +21,6 @@ struct DialogVisitor {
 	void operator()(const DialogJump&);
 };
 
-struct ChoiceButton {
-	entt::entity entity = entt::null;
+struct DialogChoiceComponent {
 	u16 jump_index = 0;
 };

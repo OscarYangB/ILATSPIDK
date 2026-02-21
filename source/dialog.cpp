@@ -15,7 +15,7 @@ constexpr double PUNCTUATION_PAUSE = 0.18;
 double dialog_animation_timer = DIALOG_ANIMATION_DELTA;
 bool is_dialog_animating = false;
 
-std::vector<ChoiceButton> choice_buttons = {};
+std::vector<entt::entity> choice_buttons = {};
 
 constexpr float WIDTH = 800.f;
 constexpr float HEIGHT = 400.f;
@@ -125,22 +125,18 @@ void update_dialog() {
 }
 
 void delete_choice_buttons() {
-	for (const ChoiceButton& button : choice_buttons) {
-		ecs.destroy(button.entity);
+	for (entt::entity button : choice_buttons) {
+		ecs.destroy(button);
 	}
 
 	choice_buttons.clear();
 }
 
 void choice_made(entt::entity entity) {
-	for (const ChoiceButton& button : choice_buttons) {
-		if (button.entity == entity) {
-			visitor.index = button.jump_index;
-			delete_choice_buttons();
-			progress_dialog();
-			return;
-		}
-	}
+	auto& choice = ecs.get<DialogChoiceComponent>(entity);
+	visitor.index = choice.jump_index;
+	delete_choice_buttons();
+	progress_dialog();
 }
 
 void make_choice_button(const char* choice_text, u16 jump_index) {
@@ -155,10 +151,11 @@ void make_choice_button(const char* choice_text, u16 jump_index) {
 	text_component.text = choice_text;
 	auto& button_component = ecs.emplace<ButtonComponent>(entity);
 	button_component.on_click = choice_made;
+	auto& choice_component = ecs.emplace<DialogChoiceComponent>(entity);
+	choice_component.jump_index = jump_index;
 
-	choice_buttons.push_back(ChoiceButton{entity, jump_index});
+	choice_buttons.push_back(entity);
 }
-
 
 void DialogVisitor::operator()(const DialogLine& line) {
 	TextComponent& text = ecs.get<TextComponent>(dialog_text);
