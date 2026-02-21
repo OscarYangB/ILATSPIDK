@@ -2,8 +2,12 @@
 #include "game.h"
 #include "render.h"
 #include "combat.h"
+#include "button.h"
+
+#include <iostream>
 
 static std::vector<entt::entity> gamebars{};
+static std::vector<entt::entity> hand_buttons{};
 
 void create_gamebar() {
 	for (int i = 0; i < BARS_PER_TURN; i++) {
@@ -109,4 +113,52 @@ void ui_update_combat() {
 
 void ui_end_combat() {
 	end_combat();
+}
+
+constexpr double CARD_HOVER_WIDTH = 300.f;
+constexpr double CARD_HOVER_HEIGHT = 300.f;
+
+void on_card_hover(entt::entity entity) {
+	auto& card = ecs.get<HandCardComponent>(entity);
+	std::cout << "Card is hovered: " << card.card->name << "\n";
+}
+
+void on_card_click(entt::entity button) {
+
+}
+
+void refresh_hand_buttons(const CharacterComponent& character) {
+	for (const entt::entity& entity : hand_buttons) {
+		ecs.destroy(entity);
+	}
+	hand_buttons.clear();
+
+	float x_position = -(CARD_HOVER_WIDTH * character.hand.size()) / 2.f + (CARD_HOVER_WIDTH / 2.f);
+	for (int i = 0; i < character.hand.size(); i++) {
+		entt::entity entity = ecs.create();
+
+		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+		transform.x_anchor = HorizontalAnchor::CENTER;
+		transform.y_anchor = VerticalAnchor::BOTTOM;
+		transform.relative_position = {x_position, 0.f};
+		transform.width = CARD_HOVER_WIDTH;
+		transform.height = CARD_HOVER_HEIGHT;
+
+		auto& sprite = ecs.emplace<SpriteComponent>(entity);
+		sprite.sprites = {Sprite::TEST_BUTTON};
+
+		auto& button = ecs.emplace<ButtonComponent>(entity);
+		button.on_hover = on_card_hover;
+		button.on_click = on_card_click;
+
+		auto& card = ecs.emplace<HandCardComponent>(entity);
+		card.card = character.hand[i];
+
+		hand_buttons.push_back(entity);
+		x_position += CARD_HOVER_WIDTH;
+	}
+}
+
+void ui_on_turn_start() {
+	refresh_hand_buttons(*combat->get_active_character());
 }

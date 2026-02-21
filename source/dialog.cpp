@@ -132,10 +132,9 @@ void delete_choice_buttons() {
 	choice_buttons.clear();
 }
 
-void choice_made() {
+void choice_made(entt::entity entity) {
 	for (const ChoiceButton& button : choice_buttons) {
-		const ButtonComponent& button_component = ecs.get<ButtonComponent>(button.entity);
-		if (button_component.is_hovered) {
+		if (button.entity == entity) {
 			visitor.index = button.jump_index;
 			delete_choice_buttons();
 			progress_dialog();

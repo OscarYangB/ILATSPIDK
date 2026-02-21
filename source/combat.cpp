@@ -3,6 +3,7 @@
 #include "game.h"
 #include "combat_ui.h"
 #include <iostream>
+#include <random>
 
 std::optional<Combat> combat = std::nullopt;
 
@@ -12,6 +13,7 @@ void CharacterComponent::init_from_data(const CharacterDataComponent& new_data) 
 	max_health = data->starting_health;
 	shield = data->starting_shield;
 	deck = data->starting_deck;
+	std::shuffle(deck.begin(), deck.end(), std::mt19937{std::random_device{}()});
 	hand = {};
 	status_effects = {};
 	played_card = std::nullopt;
@@ -34,7 +36,7 @@ void CharacterComponent::draw() {
 		return;
 	}
 
-	Card card = deck.front();
+	Card card = deck.back();
 	deck.pop_back();
 	hand.push_back(card);
 	std::cout << "drew: " << card->name << " \n";
@@ -121,11 +123,16 @@ void Combat::update() {
 				std::cout << "cycle has ended" << "\n";
 			}
 
-			characters[turn_index]->on_turn_start();
+			get_active_character()->on_turn_start();
+			ui_on_turn_start();
 		}
 	}
 
 	ui_update_combat();
+}
+
+CharacterComponent* Combat::get_active_character() {
+	return characters[turn_index];
 }
 
 float Combat::get_bar_progress() {

@@ -23,7 +23,7 @@ entt::entity spawn_player() {
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);
 	character.starting_health = 100.f;
 	character.type = CharacterType::GOOD;
-	character.starting_deck = make_cards({ CardID::FIREBALL, CardID::FIREBALL, CardID::FIREBALL, CardID::FIREBALL });
+	character.starting_deck = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::HEAL });
 
 	player_character = entity;
 	return entity;
@@ -47,7 +47,7 @@ entt::entity spawn_grakeny() {
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);
 	character.starting_health = 100.f;
 	character.type = CharacterType::EVIL;
-	character.starting_deck = make_cards({ CardID::FIREBALL, CardID::FIREBALL, CardID::FIREBALL, CardID::FIREBALL });
+	character.starting_deck = make_cards({ });
 
 	return entity;
 }
