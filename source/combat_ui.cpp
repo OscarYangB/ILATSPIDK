@@ -3,11 +3,13 @@
 #include "render.h"
 #include "combat.h"
 #include "button.h"
+#include "input.h"
 
 #include <iostream>
 
 static std::vector<entt::entity> gamebars{};
 static std::vector<entt::entity> hand_buttons{};
+std::optional<entt::entity> dragged_card{};
 
 void create_gamebar() {
 	for (int i = 0; i < BARS_PER_TURN; i++) {
@@ -107,34 +109,28 @@ void ui_start_combat() {
 	create_gamebar();
 }
 
-void ui_update_combat() {
-	update_gamebar();
-}
-
-void ui_end_combat() {
-	end_combat();
-}
-
 constexpr double CARD_HOVER_WIDTH = 300.f;
 constexpr double CARD_HOVER_HEIGHT = 300.f;
 
 void on_card_hover(entt::entity entity) {
-	auto& card = ecs.get<HandCardComponent>(entity);
-	std::cout << "Card is hovered: " << card.card->name << "\n";
+	auto& hand_card = ecs.get<HandCardComponent>(entity);
+	std::cout << "Card is hovered: " << hand_card.get_card()->name << "\n";
+	// Expand card UI
 }
 
-void on_card_click(entt::entity button) {
-
+void on_card_click(entt::entity entity) {
+	dragged_card = entity;
 }
 
-void refresh_hand_buttons(const CharacterComponent& character) {
+void refresh_hand_buttons() {
 	for (const entt::entity& entity : hand_buttons) {
 		ecs.destroy(entity);
 	}
 	hand_buttons.clear();
 
-	float x_position = -(CARD_HOVER_WIDTH * character.hand.size()) / 2.f + (CARD_HOVER_WIDTH / 2.f);
-	for (int i = 0; i < character.hand.size(); i++) {
+	CharacterComponent* character = combat->get_active_character();
+	float x_position = -(CARD_HOVER_WIDTH * character->hand.size()) / 2.f + (CARD_HOVER_WIDTH / 2.f);
+	for (int i = 0; i < character->hand.size(); i++) {
 		entt::entity entity = ecs.create();
 
 		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
@@ -152,13 +148,46 @@ void refresh_hand_buttons(const CharacterComponent& character) {
 		button.on_click = on_card_click;
 
 		auto& card = ecs.emplace<HandCardComponent>(entity);
-		card.card = character.hand[i];
+		card.index = i;
 
 		hand_buttons.push_back(entity);
 		x_position += CARD_HOVER_WIDTH;
 	}
 }
 
+
+void update_drag() {
+	if (!input_held(InputType::MOUSE_CLICK) && dragged_card.has_value()) {
+		auto& hand_card = ecs.get<HandCardComponent>(*dragged_card);
+		auto& hand = combat->get_active_character()->hand;
+		Card card = hand_card.get_card();
+
+		// TODO check if dragged far enough and with UI
+
+		// TODO remove card from hand with animation
+		hand.erase(hand.begin() + hand_card.index);
+		refresh_hand_buttons();
+
+		// TODO targetting
+		card->play(*combat->get_active_character(), {});
+		dragged_card.reset();
+	}
+}
+
+void ui_update_combat() {
+	update_gamebar();
+	update_drag();
+}
+
+void ui_end_combat() {
+	end_combat();
+}
+
 void ui_on_turn_start() {
-	refresh_hand_buttons(*combat->get_active_character());
+	refresh_hand_buttons();
+}
+
+Card HandCardComponent::get_card() {
+	// Assumes the active character
+	return combat->get_active_character()->hand[index];
 }

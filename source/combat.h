@@ -5,6 +5,8 @@
 #include "image_data.h"
 #include <optional>
 
+#include <iostream>
+
 struct CharacterComponent;
 using Characters = std::vector<CharacterComponent*>;
 
@@ -112,7 +114,7 @@ constexpr CardData card_data[] {
 	{.name= "Fireball", .description = "Shoot ball of fire", .play_text = "is shooting a fireball!",
 	 .cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1,
 	 .play = [](CharacterComponent& character, const Characters& targets) {
-
+		 std::cout << "Fireball played";
 	 },
 	 .activate = [](CharacterComponent& character, const Characters& targets) {
 

@@ -109,14 +109,11 @@ void Combat::update() {
 		bar_index++;
 		characters[turn_index]->on_bar_end();
 
-		std::cout << "Bar has ended" << "\n";
 		ui_on_bar_end();
 
 		if (bar_index >= BARS_PER_TURN) { // Turn ends
 			bar_index = 0;
 			turn_index++;
-
-			std::cout << "turn has ended" << "\n";
 
 			if (turn_index >= characters.size()) { // Cycle ends
 				turn_index = 0;
