@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
     }
 
 	start();
-    std::cout << "Initialized";
+    std::cout << "Initialized" << "\n";
 
     while (!done) {
 		const u64 frame_time = 8000000; // In nanoseconds

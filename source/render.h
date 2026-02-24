@@ -48,6 +48,7 @@ struct AnchoredTransformComponent {
 	Vector2 relative_position{};
 	u16 width{};
 	u16 height{};
+	u8 sort_order{};
 
 	Vector2 render_position() const;
 	float render_width() const;

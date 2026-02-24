@@ -84,6 +84,7 @@ void start_combat() {
 	for (auto [entity, data] : view.each()) {
 		auto& new_character = ecs.emplace<CharacterComponent>(entity);
 		new_character.init_from_data(data);
+		for (int i = 0; i < 3; i++) new_character.draw();
 		characters.push_back(&new_character);
 	}
 
@@ -107,9 +108,7 @@ void Combat::update() {
 	if (timer >= SECONDS_PER_BAR) { // Bar ends
 		timer -= SECONDS_PER_BAR;
 		bar_index++;
-		characters[turn_index]->on_bar_end();
-
-		ui_on_bar_end();
+		get_active_character()->on_bar_end();
 
 		if (bar_index >= BARS_PER_TURN) { // Turn ends
 			bar_index = 0;
@@ -123,6 +122,8 @@ void Combat::update() {
 			get_active_character()->on_turn_start();
 			ui_on_turn_start();
 		}
+
+		ui_on_bar_end();
 	}
 
 	ui_update_combat();

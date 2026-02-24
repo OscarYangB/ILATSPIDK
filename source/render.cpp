@@ -58,8 +58,9 @@ void update_render() {
 
 		// UI
 		AnchoredTransformComponent* first_anchored_transform = ecs.try_get<AnchoredTransformComponent>(first);
-		if (first_anchored_transform) return false;
 		AnchoredTransformComponent* second_anchored_transform = ecs.try_get<AnchoredTransformComponent>(second);
+		if (first_anchored_transform && second_anchored_transform) return first_anchored_transform->sort_order < second_anchored_transform->sort_order;
+		if (first_anchored_transform) return false;
 		if (second_anchored_transform) return true;
 
 		BoxColliderComponent* first_collider = ecs.try_get<BoxColliderComponent>(first);

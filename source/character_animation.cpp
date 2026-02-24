@@ -11,6 +11,10 @@ void update_cycle_animations() {
 		if (animation.timer > animation_delta) {
 			animation.timer -= animation_delta;
 			animation.index++;
+			if (animation.index >= animation.sprites.size() && animation.destroy_on_finish) {
+				ecs.destroy(entity);
+				continue;
+			}
 			animation.index %= animation.sprites.size();
 		}
 

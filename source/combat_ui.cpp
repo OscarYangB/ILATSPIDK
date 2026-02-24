@@ -4,6 +4,7 @@
 #include "combat.h"
 #include "button.h"
 #include "input.h"
+#include "character_animation.h"
 
 #include <iostream>
 
@@ -69,7 +70,7 @@ void cycle_gamebar_animation(u8 index) {
 }
 
 double vibrate_timer = 0.0;
-constexpr double VIBRATIONS_PER_BAR = 8;
+constexpr double VIBRATIONS_PER_BAR = 4;
 constexpr double SECONDS_PER_VIBRATION = SECONDS_PER_BAR / VIBRATIONS_PER_BAR;
 
 void update_gamebar() {
@@ -96,6 +97,21 @@ void update_gamebar() {
 	if (vibrate_timer > SECONDS_PER_VIBRATION) {
 		vibrate_timer -= SECONDS_PER_VIBRATION;
 		cycle_gamebar_animation(combat->bar_index);
+
+		if (combat->get_discrete_bar_progress() != 0) {
+			entt::entity entity = ecs.create();
+			auto& sprite = ecs.emplace<SpriteComponent>(entity);
+			sprite.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1};
+			sprite.tints[0] = {255, 255, 255, 200};
+			auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+			transform = ecs.get<AnchoredTransformComponent>(gamebars[combat->bar_index]);
+			transform.relative_position.x += ecs.get<SpriteComponent>(gamebars[combat->bar_index]).visible_bounding_box().width() * (1.f - combat->get_discrete_bar_progress());
+			transform.sort_order = 1;
+			auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
+			animation.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4};
+			animation.frequency = 12.f;
+			animation.destroy_on_finish = true;
+		}
 	}
 }
 
@@ -103,6 +119,17 @@ void ui_on_bar_end() {
 	for (int i = 0; i < gamebars.size(); i++) {
 		cycle_gamebar_animation(i);
 	}
+
+	entt::entity entity = ecs.create();
+	auto& sprite = ecs.emplace<SpriteComponent>(entity);
+	sprite.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1};
+	sprite.tints[0] = {255, 255, 255, 200};
+	auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+	transform = ecs.get<AnchoredTransformComponent>(gamebars[combat->bar_index]);
+	auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
+	animation.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4};
+	animation.frequency = 12.f;
+	animation.destroy_on_finish = true;
 }
 
 void ui_start_combat() {
@@ -119,7 +146,9 @@ void on_card_hover(entt::entity entity) {
 }
 
 void on_card_click(entt::entity entity) {
-	dragged_card = entity;
+	if (!combat->get_active_character()->played_card.has_value()) { // Can't play if a card is queued
+		dragged_card = entity;
+	}
 }
 
 void refresh_hand_buttons() {
@@ -164,13 +193,12 @@ void update_drag() {
 
 		// TODO check if dragged far enough and with UI
 
-		// TODO remove card from hand with animation
-		hand.erase(hand.begin() + hand_card.index);
-		refresh_hand_buttons();
-
 		// TODO targetting
-		card->play(*combat->get_active_character(), {});
+		combat->get_active_character()->play_card(hand_card.index, {});
 		dragged_card.reset();
+
+		// TODO remove card from hand with animation
+		refresh_hand_buttons();
 	}
 }
 
@@ -184,6 +212,7 @@ void ui_end_combat() {
 }
 
 void ui_on_turn_start() {
+	dragged_card.reset();
 	refresh_hand_buttons();
 }
 
