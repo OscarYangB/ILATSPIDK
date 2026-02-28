@@ -4,6 +4,7 @@
 #include "combat_ui.h"
 #include <iostream>
 #include <random>
+#include "card_data.h"
 
 std::optional<Combat> combat = std::nullopt;
 

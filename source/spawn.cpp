@@ -5,6 +5,7 @@
 #include "collider_data.h"
 #include "combat.h"
 #include "character_animation.h"
+#include "card_data.h"
 
 entt::entity spawn_player() {
 	const entt::entity entity = ecs.create();

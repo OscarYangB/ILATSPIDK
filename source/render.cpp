@@ -49,6 +49,33 @@ void render_fps_counter() {
 #endif
 }
 
+static Vector2 get_anchor_offset(HorizontalAnchor x_anchor, VerticalAnchor y_anchor, float width, float height) {
+	Vector2 result{};
+
+	switch(y_anchor) {
+		case VerticalAnchor::TOP: break;
+		case VerticalAnchor::CENTER: {
+			result.y += (window_height() - height) / 2.0f;
+		} break;
+		case VerticalAnchor::BOTTOM: {
+			result.y += window_height() - height;
+		} break;
+	}
+
+	switch(x_anchor) {
+		case HorizontalAnchor::LEFT: break;
+		case HorizontalAnchor::CENTER: {
+			result.x += (window_width() - width) / 2.0f;
+		} break;
+		case HorizontalAnchor::RIGHT: {
+			result.x += window_width() - width;
+		} break;
+	}
+
+	return result;
+}
+
+
 void update_render() {
 	start_render();
 
@@ -164,30 +191,7 @@ Vector2 world_to_pixel(const Vector2& in) {
 }
 
 Vector2 AnchoredTransformComponent::render_position() const  {
-    float x = relative_position.x * window_scale();
-	float y = relative_position.y * window_scale();
-
-	switch(y_anchor) {
-		case VerticalAnchor::TOP: break;
-		case VerticalAnchor::CENTER: {
-			y += (window_height() - render_height()) / 2.0f;
-		} break;
-		case VerticalAnchor::BOTTOM: {
-			y += window_height() - render_height();
-		} break;
-	}
-
-	switch(x_anchor) {
-		case HorizontalAnchor::LEFT: break;
-		case HorizontalAnchor::CENTER: {
-			x += (window_width() - render_width()) / 2.0f;
-		} break;
-		case HorizontalAnchor::RIGHT: {
-			x += window_width() - render_width();
-		} break;
-	}
-
-	return Vector2{x, y};
+	return (relative_position * window_scale()) + get_anchor_offset(x_anchor, y_anchor, render_width(), render_height());
 }
 
 float AnchoredTransformComponent::render_width() const {

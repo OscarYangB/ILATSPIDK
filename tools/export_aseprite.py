@@ -1,7 +1,7 @@
 import subprocess
 
 aseprite_path = "C:/Program Files/Aseprite/Aseprite.exe"
-print("name: ")
+print("name:", end=" ")
 name = input()
 subprocess.run([aseprite_path,
                 "--sheet", "C:/Projects/ILATSPIDK/assets/atlas/%s.png"%name,

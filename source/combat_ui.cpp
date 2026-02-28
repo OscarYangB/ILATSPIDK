@@ -10,6 +10,7 @@
 
 static std::vector<entt::entity> gamebars{};
 static std::vector<entt::entity> hand_buttons{};
+static std::vector<entt::entity> hand_sprites{};
 std::optional<entt::entity> dragged_card{};
 
 void create_gamebar() {
@@ -136,7 +137,7 @@ void ui_start_combat() {
 	create_gamebar();
 }
 
-constexpr double CARD_HOVER_WIDTH = 300.f;
+constexpr double CARD_HOVER_WIDTH = 150.f;
 constexpr double CARD_HOVER_HEIGHT = 300.f;
 
 void on_card_hover(entt::entity entity) {
@@ -152,37 +153,64 @@ void on_card_click(entt::entity entity) {
 }
 
 void refresh_hand_buttons() {
-	for (entt::entity entity : hand_buttons) {
-		ecs.destroy(entity);
-	}
+	for (entt::entity entity : hand_buttons) ecs.destroy(entity);
 	hand_buttons.clear();
+	for (entt::entity entity : hand_sprites) ecs.destroy(entity);
+	hand_sprites.clear();
 
 	CharacterComponent* character = combat.value().get_active_character();
 	float x_position = -(CARD_HOVER_WIDTH * character->hand.size()) / 2.f + (CARD_HOVER_WIDTH / 2.f);
 	for (int i = 0; i < character->hand.size(); i++) {
-		entt::entity entity = ecs.create();
+		{ // Button
+			entt::entity entity = ecs.create();
 
-		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
-		transform.x_anchor = HorizontalAnchor::CENTER;
-		transform.y_anchor = VerticalAnchor::BOTTOM;
-		transform.relative_position = {x_position, 0.f};
-		transform.width = CARD_HOVER_WIDTH;
-		transform.height = CARD_HOVER_HEIGHT;
+			auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+			transform.x_anchor = HorizontalAnchor::CENTER;
+			transform.y_anchor = VerticalAnchor::BOTTOM;
+			transform.relative_position = {x_position, 0.f};
+			transform.width = CARD_HOVER_WIDTH;
+			transform.height = CARD_HOVER_HEIGHT;
 
-		// temp
-		auto& sprite = ecs.emplace<SpriteComponent>(entity);
-		sprite.sprites = {Sprite::TEST_BUTTON};
-		sprite.tints[0] = {255, 255, 255, 100};
-		//
+			// temp
+			auto& sprite = ecs.emplace<SpriteComponent>(entity);
+			sprite.sprites = {Sprite::TEST_BUTTON};
+			sprite.tints[0] = {255, 255, 255, 50};
+			//
 
-		auto& button = ecs.emplace<ButtonComponent>(entity);
-		button.on_hover = on_card_hover;
-		button.on_click = on_card_click;
+			auto& button = ecs.emplace<ButtonComponent>(entity);
+			button.on_hover = on_card_hover;
+			button.on_click = on_card_click;
 
-		auto& card = ecs.emplace<HandCardComponent>(entity);
-		card.index = i;
+			auto& card = ecs.emplace<HandCardComponent>(entity);
+			card.index = i;
 
-		hand_buttons.push_back(entity);
+			hand_buttons.push_back(entity);
+		}
+		{ // Sprite
+			entt::entity entity = ecs.create();
+
+			auto& sprite = ecs.emplace<SpriteComponent>(entity);
+			switch (character->hand.at(i)->card_type) {
+				case CardType::PSYCHIC: sprite.sprites = {Sprite::CARD_PSYCHIC_1, Sprite::CARD_PSYCHIC_LVL_1}; break;
+				case CardType::MAGIC: sprite.sprites = {Sprite::CARD_MAGIC_1, Sprite::CARD_MAGIC_LVL_1}; break;
+				case CardType::GROOVE: sprite.sprites = {Sprite::CARD_GROOVE_1, Sprite::CARD_GROOVE_LVL_1}; break;
+			}
+
+			auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+			transform.x_anchor = HorizontalAnchor::CENTER;
+			transform.y_anchor = VerticalAnchor::BOTTOM;
+			transform.relative_position = {x_position, 20.f};
+			transform.height = sprite.bounding_box().height() / 2.f;
+			transform.width = sprite.bounding_box().width() / 2.f;
+
+			// Name
+			// Description
+			// Image
+			// Cost
+
+			hand_sprites.push_back(entity);
+		}
+
 		x_position += CARD_HOVER_WIDTH;
 	}
 }
