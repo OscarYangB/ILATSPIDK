@@ -52,7 +52,7 @@ void render_fps_counter() {
 void update_render() {
 	start_render();
 
-	ecs.sort<SpriteComponent>([](const entt::entity& first, const entt::entity& second) { // Sort render order using y position
+	ecs.sort<SpriteComponent>([](entt::entity first, entt::entity second) { // Sort render order using y position
 		// true -> second is above
 		// false -> first is above
 
@@ -198,7 +198,7 @@ float AnchoredTransformComponent::render_height() const {
 	return height * window_scale();
 }
 
-bool TransformComponent::move(const entt::entity& entity_to_move, const Vector2& new_position) {
+bool TransformComponent::move(entt::entity entity_to_move, const Vector2& new_position) {
 	if (can_move(entity_to_move, new_position)) {
 		position = new_position;
 		return true;
@@ -207,7 +207,7 @@ bool TransformComponent::move(const entt::entity& entity_to_move, const Vector2&
 	return false;
 }
 
-bool TransformComponent::can_move(const entt::entity& entity_to_move, const Vector2& new_position) {
+bool TransformComponent::can_move(entt::entity entity_to_move, const Vector2& new_position) {
 	if (BoxColliderComponent* collider_to_move = ecs.try_get<BoxColliderComponent>(entity_to_move); collider_to_move != nullptr) {
 		auto view = ecs.view<BoxColliderComponent, TransformComponent>();
 

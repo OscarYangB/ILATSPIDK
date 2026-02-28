@@ -10,8 +10,8 @@ enum class ImageAsset;
 struct TransformComponent {
 	Vector2 position{};
 
-	bool move(const entt::entity& entity_to_move, const Vector2& new_position);
-	bool can_move(const entt::entity& entity_to_move, const Vector2& new_position);
+	bool move(entt::entity entity_to_move, const Vector2& new_position);
+	bool can_move(entt::entity entity_to_move, const Vector2& new_position);
 };
 
 struct Colour {

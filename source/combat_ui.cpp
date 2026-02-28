@@ -32,7 +32,7 @@ void create_gamebar() {
 }
 
 void destroy_gamebar() {
-	for (const entt::entity& entity : gamebars) {
+	for (entt::entity entity : gamebars) {
 		ecs.destroy(entity);
 	}
 
@@ -152,7 +152,7 @@ void on_card_click(entt::entity entity) {
 }
 
 void refresh_hand_buttons() {
-	for (const entt::entity& entity : hand_buttons) {
+	for (entt::entity entity : hand_buttons) {
 		ecs.destroy(entity);
 	}
 	hand_buttons.clear();
@@ -169,8 +169,11 @@ void refresh_hand_buttons() {
 		transform.width = CARD_HOVER_WIDTH;
 		transform.height = CARD_HOVER_HEIGHT;
 
+		// temp
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
 		sprite.sprites = {Sprite::TEST_BUTTON};
+		sprite.tints[0] = {255, 255, 255, 100};
+		//
 
 		auto& button = ecs.emplace<ButtonComponent>(entity);
 		button.on_hover = on_card_hover;
