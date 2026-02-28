@@ -4,6 +4,7 @@
 #include "vector2.h"
 #include "definitions.h"
 #include "entt/entt.hpp"
+#include "text.h"
 
 enum class ImageAsset;
 
@@ -63,7 +64,7 @@ struct NineSliceComponent {
 };
 
 struct TextComponent {
-	const char* text{};
+	Text text{};
 	u8 r{};
 	u8 g{};
 	u8 b{};

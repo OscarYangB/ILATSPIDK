@@ -4,6 +4,7 @@
 #include "definitions.h"
 #include "image_data.h"
 #include <optional>
+#include "text.h"
 
 struct CharacterComponent;
 using Characters = std::vector<CharacterComponent*>;
@@ -15,9 +16,9 @@ enum class CardType {
 };
 
 struct CardData {
-	const char* name{};
-	const char* description{};
-	const char* play_text{};
+	Text name{};
+	Text description{};
+	Text play_text{};
 	u8 cost{};
 	u8 minigame_level{}; // 0 means none
 	u8 enemy_target_bitmask{};

@@ -1,16 +1,17 @@
 #pragma once
 #include "definitions.h"
 #include <variant>
+#include "text.h"
 
 enum class Speaker;
 
 struct DialogLine {
-	const char* line{};
+	Text line{};
 	Speaker speaker{};
 };
 
 struct DialogChoice {
-	const char* line{};
+	Text line{};
 	u16 next_choice{};
 	bool (*check)() = nullptr;
 };

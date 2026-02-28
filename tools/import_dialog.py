@@ -28,7 +28,7 @@ def add_dialog(file_name : str):
     dialog_data[-1] += "constexpr Dialog %s[] {\n"%file_name.upper()
 
 def add_line(line, speaker):
-    write_line("\tDialogLine { \"%s\", %s },\n"%(line, speaker))
+    write_line("\tDialogLine { {\"%s\"}, %s },\n"%(line, speaker))
 
 def add_choice(line : str):
     choice_check = "nullptr"
@@ -40,7 +40,7 @@ def add_choice(line : str):
         global function_list
         if choice_check not in check_list:
             check_list.append(choice_check)
-    write_line("\tDialogChoice { \"%s\", |, %s },\n"%(line, choice_check))
+    write_line("\tDialogChoice { {\"%s\"}, |, %s },\n"%(line, choice_check))
 
 def add_check(check):
     global function_list

@@ -109,12 +109,12 @@ static void update_dialog_animation() {
 	// Play sound from tone row based on chance
 
 	text_component.mask++;
-	if (text_component.mask >= strlen(text_component.text)) {
+	if (text_component.mask >= strlen(text_component.text.get())) { // Won't work for localization
 		text_component.mask = 0;
 		is_dialog_animating = false;
 		return;
 	}
-	char last_character = text_component.text[text_component.mask - 1];
+	char last_character = text_component.text.get()[text_component.mask - 1]; // Won't work for localization
 	bool punctuation = last_character == '.' || last_character == '?' || last_character == '!';
 	dialog_animation_timer += punctuation ? PUNCTUATION_PAUSE : DIALOG_ANIMATION_DELTA;
 }
@@ -139,7 +139,7 @@ void choice_made(entt::entity entity) {
 	progress_dialog();
 }
 
-void make_choice_button(const char* choice_text, u16 jump_index) {
+void make_choice_button(const Text& choice_text, u16 jump_index) {
 	AnchoredTransformComponent transform;
 	transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = WIDTH; transform.height = CHOICE_BUTTON_HEIGHT;
 	transform.relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_buttons.size()};
@@ -168,7 +168,7 @@ void DialogVisitor::operator()(const DialogLine& line) {
 }
 
 void DialogVisitor::operator()(const DialogChoice& choice) {
-	ecs.get<TextComponent>(dialog_text).text = "";
+	ecs.get<TextComponent>(dialog_text).text = Text{};
 
 	const DialogChoice* current_choice = &choice;
 	u16 current_index = index + 1;

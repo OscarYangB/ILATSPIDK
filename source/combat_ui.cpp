@@ -142,7 +142,7 @@ constexpr double CARD_HOVER_HEIGHT = 300.f;
 
 void on_card_hover(entt::entity entity) {
 	auto& hand_card = ecs.get<HandCardComponent>(entity);
-	std::cout << "Card is hovered: " << hand_card.get_card()->name << "\n";
+	std::cout << "Card is hovered: " << hand_card.get_card()->name.get() << "\n";
 	// Expand card UI
 }
 

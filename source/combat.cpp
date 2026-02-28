@@ -40,7 +40,7 @@ void CharacterComponent::draw() {
 	Card card = deck.back();
 	deck.pop_back();
 	hand.push_back(card);
-	std::cout << "drew: " << card->name << " \n";
+	std::cout << "drew: " << card->name.get() << " \n";
 }
 
 void CharacterComponent::play_card(u8 hand_index, const Characters& targets) {
