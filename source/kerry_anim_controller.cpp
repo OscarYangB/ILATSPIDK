@@ -93,7 +93,7 @@ void update_character_animation() {
 
 		for (int i = 0; i < sprite.sprites.size(); i++) {
 			Sprite index = static_cast<Sprite>(sprite_order[i]);
-			sprite.sprites[i] = index;
+			sprite.sprites.at(i) = index;
 		}
 	}
 }

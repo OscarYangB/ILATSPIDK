@@ -85,7 +85,7 @@ void update_render() {
 		Vector2 position = anchored_transform ? anchored_transform->render_position() : world_to_pixel(transform->position);
 
 		for (int i = 0; i < sprite_component.sprites.size(); i++) {
-			u16 index = static_cast<u16>(sprite_component.sprites[i]);
+			u16 index = static_cast<u16>(sprite_component.sprites.at(i));
 			u16 atlas_x = sprite_atlas_transform[index].x;
 			u16 atlas_y = sprite_atlas_transform[index].y;
 			u16 atlas_w = sprite_atlas_transform[index].w;
@@ -226,7 +226,7 @@ bool TransformComponent::can_move(const entt::entity& entity_to_move, const Vect
 }
 
 Box SpriteComponent::bounding_box() {
-	int index = static_cast<int>(sprites[0]);
+	int index = static_cast<int>(sprites.at(0));
 	u16 w = sprite_atlas_transform[index].w;
 	u16 h = sprite_atlas_transform[index].h;
 
@@ -240,14 +240,14 @@ Box SpriteComponent::bounding_box() {
 }
 
 Box SpriteComponent::visible_bounding_box() {
-	int index = static_cast<int>(sprites[0]);
+	int index = static_cast<int>(sprites.at(0));
 	u16 left = sprite_atlas_transform[index].visible_left; // These use downward-positive y-coordinates
 	u16 right = sprite_atlas_transform[index].visible_right;
 	u16 up = sprite_atlas_transform[index].visible_up;
 	u16 down = sprite_atlas_transform[index].visible_down;
 
 	for (int i = 1; i < sprites.size(); i++) {
-		index = static_cast<int>(sprites[i]);
+		index = static_cast<int>(sprites.at(i));
 		left = std::min(left, sprite_atlas_transform[index].visible_left);
 		right = std::max(right, sprite_atlas_transform[index].visible_right);
 		up = std::min(up, sprite_atlas_transform[index].visible_up);

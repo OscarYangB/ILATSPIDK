@@ -18,6 +18,6 @@ void update_cycle_animations() {
 			animation.index %= animation.sprites.size();
 		}
 
-		sprite.sprites[0] = animation.sprites[animation.index];
+		sprite.sprites.at(0) = animation.sprites.at(animation.index);
 	}
 }

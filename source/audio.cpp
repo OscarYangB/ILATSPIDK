@@ -3,7 +3,7 @@
 #include <SDL3/SDL.h>
 
 SDL_AudioStream* audio_stream = nullptr;
-std::vector<PlayingAudio> playing_audio;
+std::vector<PlayingAudio> playing_audio{};
 
 void init_audio() {
 	SDL_AudioSpec spec;
@@ -17,8 +17,8 @@ void init_audio() {
 void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount) {
 	for (int i = 0; i < playing_audio.size(); i++) {
 		u32 samples_to_play = SDL_min(total_amount, playing_audio[i].remaining_samples());
-		SDL_PutAudioStreamData(stream, playing_audio[i].data + playing_audio[i].position, samples_to_play);
-		playing_audio[i].position += samples_to_play;
+		SDL_PutAudioStreamData(stream, playing_audio.at(i).data + playing_audio.at(i).position, samples_to_play);
+		playing_audio.at(i).position += samples_to_play;
 	}
 
 	std::erase_if(playing_audio, [](const PlayingAudio& audio) {

@@ -33,6 +33,10 @@ constexpr inline char test_button[] {
 	#embed "..\assets\test_button.png"
 };
 
+constexpr inline char card[] { 
+	#embed "..\assets\atlas\card.png"
+};
+
 constexpr inline char gamebar[] { 
 	#embed "..\assets\atlas\GameBar.png"
 };
@@ -53,6 +57,7 @@ enum class ImageFile {
 	TABLE_IMAGE,
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
+	CARD_IMAGE,
 	GAMEBAR_IMAGE,
 	GRAKENY_IMAGE,
 	TEST_ATLAS_IMAGE,
@@ -64,6 +69,7 @@ constexpr const inline char* image_file_data[] {
 	table,
 	test_background,
 	test_button,
+	card,
 	gamebar,
 	grakeny,
 	test_atlas,
@@ -75,12 +81,13 @@ constexpr int image_file_sizes[] {
 	sizeof(table),
 	sizeof(test_background),
 	sizeof(test_button),
+	sizeof(card),
 	sizeof(gamebar),
 	sizeof(grakeny),
 	sizeof(test_atlas),
 };
 
-constexpr int NUMBER_OF_IMAGES = 8;
+constexpr int NUMBER_OF_IMAGES = 9;
 
 
 enum class Sprite {
@@ -89,6 +96,12 @@ enum class Sprite {
 	TABLE,
 	TEST_BACKGROUND,
 	TEST_BUTTON,
+	CARD_PSYCHIC_1,
+	CARD_PSYCHIC_LVL_1,
+	CARD_MAGIC_1,
+	CARD_MAGIC_LVL_1,
+	CARD_GROOVE_1,
+	CARD_GROOVE_LVL_1,
 	GAMEBAR_START_1,
 	GAMEBAR_START_2,
 	GAMEBAR_START_3,
@@ -211,6 +224,12 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 0, 300, 200, 56, 56, 257, 190},
 	{0, 0, 2339, 1654, 0, 0, 2339, 1654},
 	{0, 0, 400, 200, 0, 0, 400, 200},
+	{0, 0, 300, 400, 6, 9, 291, 395},
+	{300, 0, 300, 400, 228, 9, 292, 77},
+	{600, 0, 300, 400, 6, 9, 291, 395},
+	{0, 400, 300, 400, 228, 0, 300, 73},
+	{300, 400, 300, 400, 6, 9, 291, 395},
+	{600, 400, 300, 400, 229, 8, 294, 79},
 	{0, 0, 300, 100, 39, 23, 254, 68},
 	{300, 0, 300, 100, 40, 24, 254, 69},
 	{600, 0, 300, 100, 40, 22, 254, 70},
@@ -333,6 +352,12 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::TABLE_IMAGE,
 	ImageFile::TEST_BACKGROUND_IMAGE,
 	ImageFile::TEST_BUTTON_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,

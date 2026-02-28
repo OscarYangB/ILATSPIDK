@@ -43,13 +43,13 @@ void CharacterComponent::draw() {
 }
 
 void CharacterComponent::play_card(u8 hand_index, const Characters& targets) {
-	Card card = hand[hand_index];
+	Card card = hand.at(hand_index);
 	hand.erase(hand.begin() + hand_index);
 
 	played_card.emplace();
-	played_card->card = card;
-	played_card->bars_until_activate = card->cost;
-	played_card->targets = targets;
+	played_card.value().card = card;
+	played_card.value().bars_until_activate = card->cost;
+	played_card.value().targets = targets;
 	card->play(*this, targets);
 }
 
@@ -58,10 +58,10 @@ void CharacterComponent::on_bar_end() {
 		return;
 	}
 
-	played_card->bars_until_activate--;
+	played_card.value().bars_until_activate--;
 
-	if (played_card->bars_until_activate <= 0) {
-		played_card->card->activate(*this, played_card->targets);
+	if (played_card.value().bars_until_activate <= 0) {
+		played_card.value().card->activate(*this, played_card.value().targets);
 		played_card.reset();
 	}
 }
@@ -75,7 +75,7 @@ void update_combat() {
 		return;
 	}
 
-	combat->update();
+	combat.value().update();
 }
 
 void start_combat() {
@@ -130,7 +130,7 @@ void Combat::update() {
 }
 
 CharacterComponent* Combat::get_active_character() {
-	return characters[turn_index];
+	return characters.at(turn_index);
 }
 
 float Combat::get_bar_progress() {
