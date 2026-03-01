@@ -2,6 +2,7 @@
 
 #include "definitions.h"
 #include "combat.h"
+#include "entt/entt.hpp"
 
 void ui_start_combat();
 void ui_update_combat();
@@ -11,6 +12,7 @@ void ui_on_turn_start();
 
 struct HandCardComponent {
 	u8 index;
+	entt::entity sprite_entity;
 
 	Card get_card();
 };

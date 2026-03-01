@@ -47,7 +47,7 @@ void start() {
 		interaction.on_interact = [](){ start_dialog(TABLE_DIALOG[0]); };
 
 		// play_animation(20.0, 0.0, &TransformComponent::position, entity, [](Animation& animation, Vector2 current_value) {
-		// 	return Vector2{current_value.x, sinusoid_curve(500.f, 1.f, 0.f, animation, current_value.y)};
+		//  	return Vector2{current_value.x, sinusoid_curve(500.f, 50.f, 0.f, animation, current_value.y)};
 		// });
 	}
 	{ // Background
@@ -115,6 +115,7 @@ static void update() {
 
 	update_combat();
 
+	update_generic_animation();
 	update_character_animation();
 	update_cycle_animations();
 
@@ -128,7 +129,7 @@ static void update() {
 double fixed_update_timer = 0.0;
 
 void fixed_update() {
-	update_generic_animation();
+	//update_generic_animation();
 }
 
 int main(int argc, char* argv[]) {

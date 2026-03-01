@@ -5,6 +5,7 @@
 #include "button.h"
 #include "input.h"
 #include "character_animation.h"
+#include "animation.h"
 
 #include <iostream>
 
@@ -143,7 +144,18 @@ constexpr double CARD_HOVER_HEIGHT = 300.f;
 void on_card_hover(entt::entity entity) {
 	auto& hand_card = ecs.get<HandCardComponent>(entity);
 	std::cout << "Card is hovered: " << hand_card.get_card()->name.get() << "\n";
-	// Expand card UI
+
+	auto& sprite_transform = ecs.get<AnchoredTransformComponent>(hand_card.sprite_entity);
+	play_animation(0.1, 0.0, &AnchoredTransformComponent::height, hand_card.sprite_entity, [](Animation& animation, u16 starting_value) {
+		return linear_curve<u16>(3.0 * starting_value, animation, starting_value);
+	});
+	play_animation(0.1, 0.0, &AnchoredTransformComponent::width, hand_card.sprite_entity, [](Animation& animation, u16 starting_value) {
+		return linear_curve<u16>(3.0 * starting_value, animation, starting_value);
+	});
+}
+
+void on_card_unhover(entt::entity entity) {
+	// TODO
 }
 
 void on_card_click(entt::entity entity) {
@@ -161,33 +173,10 @@ void refresh_hand_buttons() {
 	CharacterComponent* character = combat.value().get_active_character();
 	float x_position = -(CARD_HOVER_WIDTH * character->hand.size()) / 2.f + (CARD_HOVER_WIDTH / 2.f);
 	for (int i = 0; i < character->hand.size(); i++) {
-		{ // Button
-			entt::entity entity = ecs.create();
-
-			auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
-			transform.x_anchor = HorizontalAnchor::CENTER;
-			transform.y_anchor = VerticalAnchor::BOTTOM;
-			transform.relative_position = {x_position, 0.f};
-			transform.width = CARD_HOVER_WIDTH;
-			transform.height = CARD_HOVER_HEIGHT;
-
-			// temp
-			auto& sprite = ecs.emplace<SpriteComponent>(entity);
-			sprite.sprites = {Sprite::TEST_BUTTON};
-			sprite.tints[0] = {255, 255, 255, 50};
-			//
-
-			auto& button = ecs.emplace<ButtonComponent>(entity);
-			button.on_hover = on_card_hover;
-			button.on_click = on_card_click;
-
-			auto& card = ecs.emplace<HandCardComponent>(entity);
-			card.index = i;
-
-			hand_buttons.push_back(entity);
-		}
+		entt::entity sprite_entity{};
 		{ // Sprite
 			entt::entity entity = ecs.create();
+			sprite_entity = entity;
 
 			auto& sprite = ecs.emplace<SpriteComponent>(entity);
 			switch (character->hand.at(i)->card_type) {
@@ -210,6 +199,33 @@ void refresh_hand_buttons() {
 
 			hand_sprites.push_back(entity);
 		}
+		{ // Button
+			entt::entity entity = ecs.create();
+
+			auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+			transform.x_anchor = HorizontalAnchor::CENTER;
+			transform.y_anchor = VerticalAnchor::BOTTOM;
+			transform.relative_position = {x_position, 0.f};
+			transform.width = CARD_HOVER_WIDTH;
+			transform.height = CARD_HOVER_HEIGHT;
+
+			// temp
+			auto& sprite = ecs.emplace<SpriteComponent>(entity);
+			sprite.sprites = {Sprite::TEST_BUTTON};
+			sprite.tints[0] = {255, 255, 255, 50};
+			//
+
+			auto& button = ecs.emplace<ButtonComponent>(entity);
+			button.on_hover = on_card_hover;
+			button.on_click = on_card_click;
+
+			auto& card = ecs.emplace<HandCardComponent>(entity);
+			card.index = i;
+			card.sprite_entity = sprite_entity;
+
+			hand_buttons.push_back(entity);
+		}
+
 
 		x_position += CARD_HOVER_WIDTH;
 	}

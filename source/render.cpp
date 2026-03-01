@@ -19,7 +19,6 @@ static float render_scale() {
 	return camera_scale * window_scale();
 }
 
-
 struct DebugLine {
 	Vector2 start;
 	Vector2 end;

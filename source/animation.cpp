@@ -1,4 +1,5 @@
 #include "animation.h"
+#include "SDL3/SDL_timer.h"
 
 bool Animation::is_finished() const {
 	if (duration == 0.0) {
@@ -8,22 +9,15 @@ bool Animation::is_finished() const {
 	return get_animation_time() >= duration;
 }
 
-double Animation::get_delta_time() const {
-	if (duration == 0.0) return FIXED_DELTA_TIME;
-	return std::min(FIXED_DELTA_TIME, duration - get_animation_time());
-}
-
-void Animation::progress_time() {
-	time_elapsed += get_delta_time();
-}
-
 std::vector<Animation> animations {};
 static u64 id_counter = 0;
 
 u64 register_animation(Animation animation) {
 	id_counter++;
 	animation.id = id_counter;
+	animation.time_started_ms = SDL_GetTicks();
 	animations.push_back(animation);
+
 	return id_counter;
 }
 
@@ -44,11 +38,7 @@ bool animation_playing(u64 id) {
 
 void update_generic_animation() {
 	for (auto& animation : animations) {
-		if (animation.time_elapsed > animation.delay) {
-			animation.updater->update(animation);
-		}
-
-		animation.progress_time();
+		animation.updater->update(animation);
 	}
 
 	std::erase_if(animations, [](const Animation& animation) {
@@ -57,5 +47,5 @@ void update_generic_animation() {
 }
 
 double Animation::get_animation_time() const {
-	return std::max(0.0, time_elapsed - delay);
+	return std::max(0.0, (SDL_GetTicks() - time_started_ms) / 1000.0 - delay);
 }
