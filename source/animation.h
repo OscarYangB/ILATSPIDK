@@ -2,6 +2,7 @@
 
 #include "game.h"
 #include "definitions.h"
+#include <functional>
 
 struct Animation;
 
@@ -28,10 +29,11 @@ struct Animation {
 
 	bool is_finished() const;
 	double get_animation_time() const;
+	double get_progress() const;
 };
 
 template <typename T>
-using Curve = T (*)(Animation& animation, T starting_value);
+using Curve = std::function<T(Animation& animation, T starting_value)>;
 
 template <typename MemberType, typename ComponentType>
 struct ComponentAnimation {
@@ -88,17 +90,36 @@ u64 play_animation(double duration, double delay, T* to_animate, CurveType curve
 	return register_animation(Animation{duration, delay, PointerAnimation<T>{to_animate, curve, *to_animate}});
 }
 
+
 template <typename T>
-T linear_curve(T rate, Animation& animation, T starting_value) {
+T linear_curve(T target_value, Animation& animation, T starting_value) {
+	if (animation.is_finished()) return target_value;
+	float rate = (target_value - starting_value) / animation.duration;
 	return starting_value + rate * animation.get_animation_time();
 }
 
 template <typename T>
 T smooth_curve(T target_value, Animation& animation, T starting_value) {
-	// Smooth interpolate between starting_value and target_value using animation completion rate
+	if (animation.is_finished()) return target_value;
+	double progress = animation.get_progress();
+	// Natalya Tatarchuk (2003). "Advanced Real-Time Shader Techniques". AMD. p. 94.
+	double value = progress * progress * (3.0 - 2.0 * progress);
+	return starting_value + value * (target_value - starting_value);
+}
+
+template <typename T>
+T fast_start_curve(T target_value, Animation& animation, T starting_value) {
+	if (animation.is_finished()) return target_value;
+	// TODO
 	return starting_value;
 }
 
+template <typename T>
+T fast_end_curve(T target_value, Animation& animation, T starting_value) {
+	if (animation.is_finished()) return target_value;
+	// TODO
+	return starting_value;
+}
 
 template <typename T>
 T sinusoid_curve(float amplitude, float frequency, float phase, Animation& animation, T starting_value) {
@@ -107,6 +128,8 @@ T sinusoid_curve(float amplitude, float frequency, float phase, Animation& anima
 }
 
 template <typename T>
-T linear_increment(double rate, T multiplier, Animation& animation, T starting_value) {
+T linear_increment(T target_value, T multiplier, Animation& animation, T starting_value) {
+	if (animation.is_finished()) return target_value;
+	float rate = (target_value - starting_value) / animation.duration;
 	return starting_value + std::floor(animation.get_animation_time() * rate) * multiplier;
 }

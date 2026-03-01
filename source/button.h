@@ -8,7 +8,6 @@ struct ButtonComponent {
 	void (*on_unhover)(entt::entity button) = nullptr;
 
 	bool is_hovered;
-	bool is_clicked;
 };
 
 void update_button();

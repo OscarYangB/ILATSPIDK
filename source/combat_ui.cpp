@@ -139,23 +139,60 @@ void ui_start_combat() {
 }
 
 constexpr double CARD_HOVER_WIDTH = 150.f;
-constexpr double CARD_HOVER_HEIGHT = 300.f;
+constexpr double CARD_HOVER_HEIGHT = 250.f;
+
+constexpr u16 CARD_SPRITE_WIDTH = 150;
+constexpr u16 CARD_SPRITE_HEIGHT = 200;
+
+constexpr u16 CARD_SPRITE_EXPANDED_WIDTH = 300;
+constexpr u16 CARD_SPRITE_EXPANDED_HEIGHT = 400;
+
+constexpr u16 CARD_SPRITE_Y_OFFSET = 100;
 
 void on_card_hover(entt::entity entity) {
 	auto& hand_card = ecs.get<HandCardComponent>(entity);
 	std::cout << "Card is hovered: " << hand_card.get_card()->name.get() << "\n";
 
 	auto& sprite_transform = ecs.get<AnchoredTransformComponent>(hand_card.sprite_entity);
-	play_animation(0.1, 0.0, &AnchoredTransformComponent::height, hand_card.sprite_entity, [](Animation& animation, u16 starting_value) {
-		return linear_curve<u16>(3.0 * starting_value, animation, starting_value);
+	play_animation(0.05, 0.0, &AnchoredTransformComponent::width, hand_card.sprite_entity, [](Animation& animation, u16 starting_value) {
+		return smooth_curve<u16>(CARD_SPRITE_EXPANDED_WIDTH, animation, starting_value);
 	});
-	play_animation(0.1, 0.0, &AnchoredTransformComponent::width, hand_card.sprite_entity, [](Animation& animation, u16 starting_value) {
-		return linear_curve<u16>(3.0 * starting_value, animation, starting_value);
+	play_animation(0.05, 0.0, &AnchoredTransformComponent::height, hand_card.sprite_entity, [](Animation& animation, u16 starting_value) {
+		return smooth_curve<u16>(CARD_SPRITE_EXPANDED_HEIGHT, animation, starting_value);
 	});
+	play_animation(0.05, 0.0, &AnchoredTransformComponent::relative_position, hand_card.sprite_entity, [](Animation& animation, Vector2 starting_value) {
+		return Vector2{starting_value.x, smooth_curve<float>(0.f, animation, starting_value.y)};
+	});
+
+	for (int i = 0; i < hand_sprites.size(); i++) {
+		entt::entity sprite_entity = hand_sprites.at(i);
+		int distance_from_hovered = std::abs(hand_card.index - i);
+		ecs.get<AnchoredTransformComponent>(sprite_entity).sort_order = hand_sprites.size() - 1 - distance_from_hovered;
+
+		if (i != hand_card.index) {
+			play_animation(0.05, 0.0, &AnchoredTransformComponent::relative_position, sprite_entity, [distance_from_hovered](Animation& animation, Vector2 starting_value) {
+				return Vector2{starting_value.x, smooth_curve<float>(20 * distance_from_hovered, animation, starting_value.y)};
+			});
+		}
+	}
 }
 
 void on_card_unhover(entt::entity entity) {
-	// TODO
+	auto& hand_card = ecs.get<HandCardComponent>(entity);
+
+	auto& sprite_transform = ecs.get<AnchoredTransformComponent>(hand_card.sprite_entity);
+	play_animation(0.05, 0.0, &AnchoredTransformComponent::width, hand_card.sprite_entity, [](Animation& animation, u16 starting_value) {
+		return smooth_curve<u16>(CARD_SPRITE_WIDTH, animation, starting_value);
+	});
+	play_animation(0.05, 0.0, &AnchoredTransformComponent::height, hand_card.sprite_entity, [](Animation& animation, u16 starting_value) {
+		return smooth_curve<u16>(CARD_SPRITE_HEIGHT, animation, starting_value);
+	});
+
+	for (entt::entity sprite_entity : hand_sprites) {
+		play_animation(0.05, 0.0, &AnchoredTransformComponent::relative_position, sprite_entity, [](Animation& animation, Vector2 starting_value) {
+			return Vector2{starting_value.x, smooth_curve<float>(CARD_SPRITE_Y_OFFSET, animation, starting_value.y)};
+		});
+	}
 }
 
 void on_card_click(entt::entity entity) {
@@ -188,9 +225,9 @@ void refresh_hand_buttons() {
 			auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
 			transform.x_anchor = HorizontalAnchor::CENTER;
 			transform.y_anchor = VerticalAnchor::BOTTOM;
-			transform.relative_position = {x_position, 20.f};
-			transform.height = sprite.bounding_box().height() / 2.f;
-			transform.width = sprite.bounding_box().width() / 2.f;
+			transform.relative_position = {x_position, CARD_SPRITE_Y_OFFSET};
+			transform.height = CARD_SPRITE_HEIGHT;
+			transform.width = CARD_SPRITE_WIDTH;
 
 			// Name
 			// Description
@@ -209,15 +246,16 @@ void refresh_hand_buttons() {
 			transform.width = CARD_HOVER_WIDTH;
 			transform.height = CARD_HOVER_HEIGHT;
 
-			// temp
-			auto& sprite = ecs.emplace<SpriteComponent>(entity);
-			sprite.sprites = {Sprite::TEST_BUTTON};
-			sprite.tints[0] = {255, 255, 255, 50};
+			// debug
+			// auto& sprite = ecs.emplace<SpriteComponent>(entity);
+			// sprite.sprites = {Sprite::TEST_BUTTON};
+			// sprite.tints[0] = {255, 255, 255, 50};
 			//
 
 			auto& button = ecs.emplace<ButtonComponent>(entity);
 			button.on_hover = on_card_hover;
 			button.on_click = on_card_click;
+			button.on_unhover = on_card_unhover;
 
 			auto& card = ecs.emplace<HandCardComponent>(entity);
 			card.index = i;
