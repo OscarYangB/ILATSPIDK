@@ -11,8 +11,9 @@ void ui_on_bar_end();
 void ui_on_turn_start();
 
 struct HandCardComponent {
-	u8 index;
-	entt::entity sprite_entity;
+	u8 index{};
+	entt::entity sprite_entity{};
+	std::vector<u32> animation_ids{};
 
 	Card get_card();
 };
