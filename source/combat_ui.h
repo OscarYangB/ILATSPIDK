@@ -13,7 +13,7 @@ void ui_on_turn_start();
 struct HandCardComponent {
 	u8 index{};
 	entt::entity sprite_entity{};
-	std::vector<u32> animation_ids{};
+	u32 animation_id{};
 
 	Card get_card();
 };

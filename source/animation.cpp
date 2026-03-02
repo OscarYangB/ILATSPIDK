@@ -11,9 +11,13 @@ bool Animation::is_finished() const {
 
 std::vector<Animation> animations {};
 static u64 id_counter = 0;
+static bool pause_id_increment = false;
 
-u64 register_animation(Animation animation) {
-	id_counter++;
+u32 register_animation(Animation animation) {
+	if (!pause_id_increment) {
+		id_counter++;
+	}
+
 	animation.id = id_counter;
 	animation.time_started_ms = SDL_GetTicks();
 	animations.push_back(animation);
@@ -21,7 +25,7 @@ u64 register_animation(Animation animation) {
 	return id_counter;
 }
 
-u64 play_animation(double duration, double delay, entt::poly<Updater> updater) {
+u32 play_animation(double duration, double delay, entt::poly<Updater> updater) {
 	return register_animation(Animation{duration, delay, updater});
 }
 
@@ -34,6 +38,20 @@ bool animation_playing(u64 id) {
 		if (animation.id == id) return true;
 	}
 	return false;
+}
+
+u32 start_animation_group() {
+	if (pause_id_increment) {
+		throw std::runtime_error("Animation group has already been started!");
+	}
+
+	id_counter++;
+	pause_id_increment = true;
+	return id_counter;
+}
+
+void end_animation_group() {
+	pause_id_increment = false;
 }
 
 void update_generic_animation() {

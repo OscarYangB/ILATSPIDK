@@ -72,12 +72,14 @@ struct PointerAnimation {
 };
 
 extern std::vector<Animation> animations;
-u64 register_animation(Animation animation);
+u32 register_animation(Animation animation);
 
-u64 play_animation(double duration, double delay, entt::poly<Updater> updater);
+u32 play_animation(double duration, double delay, entt::poly<Updater> updater);
 void update_generic_animation();
 void stop_animation(u64 id);
 bool animation_playing(u64 id);
+u32 start_animation_group();
+void end_animation_group();
 
 template <typename MemberType, typename ComponentType, typename CurveType>
 u64 play_animation(double duration, double delay, MemberType ComponentType::* member, entt::entity entity, CurveType curve) {

@@ -22,6 +22,9 @@ struct Colour {
 	u8 a = 255;
 };
 
+constexpr Colour BLACK = {0, 0, 0, 255};
+constexpr Colour WHITE = {255, 255, 255, 255};
+
 struct SpriteComponent {
 	std::vector<Sprite> sprites{};
 	std::unordered_map<u8, Colour> tints{};
@@ -65,9 +68,7 @@ struct NineSliceComponent {
 
 struct TextComponent {
 	Text text{};
-	u8 r{};
-	u8 g{};
-	u8 b{};
+	Colour colour = BLACK;
 	u8 size = 50;
 	u16 mask = 0; // How many characters to display? 0 means all
 
