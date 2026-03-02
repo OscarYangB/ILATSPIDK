@@ -84,7 +84,7 @@ struct CharacterComponent {
 	void on_turn_start();
 };
 
-constexpr double BPM = 135.0;
+constexpr double BPM = 60.0;
 constexpr u8 BEATS_PER_BAR = 4;
 constexpr double BEATS_PER_SECOND = BPM / 60.0;
 constexpr double SECONDS_PER_BEAT = 1.0 / BEATS_PER_SECOND;

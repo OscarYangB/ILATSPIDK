@@ -30,9 +30,9 @@ void button_clicked() {
 }
 
 void start() {
-	spawn_player();
 	entt::entity grakeny = spawn_grakeny();
 	ecs.get<TransformComponent>(grakeny).position = Vector2(300.f, 300.f);
+	spawn_player();
 
 	{ // TABLE
 		const entt::entity entity = ecs.create();

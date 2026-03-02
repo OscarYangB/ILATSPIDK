@@ -82,7 +82,7 @@ void update_combat() {
 void start_combat() {
 	Characters characters{};
 	auto view = ecs.view<CharacterDataComponent>();
-	for (auto [entity, data] : view.each()) {
+	for (auto [entity, data] : view.each()) { // Currently based on order in which characters were added to ecs
 		auto& new_character = ecs.emplace<CharacterComponent>(entity);
 		new_character.init_from_data(data);
 		for (int i = 0; i < 3; i++) new_character.draw();
@@ -90,8 +90,10 @@ void start_combat() {
 	}
 
 	combat = {characters, 0};
-
 	ui_start_combat();
+
+	combat.value().get_active_character()->on_turn_start();
+	ui_on_turn_start();
 
 	std::cout << "combat started" << "\n";
 }
