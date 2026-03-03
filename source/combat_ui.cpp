@@ -138,8 +138,9 @@ void ui_start_combat() {
 	create_gamebar();
 }
 
-constexpr double CARD_HOVER_WIDTH = 140.f;
-constexpr double CARD_HOVER_HEIGHT = 250.f;
+constexpr double CARD_HOVER_WIDTH = 145.f;
+constexpr double CARD_HOVER_HEIGHT = 200.f;
+constexpr double CARD_HOVER_EXPANDED_HEIGHT = 250.f;
 
 constexpr u16 CARD_SPRITE_WIDTH = 150;
 constexpr u16 CARD_SPRITE_HEIGHT = 200;
@@ -157,7 +158,10 @@ float card_x_offset(u8 hand_size, u8 index) {
 
 void on_card_hover(entt::entity hovered_entity) {
 	auto& hovered_card = ecs.get<HandCardComponent>(hovered_entity);
+	u8 index = hovered_card.index;
 	std::cout << "Card is hovered: " << hovered_card.get_card()->name.get() << "\n";
+
+	ecs.get<AnchoredTransformComponent>(hovered_entity).height = CARD_HOVER_EXPANDED_HEIGHT;
 
 	stop_animation(hovered_card.animation_id);
 	hovered_card.animation_id = start_animation_group();
@@ -167,32 +171,38 @@ void on_card_hover(entt::entity hovered_entity) {
 	play_animation(0.04, 0.0, &AnchoredTransformComponent::height, hovered_card.sprite_entity, [](Animation& animation, u16 starting_value) {
 		return smooth_curve<u16>(CARD_SPRITE_EXPANDED_HEIGHT, animation, starting_value);
 	});
-	play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, hovered_card.sprite_entity, [](Animation& animation, Vector2 starting_value) {
-		return Vector2{starting_value.x, smooth_curve<float>(CARD_SPRITE_SHOWN_OFFSET, animation, starting_value.y)};
+	play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, hovered_card.sprite_entity, [index](Animation& animation, Vector2 starting_value) {
+		float x_target = card_x_offset(hand_sprites.size(), index);
+		return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve<float>(CARD_SPRITE_SHOWN_OFFSET, animation, starting_value.y)};
 	});
 	end_animation_group();
 
 	for (int i = 0; i < hand_sprites.size(); i++) {
 		entt::entity sprite_entity = hand_sprites.at(i);
-		int distance_from_hovered = std::abs(hovered_card.index - i);
+		int distance_from_hovered = std::abs(index - i);
 		ecs.get<AnchoredTransformComponent>(sprite_entity).sort_order = hand_sprites.size() - 1 - distance_from_hovered;
 
-		if (i != hovered_card.index) {
+		if (i != index) {
 			auto& hand_card = ecs.get<HandCardComponent>(hand_buttons.at(i));
 			stop_animation(hand_card.animation_id);
 
 			hand_card.animation_id = start_animation_group();
 			float distance_weight = distance_from_hovered / 25.f;
-			play_animation(0.10, 0.0, &AnchoredTransformComponent::width, sprite_entity, [distance_weight](Animation& animation, u16 starting_value) {
+			play_animation(0.06, 0.0, &AnchoredTransformComponent::width, sprite_entity, [distance_weight](Animation& animation, u16 starting_value) {
 				return smooth_curve<u16>(CARD_SPRITE_WIDTH - distance_weight * CARD_SPRITE_WIDTH, animation, starting_value);
 			});
-			play_animation(0.10, 0.0, &AnchoredTransformComponent::height, sprite_entity, [distance_weight](Animation& animation, u16 starting_value) {
+			play_animation(0.06, 0.0, &AnchoredTransformComponent::height, sprite_entity, [distance_weight](Animation& animation, u16 starting_value) {
 				return smooth_curve<u16>(CARD_SPRITE_HEIGHT - distance_weight * CARD_SPRITE_HEIGHT, animation, starting_value);
 			});
-			float x_offset = i > hovered_card.index ? -200.f : 200.f;
-			x_offset *= distance_weight;
+			float x_offset = i > index ? 70.f : -70.f;
+			float x_offset_coeff = i > index ? -60.f : 60.f;
+			x_offset += x_offset_coeff * (distance_from_hovered / 2.5f);
+			// float x_offset = i > index ? -200.f : 200.f;
+			// x_offset *= distance_weight;
 			play_animation(0.10, 0.0, &AnchoredTransformComponent::relative_position, sprite_entity, [i, x_offset, distance_from_hovered](Animation& animation, Vector2 starting_value) {
-				return Vector2{card_x_offset(hand_sprites.size(), i) + x_offset, smooth_curve<float>(CARD_SPRITE_SHOWN_OFFSET + 2.0f - 13.5f * distance_from_hovered, animation, starting_value.y)};
+				float x_target = card_x_offset(hand_sprites.size(), i) + x_offset;
+				float y_target = CARD_SPRITE_SHOWN_OFFSET + 2.0f - 13.5f * distance_from_hovered;
+				return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve(y_target, animation, starting_value.y)};
 			});
 			end_animation_group();
 		}
@@ -202,7 +212,6 @@ void on_card_hover(entt::entity hovered_entity) {
 void on_card_unhover(entt::entity entity) {
 	for (int i = 0; i < hand_sprites.size(); i++) {
 		entt::entity sprite_entity = hand_sprites.at(i);
-		auto& sprite_transform = ecs.get<AnchoredTransformComponent>(sprite_entity);
 
 		auto& hand_card = ecs.get<HandCardComponent>(hand_buttons.at(i));
 		stop_animation(hand_card.animation_id);
@@ -215,9 +224,12 @@ void on_card_unhover(entt::entity entity) {
 			return smooth_curve<u16>(CARD_SPRITE_HEIGHT, animation, starting_value);
 		});
 		play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, sprite_entity, [i](Animation& animation, Vector2 starting_value) {
-			return Vector2{card_x_offset(hand_sprites.size(), i), smooth_curve<float>(CARD_SPRITE_HIDDEN_OFFSET, animation, starting_value.y)};
+			float x_target = card_x_offset(hand_sprites.size(), i);
+			return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve<float>(CARD_SPRITE_HIDDEN_OFFSET, animation, starting_value.y)};
 		});
 		end_animation_group();
+
+		ecs.get<AnchoredTransformComponent>(hand_buttons.at(i)).height = CARD_HOVER_HEIGHT;
 	}
 }
 

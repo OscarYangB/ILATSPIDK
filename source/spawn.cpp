@@ -24,7 +24,7 @@ entt::entity spawn_player() {
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);
 	character.starting_health = 100.f;
 	character.type = CharacterType::GOOD;
-	character.starting_deck = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::HEAL });
+	character.starting_deck = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::SATURN, CardID::SATURN, CardID::HEAL });
 
 	player_character = entity;
 	return entity;

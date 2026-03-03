@@ -76,6 +76,20 @@ struct TextComponent {
 	VerticalAnchor y_align = VerticalAnchor::TOP;
 };
 
+struct ParentComponent {
+	std::vector<entt::entity> children{};
+
+	void add_child(entt::entity child);
+	void remove_child(entt::entity child);
+	static void on_destroy(entt::registry& registry, const entt::entity entt);
+};
+
+struct ChildComponent {
+	entt::entity parent;
+
+	static void on_destroy(entt::registry& registry, const entt::entity entt);
+};
+
 extern Vector2 camera_position;
 extern float camera_scale;
 

@@ -102,7 +102,7 @@ void update_render() {
 		return first_collider->box.left_top.y + first_transform->position.y > second_collider->box.left_top.y + second_transform->position.y;
 	});
 
-	auto sprites = ecs.view<SpriteComponent>();
+	auto sprites = ecs.view<SpriteComponent>(entt::exclude<ChildComponent>);
 	for (auto [entity, sprite_component] : sprites.each()) {
 		TransformComponent* transform = ecs.try_get<TransformComponent>(entity);
 		AnchoredTransformComponent* anchored_transform = ecs.try_get<AnchoredTransformComponent>(entity);
@@ -258,4 +258,39 @@ Box SpriteComponent::visible_bounding_box() {
 	}
 
 	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
+}
+
+void ParentComponent::add_child(entt::entity child) {
+	children.push_back(child);
+	auto& child_component = ecs.emplace<ChildComponent>(child);
+	child_component.parent = entt::to_entity(ecs.storage<ParentComponent>(), *this);
+}
+
+void ParentComponent::remove_child(entt::entity child) {
+	std::erase_if(children, [child](entt::entity entity){ return entity == child; } );
+	ecs.remove<ChildComponent>(child);
+}
+
+void ParentComponent::on_destroy(entt::registry& registry, const entt::entity entt) { // Test if this works
+	std::vector<entt::entity> entities{};
+	ParentComponent* parent = &registry.get<ParentComponent>(entt);
+	entities.append_range(parent->children);
+
+	while (!entities.empty()) {
+		registry.destroy(entities.back());
+		parent = ecs.try_get<ParentComponent>(entities.back());
+		entities.pop_back();
+
+		if (parent == nullptr) {
+			continue;
+		}
+
+		entities.append_range(parent->children);
+	}
+}
+
+void ChildComponent::on_destroy(entt::registry& registry, const entt::entity entt) { // Test if this works
+	auto& child = ecs.get<ChildComponent>(entt);
+	auto& parent = ecs.get<ParentComponent>(child.parent);
+	std::erase_if(parent.children, [entt](entt::entity entity){ return entity == entt; } );
 }

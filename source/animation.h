@@ -112,15 +112,17 @@ T smooth_curve(T target_value, Animation& animation, T starting_value) {
 template <typename T>
 T fast_start_curve(T target_value, Animation& animation, T starting_value) {
 	if (animation.is_finished()) return target_value;
-	// TODO
-	return starting_value;
+	double progress = animation.get_progress();
+	double value = std::pow(progress, 0.3);
+	return starting_value + value * (target_value - starting_value);
 }
 
 template <typename T>
 T fast_end_curve(T target_value, Animation& animation, T starting_value) {
 	if (animation.is_finished()) return target_value;
-	// TODO
-	return starting_value;
+	double progress = animation.get_progress();
+	double value = progress * progress * progress;
+	return starting_value + value * (target_value - starting_value);
 }
 
 template <typename T>

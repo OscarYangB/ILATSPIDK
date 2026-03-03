@@ -85,7 +85,7 @@ void start_combat() {
 	for (auto [entity, data] : view.each()) { // Currently based on order in which characters were added to ecs
 		auto& new_character = ecs.emplace<CharacterComponent>(entity);
 		new_character.init_from_data(data);
-		for (int i = 0; i < 3; i++) new_character.draw();
+		for (int i = 0; i < 5; i++) new_character.draw();
 		characters.push_back(&new_character);
 	}
 
