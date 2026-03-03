@@ -1,0 +1,99 @@
+| Number |   | Date             | Tasks                           | Milestone         |
+|--------+---+------------------+---------------------------------+-------------------|
+| #1     |   | <2026-01-04 Sun> | Character moving, buttons,audio |                   |
+| #2     |   | <2026-01-18 Sun> | Collision, asset loading        |                   |
+| #3     |   | <2026-02-01 Sun> | Dialog                          |                   |
+| #4     |   | <2026-02-15 Sun> | Gameplay UI                     |                   |
+| #5     | X | <2026-03-01 Sun> | Gameplay UI, enemies, cards     |                   |
+| #6     |   | <2026-03-15 Sun> | Widgets, controller             |                   |
+| #7     |   | <2026-03-29 Sun> | Inventory                       |                   |
+| #8     |   | <2026-04-12 Sun> | Quest                           |                   |
+| #9     |   | <2026-04-26 Sun> | Save/Load                       |                   |
+| #10    |   | <2026-05-10 Sun> | Skill tree                      | VERTICAL SLICE    |
+|--------+---+------------------+---------------------------------+-------------------|
+| #11    |   | <2026-05-24 Sun> | Rendering, lighting, effects    |                   |
+| #12    |   | <2026-06-07 Sun> | Menus                           |                   |
+| #13    |   | <2026-06-21 Sun> | Level Editor                    |                   |
+| #14    |   | <2026-07-05 Sun> | Level Content                   |                   |
+| #15    |   | <2026-07-19 Sun> | Card Content                    |                   |
+| #16    |   | <2026-08-02 Sun> | Character Content               |                   |
+| #17    |   | <2026-08-16 Sun> | Enemy Content                   |                   |
+| #18    |   | <2026-08-30 Sun> |                                 |                   |
+| #19    |   | <2026-09-13 Sun> |                                 | CONTENT MILESTONE |
+|--------+---+------------------+---------------------------------+-------------------|
+| #20    |   | <2026-09-27 Sun> |                                 |                   |
+| #21    |   | <2026-10-11 Sun> |                                 |                   |
+| #22    |   | <2026-10-25 Sun> |                                 |                   |
+| #23    |   | <2026-11-08 Sun> |                                 |                   |
+| #24    |   | <2026-11-22 Sun> |                                 |                   |
+| #25    |   | <2026-12-06 Sun> |                                 |                   |
+| #26    |   | <2026-12-20 Sun> |                                 |                   |
+| #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
+|--------+---+------------------+---------------------------------+-------------------|
+
+* Workflow
+- [ ] Tab to indent according to mode when line is empty and no selection
+- [ ] C-backspace stops on capital letter and line start
+- [ ] Auto indent after paste
+- [ ] Keep selection after copy paste and tab
+* Combat UI
+[[../source/combat_ui.h]]
+** TODO Card UI
+- [X] Hovering
+- [ ] Static UI
+  - [ ] Position and anchoring relative to parent
+  - [ ] Image
+  - [ ] Title
+  - [ ] Description
+  - [ ] Cost
+- [ ] Draw animation (hand drawn with speed lines)
+  - One for each type
+- [ ] Drag to target
+  - Highlights nearest target to mouse
+- [ ] Play animation
+- [ ] Health Bar
+- [ ] Hover and Queue Indicator
+- [ ] Turn Bar
+* Combat
+[[../source/combat.h]]
+** TODO Enemies
+** TODO Props
+** TODO Status Effects
+* Input
+[[../source/input.h]]
+** TODO Controller
+- [ ] Single focus
+** TODO Input Swapping
+* UI Widgets
+** TODO Buttons
+[[../source/button.h]]
+** TODO Slider
+** TODO Combo box
+* UI Menus
+** TODO Main menu
+** TODO Options
+** TODO Journal
+** TODO Inventory
+** TODO Skill tree
+** TODO Dialog
+- [X] Compiling from .dlg
+- [ ] UI upgrade
+
+* Audio
+[[../source/audio.h]]
+** Compression
+- [ ] Narrow bandwidth OPUS decoding
+* Collision
+[[../source/physics.h]]
+* Lighting
+* Level Editor
+- SDL + ImGui
+- Sprite positions
+- Waypoint positions
+- Collider dimensions
+- Scene list view
+- Just amalgamate the atlas entries to display a sprite
+- Export position and collider data to c++
+- Save/load scene as project
+- std::filesystem and ImGui to place
+- Move tool with multiselect
