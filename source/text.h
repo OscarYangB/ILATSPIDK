@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_view>
+
 enum class Language {
 	ENGLISH,
 	FRENCH,
@@ -8,8 +10,8 @@ enum class Language {
 extern Language language;
 
 struct Text {
-	const char* english = "";
-	const char* french = "";
+	std::string_view english = "";
+	std::string_view french = "";
 
-	const char* get() const;
+	std::string_view get() const;
 };

@@ -74,10 +74,7 @@ static Vector2 get_anchor_offset(HorizontalAnchor x_anchor, VerticalAnchor y_anc
 	return result;
 }
 
-
-void update_render() {
-	start_render();
-
+void sort_sprites() {
 	ecs.sort<SpriteComponent>([](entt::entity first, entt::entity second) { // Sort render order using y position
 		// true -> second is above
 		// false -> first is above
@@ -101,8 +98,11 @@ void update_render() {
 		// Foreground
 		return first_collider->box.left_top.y + first_transform->position.y > second_collider->box.left_top.y + second_transform->position.y;
 	});
+}
 
+void render_sprites() {
 	auto sprites = ecs.view<SpriteComponent>(entt::exclude<ChildComponent>);
+
 	for (auto [entity, sprite_component] : sprites.each()) {
 		TransformComponent* transform = ecs.try_get<TransformComponent>(entity);
 		AnchoredTransformComponent* anchored_transform = ecs.try_get<AnchoredTransformComponent>(entity);
@@ -151,14 +151,23 @@ void update_render() {
 			}
 		}
 	}
+}
 
+void render_text() {
 	auto text_view = ecs.view<TextComponent, const AnchoredTransformComponent>();
 	for (auto [entity, text, transform] : text_view.each()) {
 		Vector2 position = transform.render_position();
 		render_text(text.text.get(), position.x, position.y, transform.render_width(), transform.render_height(),
 					text.colour.r, text.colour.b, text.colour.g, text.size * window_scale(), text.mask, text.x_align, text.y_align);
 	}
+}
 
+void update_render() {
+	start_render();
+
+	sort_sprites();
+	render_sprites();
+	render_text();
 	draw_debug_lines();
 	//render_fps_counter();
 

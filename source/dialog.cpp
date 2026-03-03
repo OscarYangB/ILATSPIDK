@@ -109,7 +109,7 @@ static void update_dialog_animation() {
 	// Play sound from tone row based on chance
 
 	text_component.mask++;
-	if (text_component.mask >= strlen(text_component.text.get())) { // Won't work for localization
+	if (text_component.mask >= text_component.text.get().length()) { // Won't work for localization
 		text_component.mask = 0;
 		is_dialog_animating = false;
 		return;

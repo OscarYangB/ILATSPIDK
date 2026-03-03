@@ -201,7 +201,7 @@ void on_card_hover(entt::entity hovered_entity) {
 			// x_offset *= distance_weight;
 			play_animation(0.10, 0.0, &AnchoredTransformComponent::relative_position, sprite_entity, [i, x_offset, distance_from_hovered](Animation& animation, Vector2 starting_value) {
 				float x_target = card_x_offset(hand_sprites.size(), i) + x_offset;
-				float y_target = CARD_SPRITE_SHOWN_OFFSET + 2.0f - 13.5f * distance_from_hovered;
+				float y_target = CARD_SPRITE_SHOWN_OFFSET + 2.0f - 12.f * distance_from_hovered;
 				return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve(y_target, animation, starting_value.y)};
 			});
 			end_animation_group();
