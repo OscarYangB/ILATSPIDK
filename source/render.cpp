@@ -132,7 +132,7 @@ void render_text() {
 	for (auto [entity, text, transform] : text_view.each()) {
 		Vector2 position = transform.render_position();
 		render_text(text.text.get(), position.x, position.y, transform.render_width(), transform.render_height(),
-					text.colour.r, text.colour.b, text.colour.g, text.size * window_scale(), text.mask, text.x_align, text.y_align);
+					text.colour.r, text.colour.g, text.colour.b, text.size * window_scale() * transform.get_recursive_scale(), text.mask, text.x_align, text.y_align);
 	}
 }
 
