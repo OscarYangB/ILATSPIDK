@@ -62,6 +62,8 @@ struct CharacterDataComponent {
 	CharacterType type{};
 	std::vector<Card> starting_deck{};
 	Sprite icon{};
+
+	static constexpr auto in_place_delete = true;
 };
 
 struct CharacterComponent {
@@ -73,6 +75,8 @@ struct CharacterComponent {
 	std::vector<Card> hand{};
 	std::vector<StatusEffect> status_effects{};
 	std::optional<PlayedCard> played_card{};
+
+	static constexpr auto in_place_delete = true;
 
 	void init_from_data(const CharacterDataComponent& new_data);
 	inline bool is_alive() { return health > 0.f; }

@@ -53,10 +53,19 @@ struct AnchoredTransformComponent {
 	u16 width{};
 	u16 height{};
 	u8 sort_order{};
+	std::vector<AnchoredTransformComponent*> children{};
+	AnchoredTransformComponent* parent{};
+	float scale = 1.f;
 
+	static constexpr auto in_place_delete = true;
+
+	float get_recursive_scale() const;
 	Vector2 render_position() const;
 	float render_width() const;
 	float render_height() const;
+	void add_child(AnchoredTransformComponent& child);
+	void remove_child(AnchoredTransformComponent& child);
+	static void on_destroy(entt::registry& registry, const entt::entity entt);
 };
 
 struct NineSliceComponent {
@@ -74,20 +83,6 @@ struct TextComponent {
 
 	HorizontalAnchor x_align = HorizontalAnchor::LEFT;
 	VerticalAnchor y_align = VerticalAnchor::TOP;
-};
-
-struct ParentComponent {
-	std::vector<entt::entity> children{};
-
-	void add_child(entt::entity child);
-	void remove_child(entt::entity child);
-	static void on_destroy(entt::registry& registry, const entt::entity entt);
-};
-
-struct ChildComponent {
-	entt::entity parent;
-
-	static void on_destroy(entt::registry& registry, const entt::entity entt);
 };
 
 extern Vector2 camera_position;

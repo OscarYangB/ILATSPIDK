@@ -48,32 +48,6 @@ void render_fps_counter() {
 #endif
 }
 
-static Vector2 get_anchor_offset(HorizontalAnchor x_anchor, VerticalAnchor y_anchor, float width, float height) {
-	Vector2 result{};
-
-	switch(y_anchor) {
-		case VerticalAnchor::TOP: break;
-		case VerticalAnchor::CENTER: {
-			result.y += (window_height() - height) / 2.0f;
-		} break;
-		case VerticalAnchor::BOTTOM: {
-			result.y += window_height() - height;
-		} break;
-	}
-
-	switch(x_anchor) {
-		case HorizontalAnchor::LEFT: break;
-		case HorizontalAnchor::CENTER: {
-			result.x += (window_width() - width) / 2.0f;
-		} break;
-		case HorizontalAnchor::RIGHT: {
-			result.x += window_width() - width;
-		} break;
-	}
-
-	return result;
-}
-
 void sort_sprites() {
 	ecs.sort<SpriteComponent>([](entt::entity first, entt::entity second) { // Sort render order using y position
 		// true -> second is above
@@ -101,7 +75,7 @@ void sort_sprites() {
 }
 
 void render_sprites() {
-	auto sprites = ecs.view<SpriteComponent>(entt::exclude<ChildComponent>);
+	auto sprites = ecs.view<SpriteComponent>();
 
 	for (auto [entity, sprite_component] : sprites.each()) {
 		TransformComponent* transform = ecs.try_get<TransformComponent>(entity);
@@ -199,15 +173,39 @@ Vector2 world_to_pixel(const Vector2& in) {
 }
 
 Vector2 AnchoredTransformComponent::render_position() const  {
-	return (relative_position * window_scale()) + get_anchor_offset(x_anchor, y_anchor, render_width(), render_height());
+	const float scaled_width = render_width();
+	const float scaled_height = render_height();
+	float canvas_width = parent != nullptr ? parent->render_width() : window_width();
+	float canvas_height = parent != nullptr ? parent->render_height() : window_height();
+	Vector2 anchor_offset{};
+
+	switch(y_anchor) {
+		case VerticalAnchor::TOP: break;
+		case VerticalAnchor::CENTER: anchor_offset.y += (canvas_height - scaled_height) / 2.0f; break;
+		case VerticalAnchor::BOTTOM: anchor_offset.y += canvas_height - scaled_height; break;
+	}
+
+	switch(x_anchor) {
+		case HorizontalAnchor::LEFT: break;
+		case HorizontalAnchor::CENTER: anchor_offset.x += (canvas_width - scaled_width) / 2.0f; break;
+		case HorizontalAnchor::RIGHT: anchor_offset.x += canvas_width - scaled_width; break;
+	}
+
+	Vector2 position_offset = relative_position * window_scale();
+	if (parent != nullptr) {
+		position_offset *= parent->get_recursive_scale();
+		position_offset += parent->render_position();
+	}
+
+	return position_offset + anchor_offset;
 }
 
 float AnchoredTransformComponent::render_width() const {
-	return width * window_scale();
+	return width * window_scale() * get_recursive_scale();
 }
 
 float AnchoredTransformComponent::render_height() const {
-	return height * window_scale();
+	return height * window_scale() * get_recursive_scale();
 }
 
 bool TransformComponent::move(entt::entity entity_to_move, const Vector2& new_position) {
@@ -269,37 +267,31 @@ Box SpriteComponent::visible_bounding_box() {
 	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
 }
 
-void ParentComponent::add_child(entt::entity child) {
-	children.push_back(child);
-	auto& child_component = ecs.emplace<ChildComponent>(child);
-	child_component.parent = entt::to_entity(ecs.storage<ParentComponent>(), *this);
+void AnchoredTransformComponent::add_child(AnchoredTransformComponent& child) {
+	child.parent = this;
+	children.push_back(&child);
 }
 
-void ParentComponent::remove_child(entt::entity child) {
-	std::erase_if(children, [child](entt::entity entity){ return entity == child; } );
-	ecs.remove<ChildComponent>(child);
+void AnchoredTransformComponent::remove_child(AnchoredTransformComponent& child) {
+	child.parent = nullptr;
+	std::erase_if(children, [child](AnchoredTransformComponent* current_child){ return current_child == &child; } );
 }
 
-void ParentComponent::on_destroy(entt::registry& registry, const entt::entity entt) { // Test if this works
-	std::vector<entt::entity> entities{};
-	ParentComponent* parent = &registry.get<ParentComponent>(entt);
-	entities.append_range(parent->children);
-
-	while (!entities.empty()) {
-		registry.destroy(entities.back());
-		parent = ecs.try_get<ParentComponent>(entities.back());
-		entities.pop_back();
-
-		if (parent == nullptr) {
-			continue;
-		}
-
-		entities.append_range(parent->children);
+void AnchoredTransformComponent::on_destroy(entt::registry& registry, const entt::entity entt) {
+	AnchoredTransformComponent& transform = registry.get<AnchoredTransformComponent>(entt);
+	for (AnchoredTransformComponent* child : transform.children) {
+		entt::entity entity = entt::to_entity(registry.storage<AnchoredTransformComponent>(), *child);
+		ecs.destroy(entity); // calls on_destroy to recursively destroy all descendents
 	}
 }
 
-void ChildComponent::on_destroy(entt::registry& registry, const entt::entity entt) { // Test if this works
-	auto& child = ecs.get<ChildComponent>(entt);
-	auto& parent = ecs.get<ParentComponent>(child.parent);
-	std::erase_if(parent.children, [entt](entt::entity entity){ return entity == entt; } );
+float AnchoredTransformComponent::get_recursive_scale() const {
+	float result = 1.f;
+	const AnchoredTransformComponent* transform = this;
+	while (true) {
+		result *= transform->scale;
+		if (transform->parent == nullptr) break;
+		transform = transform->parent;
+	}
+	return result;
 }

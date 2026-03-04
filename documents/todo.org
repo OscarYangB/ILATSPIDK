@@ -40,6 +40,7 @@
 [[../source/combat_ui.h]]
 ** TODO Card UI
 - [X] Hovering
+- [ ] JPEG
 - [ ] Static UI
   - [ ] Position and anchoring relative to parent
   - [ ] Image

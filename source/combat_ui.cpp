@@ -145,9 +145,6 @@ constexpr double CARD_HOVER_EXPANDED_HEIGHT = 250.f;
 constexpr u16 CARD_SPRITE_WIDTH = 150;
 constexpr u16 CARD_SPRITE_HEIGHT = 200;
 
-constexpr u16 CARD_SPRITE_EXPANDED_WIDTH = 300;
-constexpr u16 CARD_SPRITE_EXPANDED_HEIGHT = 400;
-
 constexpr u16 CARD_SPRITE_SHOWN_OFFSET = 3;
 constexpr u16 CARD_SPRITE_HIDDEN_OFFSET = 100;
 
@@ -165,11 +162,8 @@ void on_card_hover(entt::entity hovered_entity) {
 
 	stop_animation(hovered_card.animation_id);
 	hovered_card.animation_id = start_animation_group();
-	play_animation(0.04, 0.0, &AnchoredTransformComponent::width, hovered_card.sprite_entity, [](Animation& animation, u16 starting_value) {
-		return smooth_curve<u16>(CARD_SPRITE_EXPANDED_WIDTH, animation, starting_value);
-	});
-	play_animation(0.04, 0.0, &AnchoredTransformComponent::height, hovered_card.sprite_entity, [](Animation& animation, u16 starting_value) {
-		return smooth_curve<u16>(CARD_SPRITE_EXPANDED_HEIGHT, animation, starting_value);
+	play_animation(0.04, 0.0, &AnchoredTransformComponent::scale, hovered_card.sprite_entity, [](Animation& animation, float starting_value) {
+		return smooth_curve(2.f, animation, starting_value);
 	});
 	play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, hovered_card.sprite_entity, [index](Animation& animation, Vector2 starting_value) {
 		float x_target = card_x_offset(hand_sprites.size(), index);
@@ -188,11 +182,8 @@ void on_card_hover(entt::entity hovered_entity) {
 
 			hand_card.animation_id = start_animation_group();
 			float distance_weight = distance_from_hovered / 25.f;
-			play_animation(0.06, 0.0, &AnchoredTransformComponent::width, sprite_entity, [distance_weight](Animation& animation, u16 starting_value) {
-				return smooth_curve<u16>(CARD_SPRITE_WIDTH - distance_weight * CARD_SPRITE_WIDTH, animation, starting_value);
-			});
-			play_animation(0.06, 0.0, &AnchoredTransformComponent::height, sprite_entity, [distance_weight](Animation& animation, u16 starting_value) {
-				return smooth_curve<u16>(CARD_SPRITE_HEIGHT - distance_weight * CARD_SPRITE_HEIGHT, animation, starting_value);
+			play_animation(0.06, 0.0, &AnchoredTransformComponent::scale, sprite_entity, [distance_weight](Animation& animation, float starting_value) {
+				return smooth_curve(1.f - distance_weight * 1.f, animation, starting_value);
 			});
 			float x_offset = i > index ? 70.f : -70.f;
 			float x_offset_coeff = i > index ? -60.f : 60.f;
@@ -217,11 +208,8 @@ void on_card_unhover(entt::entity entity) {
 		stop_animation(hand_card.animation_id);
 
 		hand_card.animation_id = start_animation_group();
-		play_animation(0.04, 0.0, &AnchoredTransformComponent::width, sprite_entity, [](Animation& animation, u16 starting_value) {
-			return smooth_curve<u16>(CARD_SPRITE_WIDTH, animation, starting_value);
-		});
-		play_animation(0.04, 0.0, &AnchoredTransformComponent::height, sprite_entity, [](Animation& animation, u16 starting_value) {
-			return smooth_curve<u16>(CARD_SPRITE_HEIGHT, animation, starting_value);
+		play_animation(0.04, 0.0, &AnchoredTransformComponent::scale, sprite_entity, [](Animation& animation, float starting_value) {
+			return smooth_curve(1.f, animation, starting_value);
 		});
 		play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, sprite_entity, [i](Animation& animation, Vector2 starting_value) {
 			float x_target = card_x_offset(hand_sprites.size(), i);
@@ -252,26 +240,33 @@ void refresh_hand_buttons() {
 			entt::entity entity = ecs.create();
 			sprite_entity = entity;
 			Card card = character->hand.at(i);
-
 			auto& sprite = ecs.emplace<SpriteComponent>(entity);
 			switch (character->hand.at(i)->card_type) {
 				case CardType::PSYCHIC: sprite.sprites = {Sprite::CARD_PSYCHIC_1, Sprite::CARD_PSYCHIC_LVL_1}; break;
 				case CardType::MAGIC: sprite.sprites = {Sprite::CARD_MAGIC_1, Sprite::CARD_MAGIC_LVL_1}; break;
 				case CardType::GROOVE: sprite.sprites = {Sprite::CARD_GROOVE_1, Sprite::CARD_GROOVE_LVL_1}; break;
 			}
-
 			auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
 			transform.x_anchor = HorizontalAnchor::CENTER;
 			transform.y_anchor = VerticalAnchor::BOTTOM;
 			transform.relative_position = {card_x_offset(character->hand.size(), i), CARD_SPRITE_HIDDEN_OFFSET};
 			transform.height = CARD_SPRITE_HEIGHT;
 			transform.width = CARD_SPRITE_WIDTH;
-
 			auto& name = ecs.emplace<TextComponent>(entity);
 			name.text = card->name;
 			name.colour = WHITE;
 			name.size = 18;
 			name.x_align = HorizontalAnchor::CENTER;
+
+			entt::entity art_entity = ecs.create();
+			auto& art_transform = ecs.emplace<AnchoredTransformComponent>(art_entity);
+			transform.add_child(art_transform);
+			art_transform.width = 136; // 99
+			art_transform.height = 93; // 70
+			art_transform.relative_position = {0.f, 20.f};
+			art_transform.x_anchor = HorizontalAnchor::CENTER;
+			auto& art_sprite = ecs.emplace<SpriteComponent>(art_entity);
+			art_sprite.sprites = {Sprite::TEST_BACKGROUND};
 
 			// auto& description = ecs.emplace<TextComponent>(entity);
 			// description.text = card->description;
