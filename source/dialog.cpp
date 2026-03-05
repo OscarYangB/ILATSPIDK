@@ -28,21 +28,22 @@ void start_dialog(const Dialog& new_dialog) {
 	visitor.index = 1;
 	dialog = &new_dialog;
 
-	{
-		background = ecs.create();
-		auto& transform = ecs.emplace<AnchoredTransformComponent>(background);
-		transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = WIDTH; transform.height = HEIGHT;
-		auto& nine = ecs.emplace<NineSliceComponent>(background);
-		nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
-		auto& sprite = ecs.emplace<SpriteComponent>(background);
-		sprite.sprites = {Sprite::TEST_BUTTON};
-	}
-	{
-		dialog_text = ecs.create();
-		auto& transform = ecs.emplace<AnchoredTransformComponent>(dialog_text);
-		transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = WIDTH - X_MARGIN; transform.height = HEIGHT - Y_MARGIN;
-		auto& text_component = ecs.emplace<TextComponent>(dialog_text);
-	}
+	background = ecs.create();
+	auto& background_transform = ecs.emplace<AnchoredTransformComponent>(background);
+	background_transform.x_anchor = HorizontalAnchor::CENTER; background_transform.y_anchor = VerticalAnchor::BOTTOM;
+	background_transform.width = WIDTH; background_transform.height = HEIGHT;
+	auto& nine = ecs.emplace<NineSliceComponent>(background);
+	nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
+	auto& sprite = ecs.emplace<SpriteComponent>(background);
+	sprite.sprites = {Sprite::TEST_BUTTON};
+
+	dialog_text = ecs.create();
+	auto& dialog_transform = ecs.emplace<AnchoredTransformComponent>(dialog_text);
+	dialog_transform.x_anchor = HorizontalAnchor::CENTER; dialog_transform.y_anchor = VerticalAnchor::BOTTOM;
+	dialog_transform.width = WIDTH - X_MARGIN; dialog_transform.height = HEIGHT - Y_MARGIN;
+	auto& text_component = ecs.emplace<TextComponent>(dialog_text);
+	dialog_transform.sort_order = 1;
+	background_transform.add_child(background, dialog_text);
 
 	progress_dialog();
 }
@@ -65,7 +66,6 @@ void progress_dialog() {
 void end_dialog() {
 	input_mode_stack.pop();
 	ecs.destroy(background);
-	ecs.destroy(dialog_text);
 	background = entt::null;
 	dialog_text = entt::null;
 }
@@ -140,13 +140,11 @@ void choice_made(entt::entity entity) {
 }
 
 void make_choice_button(const Text& choice_text, u16 jump_index) {
-	AnchoredTransformComponent transform;
+	auto entity = ecs.create();
+	auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
 	transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = WIDTH; transform.height = CHOICE_BUTTON_HEIGHT;
 	transform.relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_buttons.size()};
-
-	auto entity = ecs.create();
-	auto& text_transform = ecs.emplace<AnchoredTransformComponent>(entity);
-	text_transform = transform;
+	auto& background_transform = ecs.get<AnchoredTransformComponent>(background); background_transform.add_child(background, entity);
 	auto& text_component = ecs.emplace<TextComponent>(entity);
 	text_component.text = choice_text;
 	auto& button_component = ecs.emplace<ButtonComponent>(entity);

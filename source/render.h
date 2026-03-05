@@ -53,18 +53,19 @@ struct AnchoredTransformComponent {
 	u16 width{};
 	u16 height{};
 	u8 sort_order{};
-	std::vector<AnchoredTransformComponent*> children{};
-	AnchoredTransformComponent* parent{};
+	std::vector<entt::entity> children{};
+	entt::entity parent = entt::null;
 	float scale = 1.f;
 
-	static constexpr auto in_place_delete = true;
-
-	float get_recursive_scale() const;
+	float get_parent_scale() const;
 	Vector2 render_position() const;
 	float render_width() const;
 	float render_height() const;
-	void add_child(AnchoredTransformComponent& child);
-	void remove_child(AnchoredTransformComponent& child);
+	Vector2 render_position(Vector2 parent_position, float parent_scale, float canvas_width, float canvas_height) const;
+	float render_width(float parent_scale) const;
+	float render_height(float parent_scale) const;
+	void add_child(entt::entity parent, entt::entity child);
+	void remove_child(entt::entity child);
 	static void on_destroy(entt::registry& registry, const entt::entity entt);
 };
 

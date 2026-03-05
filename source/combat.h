@@ -7,7 +7,7 @@
 #include "text.h"
 
 struct CharacterComponent;
-using Characters = std::vector<CharacterComponent*>;
+using Characters = std::vector<CharacterComponent*>; // TODO Store entity and not pointer
 
 enum class CardType {
 	PSYCHIC,

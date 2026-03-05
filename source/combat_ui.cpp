@@ -30,6 +30,9 @@ void create_gamebar() {
 		transform.relative_position = { (1 - i) * width, 0.f};
 
 		gamebars.push_back(entity);
+
+		SpriteComponent& sprite_test = ecs.get<SpriteComponent>(gamebars.at(i));
+		std::cout << static_cast<int>(sprite_test.sprites[0]);
 	}
 }
 
@@ -77,7 +80,11 @@ constexpr double SECONDS_PER_VIBRATION = SECONDS_PER_BAR / VIBRATIONS_PER_BAR;
 
 void update_gamebar() {
 	for (int i = 0; i < gamebars.size(); i++) {
-		auto& sprite = ecs.get<SpriteComponent>(gamebars.at(i));
+		if (!ecs.valid(gamebars.at(i))) {
+			return;
+		}
+		auto* pSprite = ecs.try_get<SpriteComponent>(gamebars.at(i));
+		auto& sprite = *pSprite;
 		Box box = sprite.visible_bounding_box();
 
 		if (combat.value().bar_index > i) {  // Bar is already used
@@ -237,67 +244,72 @@ void refresh_hand_buttons() {
 	for (int i = 0; i < character->hand.size(); i++) {
 		entt::entity sprite_entity{};
 		{ // Sprite
+			Card card = character->hand.at(i);
+
 			entt::entity entity = ecs.create();
 			sprite_entity = entity;
-			Card card = character->hand.at(i);
-			auto& sprite = ecs.emplace<SpriteComponent>(entity);
-			switch (card->card_type) {
-				case CardType::PSYCHIC: sprite.sprites = {Sprite::CARD_PSYCHIC_1, Sprite::CARD_PSYCHIC_LVL_1}; break;
-				case CardType::MAGIC: sprite.sprites = {Sprite::CARD_MAGIC_1, Sprite::CARD_MAGIC_LVL_1}; break;
-				case CardType::GROOVE: sprite.sprites = {Sprite::CARD_GROOVE_1, Sprite::CARD_GROOVE_LVL_1}; break;
-			}
+			hand_sprites.push_back(entity);
 			auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
 			transform.x_anchor = HorizontalAnchor::CENTER;
 			transform.y_anchor = VerticalAnchor::BOTTOM;
 			transform.relative_position = {card_x_offset(character->hand.size(), i), CARD_SPRITE_HIDDEN_OFFSET};
-			transform.height = CARD_SPRITE_HEIGHT;
-			transform.width = CARD_SPRITE_WIDTH;
+			transform.height = CARD_SPRITE_HEIGHT; transform.width = CARD_SPRITE_WIDTH;
+			{ // Sprite Children
+				entt::entity art_entity = ecs.create();
+				auto& art_transform = ecs.emplace<AnchoredTransformComponent>(art_entity);
+				transform.add_child(entity, art_entity);
+				art_transform.width = 136; // 99
+				art_transform.height = 96; // 70
+				art_transform.relative_position = {0.f, 20.f};
+				art_transform.x_anchor = HorizontalAnchor::CENTER;
+				auto& art_sprite = ecs.emplace<SpriteComponent>(art_entity);
+				art_sprite.sprites = {Sprite::TEST_BACKGROUND};
 
-			entt::entity art_entity = ecs.create();
-			auto& art_transform = ecs.emplace<AnchoredTransformComponent>(art_entity);
-			transform.add_child(art_transform);
-			art_transform.width = 131; // 99
-			art_transform.height = 93; // 70
-			art_transform.relative_position = {0.f, 20.f};
-			art_transform.x_anchor = HorizontalAnchor::CENTER;
-			auto& art_sprite = ecs.emplace<SpriteComponent>(art_entity);
-			art_sprite.sprites = {Sprite::TEST_BACKGROUND};
+				entt::entity frame_entity = ecs.create();
+				auto& frame_transform = ecs.emplace<AnchoredTransformComponent>(frame_entity);
+				transform.add_child(entity, frame_entity);
+				frame_transform.height = CARD_SPRITE_HEIGHT; frame_transform.width = CARD_SPRITE_WIDTH;
+				auto& sprite = ecs.emplace<SpriteComponent>(frame_entity);
+				switch (card->card_type) {
+					case CardType::PSYCHIC: sprite.sprites = {Sprite::CARD_PSYCHIC_1, Sprite::CARD_PSYCHIC_LVL_1}; break;
+					case CardType::MAGIC: sprite.sprites = {Sprite::CARD_MAGIC_1, Sprite::CARD_MAGIC_LVL_1}; break;
+					case CardType::GROOVE: sprite.sprites = {Sprite::CARD_GROOVE_1, Sprite::CARD_GROOVE_LVL_1}; break;
+				}
 
-			entt::entity name_entity = ecs.create();
-			auto& name_transform = ecs.emplace<AnchoredTransformComponent>(name_entity);
-			name_transform.width = CARD_SPRITE_WIDTH;
-			name_transform.height = 200.f;
-			name_transform.relative_position = {0.f, 10.f};
-			transform.add_child(name_transform);
-			auto& name = ecs.emplace<TextComponent>(name_entity);
-			name.text = card->name;
-			name.colour = WHITE;
-			name.size = 16;
-			name.x_align = HorizontalAnchor::CENTER;
+				entt::entity name_entity = ecs.create();
+				auto& name_transform = ecs.emplace<AnchoredTransformComponent>(name_entity);
+				name_transform.width = CARD_SPRITE_WIDTH;
+				name_transform.height = 200.f;
+				name_transform.relative_position = {0.f, 10.f};
+				transform.add_child(entity, name_entity);
+				auto& name = ecs.emplace<TextComponent>(name_entity);
+				name.text = card->name;
+				name.colour = WHITE;
+				name.size = 16;
+				name.x_align = HorizontalAnchor::CENTER;
 
-			entt::entity description_entity = ecs.create();
-			auto& description_transform = ecs.emplace<AnchoredTransformComponent>(description_entity);
-			description_transform.width = CARD_SPRITE_WIDTH;
-			description_transform.height = 200.f;
-			description_transform.relative_position = {10.f, 115.f};
-			transform.add_child(description_transform);
-			auto& description = ecs.emplace<TextComponent>(description_entity);
-			description.text = card->description;
-			description.colour = WHITE;
-			description.size = 12;
+				entt::entity description_entity = ecs.create();
+				auto& description_transform = ecs.emplace<AnchoredTransformComponent>(description_entity);
+				description_transform.width = CARD_SPRITE_WIDTH;
+				description_transform.height = 200.f;
+				description_transform.relative_position = {10.f, 115.f};
+				transform.add_child(entity, description_entity);
+				auto& description = ecs.emplace<TextComponent>(description_entity);
+				description.text = card->description;
+				description.colour = WHITE;
+				description.size = 12;
 
-			entt::entity cost_entity = ecs.create();
-			auto& cost_transform = ecs.emplace<AnchoredTransformComponent>(cost_entity);
-			cost_transform.width = CARD_SPRITE_WIDTH;
-			cost_transform.height = 200.f;
-			cost_transform.relative_position = {125.f, 6.f};
-			transform.add_child(cost_transform);
-			auto& cost = ecs.emplace<TextComponent>(cost_entity);
-			cost.text = {number_to_string((card->cost))};
-			cost.colour = BLACK;
-			cost.size = 30;
-
-			hand_sprites.push_back(entity);
+				entt::entity cost_entity = ecs.create();
+				auto& cost_transform = ecs.emplace<AnchoredTransformComponent>(cost_entity);
+				cost_transform.width = CARD_SPRITE_WIDTH;
+				cost_transform.height = 200.f;
+				cost_transform.relative_position = {125.f, 6.f};
+				transform.add_child(entity, cost_entity);
+				auto& cost = ecs.emplace<TextComponent>(cost_entity);
+				cost.text = {number_to_string((card->cost))};
+				cost.colour = BLACK;
+				cost.size = 30;
+			}
 		}
 		{ // Button
 			entt::entity entity = ecs.create();

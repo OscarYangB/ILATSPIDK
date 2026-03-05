@@ -49,73 +49,101 @@ void render_fps_counter() {
 }
 
 void sort_sprites() {
-	ecs.sort<SpriteComponent>([](entt::entity first, entt::entity second) { // Sort render order using y position
-		// true -> second is above
-		// false -> first is above
+	// true -> second is above
+	// false -> first is above
 
-		// UI
-		AnchoredTransformComponent* first_anchored_transform = ecs.try_get<AnchoredTransformComponent>(first);
-		AnchoredTransformComponent* second_anchored_transform = ecs.try_get<AnchoredTransformComponent>(second);
-		if (first_anchored_transform && second_anchored_transform) return first_anchored_transform->sort_order < second_anchored_transform->sort_order;
-		if (first_anchored_transform) return false;
-		if (second_anchored_transform) return true;
+	ecs.sort<AnchoredTransformComponent>([](entt::entity first, entt::entity second) {
+		AnchoredTransformComponent& first_transform = ecs.get<AnchoredTransformComponent>(first);
+		AnchoredTransformComponent& second_transform = ecs.get<AnchoredTransformComponent>(second);
+		return first_transform.sort_order < second_transform.sort_order;
+	});
 
+	ecs.sort<TransformComponent>([](entt::entity first, entt::entity second) {
 		BoxColliderComponent* first_collider = ecs.try_get<BoxColliderComponent>(first);
 		BoxColliderComponent* second_collider = ecs.try_get<BoxColliderComponent>(second);
-		TransformComponent* first_transform = ecs.try_get<TransformComponent>(first);
-		TransformComponent* second_transform = ecs.try_get<TransformComponent>(second);
+		TransformComponent& first_transform = ecs.get<TransformComponent>(first);
+		TransformComponent& second_transform = ecs.get<TransformComponent>(second);
 
 		// Background
-		if (!first_collider || !first_transform) return true;
-		if (!second_collider || !second_transform) return false;
+		if (!first_collider) return true;
+		if (!second_collider) return false;
 
 		// Foreground
-		return first_collider->box.left_top.y + first_transform->position.y > second_collider->box.left_top.y + second_transform->position.y;
+		return first_collider->box.left_top.y + first_transform.position.y > second_collider->box.left_top.y + second_transform.position.y;
 	});
 }
 
-void render_sprites() {
-	auto sprites = ecs.view<SpriteComponent>();
+void render_transform(entt::entity entity) {
+	TransformComponent& transform = ecs.get<TransformComponent>(entity);
+	SpriteComponent& sprite_component = ecs.get<SpriteComponent>(entity);
+	Vector2 position = world_to_pixel(transform.position);
 
-	for (auto [entity, sprite_component] : sprites.each()) {
-		TransformComponent* transform = ecs.try_get<TransformComponent>(entity);
-		AnchoredTransformComponent* anchored_transform = ecs.try_get<AnchoredTransformComponent>(entity);
+	for (int i = 0; i < sprite_component.sprites.size(); i++) {
+		u16 index = static_cast<u16>(sprite_component.sprites.at(i));
+		u16 atlas_x = sprite_atlas_transform[index].x;
+		u16 atlas_y = sprite_atlas_transform[index].y;
+		u16 atlas_w = sprite_atlas_transform[index].w;
+		u16 atlas_h = sprite_atlas_transform[index].h;
+
+		if (sprite_component.masks.contains(i)) {
+			Box mask = sprite_component.masks[i];
+			atlas_x += mask.left_top.x;
+			atlas_y -= mask.left_top.y;
+			atlas_w = mask.width();
+			atlas_h = mask.height();
+			position.x += mask.left_top.x * window_scale();
+			position.y += mask.left_top.y * window_scale();
+		}
+
+		u16 render_w = atlas_w * render_scale();
+		u16 render_h = atlas_h * render_scale();
+
+		if (position.x > window_width() || position.y > window_height()) continue;
+		if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
+
+		Colour tint = sprite_component.tints.contains(i) ? sprite_component.tints[i] : Colour{};
+
+		render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
+	}
+}
+
+void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}, float parent_scale = 1.f, float canvas_width = window_width(), float canvas_height = window_height()) {
+	AnchoredTransformComponent& transform = ecs.get<AnchoredTransformComponent>(entity);
+	Vector2 position = transform.render_position(parent_position, parent_scale, canvas_width, canvas_height);
+	float render_w = transform.render_width(parent_scale);
+	float render_h = transform.render_height(parent_scale);
+
+	if (TextComponent* text = ecs.try_get<TextComponent>(entity); text) {
+		render_text(text->text.get(), position.x, position.y, render_w, render_h,
+					text->colour.r, text->colour.g, text->colour.b, text->size * window_scale() * transform.scale * parent_scale,
+					text->mask, text->x_align, text->y_align);
+	} else if (SpriteComponent* sprite_component = ecs.try_get<SpriteComponent>(entity); sprite_component) {
 		NineSliceComponent* nine_slice = ecs.try_get<NineSliceComponent>(entity);
 
-		Vector2 position = anchored_transform ? anchored_transform->render_position() : world_to_pixel(transform->position);
-
-		for (int i = 0; i < sprite_component.sprites.size(); i++) {
-			u16 index = static_cast<u16>(sprite_component.sprites.at(i));
+		for (int i = 0; i < sprite_component->sprites.size(); i++) {
+			u16 index = static_cast<u16>(sprite_component->sprites.at(i));
 			u16 atlas_x = sprite_atlas_transform[index].x;
 			u16 atlas_y = sprite_atlas_transform[index].y;
 			u16 atlas_w = sprite_atlas_transform[index].w;
 			u16 atlas_h = sprite_atlas_transform[index].h;
 
-			if (sprite_component.masks.contains(i)) {
-				Box mask = sprite_component.masks[i];
+			if (sprite_component->masks.contains(i)) {
+				Box mask = sprite_component->masks[i];
 				atlas_x += mask.left_top.x;
 				atlas_y -= mask.left_top.y;
 				atlas_w = mask.width();
 				atlas_h = mask.height();
 				position.x += mask.left_top.x * window_scale();
-				position.y -= mask.left_top.y * window_scale(); // TODO This is wrong for y-up coords
+				position.y -= mask.left_top.y * window_scale();
 			}
 
-			u16 render_w; u16 render_h;
-			if (anchored_transform) {
-				render_w = anchored_transform->render_width();
-				render_h = anchored_transform->render_height();
-				if (render_w == 0) render_w = atlas_w * window_scale();
-				if (render_h == 0) render_h = atlas_h * window_scale();
-			} else {
-				render_w = atlas_w * render_scale();
-				render_h = atlas_h * render_scale();
-			}
+			if (transform.width == 0) render_w = atlas_w * window_scale();
+			if (transform.height == 0) render_h = atlas_h * window_scale();
 
 			if (position.x > window_width() || position.y > window_height()) continue;
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
-			Colour tint = sprite_component.tints.contains(i) ? sprite_component.tints[i] : Colour{};
+			Colour tint = sprite_component->tints.contains(i) ? sprite_component->tints[i] : Colour{};
 
 			if (nine_slice) {
 				render_nine_slice(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,
@@ -125,14 +153,24 @@ void render_sprites() {
 			}
 		}
 	}
+
+	if (!transform.children.empty()) {
+		for (entt::entity child : transform.children) {
+			render_anchored_transform(child, parent_position + position, parent_scale * transform.scale, render_w, render_h);
+		}
+	}
 }
 
-void render_text() {
-	auto text_view = ecs.view<TextComponent, const AnchoredTransformComponent>();
-	for (auto [entity, text, transform] : text_view.each()) {
-		Vector2 position = transform.render_position();
-		render_text(text.text.get(), position.x, position.y, transform.render_width(), transform.render_height(),
-					text.colour.r, text.colour.g, text.colour.b, text.size * window_scale() * transform.get_recursive_scale(), text.mask, text.x_align, text.y_align);
+void render_sprites() {
+	auto transforms = ecs.view<TransformComponent, SpriteComponent>();
+	for (auto [entity, transform, sprite] : transforms.each()) {
+		render_transform(entity);
+	}
+
+	auto anchored_transforms = ecs.view<AnchoredTransformComponent>();
+	for (auto [entity, transform] : anchored_transforms.each()) {
+		if (transform.parent != entt::null) continue;
+		render_anchored_transform(entity);
 	}
 }
 
@@ -141,9 +179,8 @@ void update_render() {
 
 	sort_sprites();
 	render_sprites();
-	render_text();
 	draw_debug_lines();
-	//render_fps_counter();
+	render_fps_counter();
 
 	end_render();
 }
@@ -173,10 +210,28 @@ Vector2 world_to_pixel(const Vector2& in) {
 }
 
 Vector2 AnchoredTransformComponent::render_position() const  {
-	const float scaled_width = render_width();
-	const float scaled_height = render_height();
-	float canvas_width = parent != nullptr ? parent->render_width() : window_width();
-	float canvas_height = parent != nullptr ? parent->render_height() : window_height();
+	if (parent == entt::null) {
+		return render_position({}, 1.f, window_width(), window_height());
+	}
+
+	auto& parent_transform = ecs.get<AnchoredTransformComponent>(parent);
+	return render_position(parent_transform.render_position(), get_parent_scale(), parent_transform.render_width(), parent_transform.render_height());
+}
+
+float AnchoredTransformComponent::render_width() const {
+	return render_width(get_parent_scale());
+}
+
+float AnchoredTransformComponent::render_height() const {
+	return render_height(get_parent_scale());
+}
+
+Vector2 AnchoredTransformComponent::render_position(Vector2 parent_position, float parent_scale, float canvas_width, float canvas_height) const {
+	AnchoredTransformComponent* parent_transform{};
+	Vector2 position_offset = relative_position * window_scale() * parent_scale + parent_position;
+
+	const float scaled_width = render_width(parent_scale);
+	const float scaled_height = render_height(parent_scale);
 	Vector2 anchor_offset{};
 
 	switch(y_anchor) {
@@ -191,21 +246,15 @@ Vector2 AnchoredTransformComponent::render_position() const  {
 		case HorizontalAnchor::RIGHT: anchor_offset.x += canvas_width - scaled_width; break;
 	}
 
-	Vector2 position_offset = relative_position * window_scale();
-	if (parent != nullptr) {
-		position_offset *= parent->get_recursive_scale();
-		position_offset += parent->render_position();
-	}
-
 	return position_offset + anchor_offset;
 }
 
-float AnchoredTransformComponent::render_width() const {
-	return width * window_scale() * get_recursive_scale();
+float AnchoredTransformComponent::render_width(float parent_scale) const {
+	return width * window_scale() * parent_scale * scale;
 }
 
-float AnchoredTransformComponent::render_height() const {
-	return height * window_scale() * get_recursive_scale();
+float AnchoredTransformComponent::render_height(float parent_scale) const {
+	return height * window_scale() * parent_scale * scale;
 }
 
 bool TransformComponent::move(entt::entity entity_to_move, const Vector2& new_position) {
@@ -267,31 +316,38 @@ Box SpriteComponent::visible_bounding_box() {
 	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
 }
 
-void AnchoredTransformComponent::add_child(AnchoredTransformComponent& child) {
-	child.parent = this;
-	children.push_back(&child);
+void AnchoredTransformComponent::add_child(entt::entity parent, entt::entity child) {
+	AnchoredTransformComponent& child_transform = ecs.get<AnchoredTransformComponent>(child);
+	child_transform.parent = parent;
+	children.push_back(child);
 }
 
-void AnchoredTransformComponent::remove_child(AnchoredTransformComponent& child) {
-	child.parent = nullptr;
-	std::erase_if(children, [child](AnchoredTransformComponent* current_child){ return current_child == &child; } );
+void AnchoredTransformComponent::remove_child(entt::entity child) {
+	AnchoredTransformComponent& child_transform = ecs.get<AnchoredTransformComponent>(child);
+	child_transform.parent = entt::null;
+	std::erase_if(children, [child](entt::entity current_child){ return current_child == child; } );
 }
 
 void AnchoredTransformComponent::on_destroy(entt::registry& registry, const entt::entity entt) {
 	AnchoredTransformComponent& transform = registry.get<AnchoredTransformComponent>(entt);
-	for (AnchoredTransformComponent* child : transform.children) {
-		entt::entity entity = entt::to_entity(registry.storage<AnchoredTransformComponent>(), *child);
-		ecs.destroy(entity); // calls on_destroy to recursively destroy all descendents
+	std::vector<entt::entity> children {transform.children};
+	for (entt::entity child : children) {
+		ecs.destroy(child); // calls on_destroy to recursively destroy all descendents
+	}
+
+	if (transform.parent != entt::null && ecs.valid(transform.parent)) {
+		AnchoredTransformComponent& parent_transform = registry.get<AnchoredTransformComponent>(transform.parent);
+		parent_transform.remove_child(entt);
 	}
 }
 
-float AnchoredTransformComponent::get_recursive_scale() const {
+float AnchoredTransformComponent::get_parent_scale() const {
 	float result = 1.f;
 	const AnchoredTransformComponent* transform = this;
 	while (true) {
+		if (transform->parent == entt::null) break;
+		transform = &ecs.get<AnchoredTransformComponent>(transform->parent);
 		result *= transform->scale;
-		if (transform->parent == nullptr) break;
-		transform = transform->parent;
 	}
 	return result;
 }

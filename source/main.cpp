@@ -81,6 +81,7 @@ void start() {
 	}
 
 	init_audio();
+	init_font();
 	//play_audio(AudioAsset::SUCCESS_AUDIO);
 
 	//play_animation(10.f, 0.0f, &camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); });

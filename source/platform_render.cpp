@@ -125,10 +125,15 @@ int window_height() {
 	return h;
 }
 
+
+
+void init_font() {
+}
+
 void render_text(std::string_view text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, u16 mask, HorizontalAnchor x_align, VerticalAnchor y_align) {
 	sdl_stb_font_cache font_cache;
-	font_cache.faceSize = size;
 	font_cache.bindRenderer(renderer);
+	font_cache.faceSize = size;
 	font_cache.loadFont(atkinson_hyperlegible, sizeof atkinson_hyperlegible);
 	std::vector<sttfont_formatted_text> broken_string;
 	font_cache.breakString(text.data(), broken_string, w);
