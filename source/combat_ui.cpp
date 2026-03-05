@@ -30,9 +30,6 @@ void create_gamebar() {
 		transform.relative_position = { (1 - i) * width, 0.f};
 
 		gamebars.push_back(entity);
-
-		SpriteComponent& sprite_test = ecs.get<SpriteComponent>(gamebars.at(i));
-		std::cout << static_cast<int>(sprite_test.sprites[0]);
 	}
 }
 
@@ -80,11 +77,7 @@ constexpr double SECONDS_PER_VIBRATION = SECONDS_PER_BAR / VIBRATIONS_PER_BAR;
 
 void update_gamebar() {
 	for (int i = 0; i < gamebars.size(); i++) {
-		if (!ecs.valid(gamebars.at(i))) {
-			return;
-		}
-		auto* pSprite = ecs.try_get<SpriteComponent>(gamebars.at(i));
-		auto& sprite = *pSprite;
+		auto& sprite = ecs.get<SpriteComponent>(gamebars.at(i));
 		Box box = sprite.visible_bounding_box();
 
 		if (combat.value().bar_index > i) {  // Bar is already used

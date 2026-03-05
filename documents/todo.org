@@ -47,6 +47,7 @@
   - [X] Description
   - [X] Cost
 - [X] Sorting
+- [ ] Text render optimization
 - [ ] JPEG
 - [ ] Draw animation (hand drawn with speed lines)
   - One for each type
