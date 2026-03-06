@@ -26,6 +26,11 @@ while True:
         run_tool("import_assets.py")
     elif command == "dialog" or command == "d":
         run_tool("import_dialog.py")
+    elif command == "font" or command == "f":
+        run_tool("import_font.py")
+        run_tool("import_assets.py")
+    elif command == "shadeer" or command == "s":
+        run_tool("compile_shaders.py")
     elif command == "build" or command == "b":
         os.chdir("./build")
         subprocess.call(os.path.abspath("build.bat"), shell=True)
@@ -55,12 +60,14 @@ while True:
         print("(e)xport")
         print("(i)mage")
         print("(d)ialog")
+        print("(f)ont")
+        print("(s)hader")
         print("(b)uild")
         print("(n)ew <filename>")
         print("(r)emove <filename>")
-        print("(s)top")
+        print("(q)uit")
         continue
-    elif command == "stop" or command == "s":
+    elif command == "quit" or command == "q":
         break
     else:
         print("unknown command")
