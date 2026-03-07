@@ -9,47 +9,55 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc23-extensions"
 
-constexpr inline char atkinson_hyperlegible[] { 
+constexpr char atkinson_hyperlegible[] { 
 	#embed "..\assets\atkinson_hyperlegible.ttf"
 };
 
-constexpr inline char captain_orange[] { 
+constexpr char captain_orange[] { 
 	#embed "..\assets\captain_orange.png"
 };
 
-constexpr inline char kerry[] { 
+constexpr char kerry[] { 
 	#embed "..\assets\kerry.png"
 };
 
-constexpr inline char table[] { 
+constexpr char table[] { 
 	#embed "..\assets\table.png"
 };
 
-constexpr inline char test_background[] { 
+constexpr char test_background[] { 
 	#embed "..\assets\test_background.png"
 };
 
-constexpr inline char test_button[] { 
+constexpr char test_button[] { 
 	#embed "..\assets\test_button.png"
 };
 
-constexpr inline char card[] { 
+constexpr char card[] { 
 	#embed "..\assets\atlas\card.png"
 };
 
-constexpr inline char font[] { 
-	#embed "..\assets\atlas\font.png"
-};
-
-constexpr inline char gamebar[] { 
+constexpr char gamebar[] { 
 	#embed "..\assets\atlas\GameBar.png"
 };
 
-constexpr inline char grakeny[] { 
+constexpr char grakeny[] { 
 	#embed "..\assets\atlas\Grakeny.png"
 };
 
-constexpr inline char test_atlas[] { 
+constexpr char large_font[] { 
+	#embed "..\assets\atlas\large_font.png"
+};
+
+constexpr char medium_font[] { 
+	#embed "..\assets\atlas\medium_font.png"
+};
+
+constexpr char small_font[] { 
+	#embed "..\assets\atlas\small_font.png"
+};
+
+constexpr char test_atlas[] { 
 	#embed "..\assets\atlas\test_atlas.png"
 };
 
@@ -62,22 +70,26 @@ enum class ImageFile {
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
 	CARD_IMAGE,
-	FONT_IMAGE,
 	GAMEBAR_IMAGE,
 	GRAKENY_IMAGE,
+	LARGE_FONT_IMAGE,
+	MEDIUM_FONT_IMAGE,
+	SMALL_FONT_IMAGE,
 	TEST_ATLAS_IMAGE,
 };
 
-constexpr const inline char* image_file_data[] {
+constexpr const char* image_file_data[] {
 	captain_orange,
 	kerry,
 	table,
 	test_background,
 	test_button,
 	card,
-	font,
 	gamebar,
 	grakeny,
+	large_font,
+	medium_font,
+	small_font,
 	test_atlas,
 };
 
@@ -88,13 +100,15 @@ constexpr int image_file_sizes[] {
 	sizeof(test_background),
 	sizeof(test_button),
 	sizeof(card),
-	sizeof(font),
 	sizeof(gamebar),
 	sizeof(grakeny),
+	sizeof(large_font),
+	sizeof(medium_font),
+	sizeof(small_font),
 	sizeof(test_atlas),
 };
 
-constexpr int NUMBER_OF_IMAGES = 10;
+constexpr int NUMBER_OF_IMAGES = 12;
 
 
 enum class Sprite {
@@ -109,7 +123,6 @@ enum class Sprite {
 	CARD_MAGIC_LVL_1,
 	CARD_GROOVE_1,
 	CARD_GROOVE_LVL_1,
-	FONT,
 	GAMEBAR_START_1,
 	GAMEBAR_START_2,
 	GAMEBAR_START_3,
@@ -129,6 +142,9 @@ enum class Sprite {
 	GRAKENY_1,
 	GRAKENY_2,
 	GRAKENY_3,
+	LARGE_FONT,
+	MEDIUM_FONT,
+	SMALL_FONT,
 	KERRY_DOWN_CAPE_1,
 	KERRY_DOWN_CAPE_2,
 	KERRY_DOWN_CAPE_3,
@@ -238,7 +254,6 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 400, 300, 400, 228, 0, 300, 73},
 	{300, 400, 300, 400, 6, 12, 291, 395},
 	{600, 400, 300, 400, 229, 6, 294, 77},
-	{0, 0, 12160, 200, 137, 26, 12098, 148},
 	{0, 0, 300, 100, 39, 23, 254, 68},
 	{300, 0, 300, 100, 40, 24, 254, 69},
 	{600, 0, 300, 100, 40, 22, 254, 70},
@@ -258,6 +273,9 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 0, 200, 300, 48, 85, 150, 209},
 	{200, 0, 200, 300, 46, 84, 152, 208},
 	{0, 300, 200, 300, 44, 85, 151, 209},
+	{0, 0, 4560, 96, 51, 10, 4537, 56},
+	{0, 0, 2280, 48, 25, 5, 2269, 28},
+	{0, 0, 1520, 32, 17, 4, 1513, 20},
 	{0, 0, 200, 300, 55, 211, 148, 267},
 	{200, 0, 200, 300, 57, 214, 155, 266},
 	{400, 0, 200, 300, 59, 219, 158, 267},
@@ -367,7 +385,6 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::CARD_IMAGE,
 	ImageFile::CARD_IMAGE,
 	ImageFile::CARD_IMAGE,
-	ImageFile::FONT_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
@@ -387,6 +404,9 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::GRAKENY_IMAGE,
 	ImageFile::GRAKENY_IMAGE,
 	ImageFile::GRAKENY_IMAGE,
+	ImageFile::LARGE_FONT_IMAGE,
+	ImageFile::MEDIUM_FONT_IMAGE,
+	ImageFile::SMALL_FONT_IMAGE,
 	ImageFile::TEST_ATLAS_IMAGE,
 	ImageFile::TEST_ATLAS_IMAGE,
 	ImageFile::TEST_ATLAS_IMAGE,

@@ -7,7 +7,7 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc23-extensions"
 
-constexpr inline char success[] { 
+constexpr char success[] { 
 	#embed "..\assets\success.wav"
 };
 
@@ -17,7 +17,7 @@ enum class AudioAsset {
 	SUCCESS_AUDIO,
 };
 
-constexpr const inline char* audio_data[] {
+constexpr const char* audio_data[] {
 	success,
 };
 

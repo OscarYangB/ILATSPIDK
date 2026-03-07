@@ -49,7 +49,7 @@
 - [X] Sorting
 - [-] Text render optimization
   - [X] Font bitmap rendering
-  - [ ] Shader to downscale text
+  - [X] Mipmapping
   - [ ] Extract kerning
 - [ ] JPEG
   - [ ] Compress into assets folder from another folder

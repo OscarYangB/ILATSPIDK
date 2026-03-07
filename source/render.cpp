@@ -200,7 +200,6 @@ void update_sprite_resources() { // Going to load/unload the textures based on w
 		if (is_loaded[i]) {
 			load_sprite(i);
 		} else {
-			if (i == static_cast<int>(ImageFile::FONT_IMAGE)) continue; // Absolutely cursed
 			unload_sprite(i);
 		}
 	}
