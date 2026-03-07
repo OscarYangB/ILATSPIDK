@@ -114,9 +114,10 @@ void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}
 	float render_h = transform.render_height(parent_scale);
 
 	if (TextComponent* text = ecs.try_get<TextComponent>(entity); text) {
-		render_text(text->text.get(), position.x, position.y, render_w, render_h,
-					text->colour.r, text->colour.g, text->colour.b, text->size * window_scale() * transform.scale * parent_scale,
-					text->mask, text->x_align, text->y_align);
+		// render_text(text->text.get(), position.x, position.y, render_w, render_h,
+		// 			text->colour.r, text->colour.g, text->colour.b, text->size * window_scale() * transform.scale * parent_scale,
+		// 			text->mask, text->x_align, text->y_align);
+		render_text(text->text.get(), position.x, position.y, text->size);
 	} else if (SpriteComponent* sprite_component = ecs.try_get<SpriteComponent>(entity); sprite_component) {
 		NineSliceComponent* nine_slice = ecs.try_get<NineSliceComponent>(entity);
 
@@ -199,6 +200,7 @@ void update_sprite_resources() { // Going to load/unload the textures based on w
 		if (is_loaded[i]) {
 			load_sprite(i);
 		} else {
+			if (i == static_cast<int>(ImageFile::FONT_IMAGE)) continue; // Absolutely cursed
 			unload_sprite(i);
 		}
 	}

@@ -16,7 +16,7 @@ audio_file_text += "#pragma clang diagnostic push\n"
 audio_file_text += "#pragma clang diagnostic ignored \"-Wc23-extensions\"\n\n"
 
 image_enum_text = "enum class ImageFile {\n"
-image_array_text = "constexpr const inline char* image_file_data[] {\n"
+image_array_text = "constexpr const char* image_file_data[] {\n"
 image_size_text = "constexpr int image_file_sizes[] {\n"
 number_of_images = 0
 
@@ -25,7 +25,7 @@ atlas_data_text = "constexpr SpriteAtlasTransform sprite_atlas_transform[] {\n"
 atlas_to_image_text = "constexpr ImageFile sprite_to_image_file[] {\n"
 
 audio_enum_text = "enum class AudioAsset {\n"
-audio_array_text = "constexpr const inline char* audio_data[] {\n"
+audio_array_text = "constexpr const char* audio_data[] {\n"
 audio_size_text = "constexpr int audio_sizes[] {\n"
 number_of_sounds = 0
 
@@ -36,11 +36,11 @@ for (root, dirs, files) in os.walk("..\\assets"):
         extension = split[1]
         full_path = os.path.join(root, file);
 
-        if extension == "ttf":
-            image_file_text += "constexpr inline char %s[] { \n\t#embed \"%s\"\n};\n\n"%(name, full_path)
+        if extension == "ttf": # TO REMOVE
+            image_file_text += "constexpr char %s[] { \n\t#embed \"%s\"\n};\n\n"%(name, full_path)
 
         if extension == "png":
-            image_file_text += "constexpr inline char %s[] { \n\t#embed \"%s\"\n};\n\n"%(name, full_path)
+            image_file_text += "constexpr char %s[] { \n\t#embed \"%s\"\n};\n\n"%(name, full_path)
             asset_name = name.upper() + "_IMAGE"
             image_enum_text += "\t" + asset_name + ",\n"
             image_array_text += "\t%s,\n"%name
@@ -77,7 +77,7 @@ for (root, dirs, files) in os.walk("..\\assets"):
                 atlas_to_image_text += "\tImageFile::%s,\n"%(asset_name)
 
         if extension == "wav":
-            audio_file_text += "constexpr inline char %s[] { \n\t#embed \"%s\"\n};\n\n"%(name, full_path)
+            audio_file_text += "constexpr char %s[] { \n\t#embed \"%s\"\n};\n\n"%(name, full_path)
             audio_enum_text += "\t" + name.upper() + "_AUDIO,\n"
             audio_array_text += "\t%s,\n"%name
             audio_size_text += "\tsizeof(" + name + "),\n"

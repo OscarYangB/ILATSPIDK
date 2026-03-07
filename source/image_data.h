@@ -37,6 +37,10 @@ constexpr inline char card[] {
 	#embed "..\assets\atlas\card.png"
 };
 
+constexpr inline char font[] { 
+	#embed "..\assets\atlas\font.png"
+};
+
 constexpr inline char gamebar[] { 
 	#embed "..\assets\atlas\GameBar.png"
 };
@@ -58,6 +62,7 @@ enum class ImageFile {
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
 	CARD_IMAGE,
+	FONT_IMAGE,
 	GAMEBAR_IMAGE,
 	GRAKENY_IMAGE,
 	TEST_ATLAS_IMAGE,
@@ -70,6 +75,7 @@ constexpr const inline char* image_file_data[] {
 	test_background,
 	test_button,
 	card,
+	font,
 	gamebar,
 	grakeny,
 	test_atlas,
@@ -82,12 +88,13 @@ constexpr int image_file_sizes[] {
 	sizeof(test_background),
 	sizeof(test_button),
 	sizeof(card),
+	sizeof(font),
 	sizeof(gamebar),
 	sizeof(grakeny),
 	sizeof(test_atlas),
 };
 
-constexpr int NUMBER_OF_IMAGES = 9;
+constexpr int NUMBER_OF_IMAGES = 10;
 
 
 enum class Sprite {
@@ -102,6 +109,7 @@ enum class Sprite {
 	CARD_MAGIC_LVL_1,
 	CARD_GROOVE_1,
 	CARD_GROOVE_LVL_1,
+	FONT,
 	GAMEBAR_START_1,
 	GAMEBAR_START_2,
 	GAMEBAR_START_3,
@@ -230,6 +238,7 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 400, 300, 400, 228, 0, 300, 73},
 	{300, 400, 300, 400, 6, 12, 291, 395},
 	{600, 400, 300, 400, 229, 6, 294, 77},
+	{0, 0, 12160, 200, 137, 26, 12098, 148},
 	{0, 0, 300, 100, 39, 23, 254, 68},
 	{300, 0, 300, 100, 40, 24, 254, 69},
 	{600, 0, 300, 100, 40, 22, 254, 70},
@@ -358,6 +367,7 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::CARD_IMAGE,
 	ImageFile::CARD_IMAGE,
 	ImageFile::CARD_IMAGE,
+	ImageFile::FONT_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,

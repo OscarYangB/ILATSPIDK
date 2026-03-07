@@ -4,11 +4,58 @@
 #include "render.h"
 #define SDL_STB_FONT_IMPL
 #include "../external/sdl-stb-font/sdlStbFont.h"
+#include "shader_data.h"
 
 static SDL_Window* window = nullptr;
 static SDL_Renderer* renderer = nullptr;
 
 static SDL_Texture* loaded_sprites[NUMBER_OF_IMAGES] {};
+
+SDL_GPUShader* get_shader(Shader shader) {
+	return loaded_shaders[static_cast<int>(shader)];
+}
+
+bool init_gpu() {
+	SDL_GPUDevice* gpu = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_MSL | SDL_GPU_SHADERFORMAT_DXIL, false, NULL);
+	if (!gpu) return false;
+
+	if ((SDL_GetGPUShaderFormats(gpu) & SDL_GPU_SHADERFORMAT_MSL) > 0) {
+		create_msl_shaders(gpu);
+	} else if ((SDL_GetGPUShaderFormats(gpu) & SDL_GPU_SHADERFORMAT_DXIL) > 0) {
+		create_dxil_shaders(gpu);
+	} else if ((SDL_GetGPUShaderFormats(gpu) & SDL_GPU_SHADERFORMAT_SPIRV) > 0) {
+		create_spv_shaders(gpu);
+	} else {
+		return false;
+	}
+
+	renderer = SDL_CreateGPURenderer(gpu, window);
+	if (!renderer) return false;
+
+	// if (!SDL_ClaimWindowForGPUDevice(gpu, window)) {
+	// 	return false;
+	//}
+
+	SDL_GPURenderStateCreateInfo info{};
+	info.fragment_shader = get_shader(Shader::TEXT);
+	SDL_GPURenderState* state = SDL_CreateGPURenderState(renderer, &info);
+	if (!state) return false;
+	if (!SDL_SetGPURenderState(renderer, state)) {
+		return false;
+	}
+
+	return true;
+}
+
+
+void init() {
+	load_sprite(static_cast<int>(ImageFile::FONT_IMAGE));
+
+	if (!init_gpu()) {
+		renderer = SDL_CreateRenderer(window, ""); // Default to non-gpu renderer
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "The game couldn't find a graphics API", "The game is running in crazy-style mode!", window);
+	}
+}
 
 bool start_window() {
     SDL_SetAppMetadata("I Love All The Strange People I Don't Know", "0.1", "");
@@ -18,13 +65,17 @@ bool start_window() {
         return false;
     }
 
-    if (!SDL_CreateWindowAndRenderer("I Love All The Strange People I Don't Know", 1920, 1080, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
-		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
-        return false;
-    }
+	window = SDL_CreateWindow("test", 1920, 1080, SDL_WINDOW_RESIZABLE);
 
-	SDL_SetRenderVSync(renderer, 1); // TODO Make this a setting
+    // if (!SDL_CreateWindowAndRenderer("I Love All The Strange People I Don't Know", 1920, 1080, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+	// 	SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+    //     return false;
+    // }
+
+	//SDL_SetRenderVSync(renderer, 1); // TODO Make this a setting
     SDL_SetRenderLogicalPresentation(renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_DISABLED);
+
+	init();
 
     return true;
 }
@@ -125,11 +176,6 @@ int window_height() {
 	return h;
 }
 
-
-
-void init_font() {
-}
-
 void render_text(std::string_view text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, u16 mask, HorizontalAnchor x_align, VerticalAnchor y_align) {
 	sdl_stb_font_cache font_cache;
 	font_cache.bindRenderer(renderer);
@@ -170,4 +216,25 @@ void platform_debug_draw(const Vector2& start, const Vector2& end) {
 	SDL_RenderLine(renderer, pixel_start.x, pixel_start.y, pixel_end.x, pixel_end.y);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 #endif
+}
+
+constexpr float FONT_SIZE = 64.f;
+constexpr float CHARACTER_WIDTH = 128.f;
+constexpr float CHARACTER_HEIGHT = 200.f;
+
+void render_text(std::string_view text, float x, float y, float scale) {
+	const float render_scale = scale / FONT_SIZE;
+	SDL_Texture* font_texture = get_sprite(ImageFile::FONT_IMAGE);
+
+	const char* character = text.data();
+	while (*character != '\0') {
+		u8 index = static_cast<u8>(*character) - 32;
+		float from_x = index * CHARACTER_WIDTH;
+		SDL_FRect from{from_x, 0.f, CHARACTER_WIDTH, CHARACTER_HEIGHT};
+		SDL_FRect to{x, y, CHARACTER_WIDTH * render_scale, CHARACTER_HEIGHT * render_scale};
+		SDL_RenderTexture(renderer, font_texture, &from, &to);
+
+		character++;
+		x += CHARACTER_WIDTH * render_scale;
+	}
 }

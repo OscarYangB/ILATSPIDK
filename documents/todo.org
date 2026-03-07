@@ -4,8 +4,8 @@
 | #2     |   | <2026-01-18 Sun> | Collision, asset loading        |                   |
 | #3     |   | <2026-02-01 Sun> | Dialog                          |                   |
 | #4     |   | <2026-02-15 Sun> | Gameplay UI                     |                   |
-| #5     | X | <2026-03-01 Sun> | Gameplay UI                     |                   |
-| #6     |   | <2026-03-15 Sun> | Inventory                       |                   |
+| #5     | X | <2026-03-01 Sun> | Gameplay UI, Rendering          |                   |
+| #6     |   | <2026-03-15 Sun> | Gameplay UI, Inventory          |                   |
 | #7     |   | <2026-03-29 Sun> | Widgets, controller             |                   |
 | #8     |   | <2026-04-12 Sun> | Quest                           |                   |
 | #9     |   | <2026-04-26 Sun> | Save/Load                       |                   |
@@ -47,8 +47,13 @@
   - [X] Description
   - [X] Cost
 - [X] Sorting
-- [ ] Text render optimization
+- [-] Text render optimization
+  - [X] Font bitmap rendering
+  - [ ] Shader to downscale text
+  - [ ] Extract kerning
 - [ ] JPEG
+  - [ ] Compress into assets folder from another folder
+  - [ ] Load into SDL
 - [ ] Draw animation (hand drawn with speed lines)
   - One for each type
 - [ ] Drag to target
