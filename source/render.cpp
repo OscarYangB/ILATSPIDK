@@ -117,7 +117,8 @@ void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}
 		// render_text(text->text.get(), position.x, position.y, render_w, render_h,
 		// 			text->colour.r, text->colour.g, text->colour.b, text->size * window_scale() * transform.scale * parent_scale,
 		// 			text->mask, text->x_align, text->y_align);
-		render_text(text->text.get(), position.x, position.y, text->size);
+		render_text(text->text.get(), position.x, position.y, text->size * window_scale() * transform.scale * parent_scale, text->mask,
+				   text->colour.r, text->colour.g, text->colour.b);
 	} else if (SpriteComponent* sprite_component = ecs.try_get<SpriteComponent>(entity); sprite_component) {
 		NineSliceComponent* nine_slice = ecs.try_get<NineSliceComponent>(entity);
 

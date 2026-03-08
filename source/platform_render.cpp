@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include "image_data.h"
 #include "render.h"
+#include "font_data.h"
 #define SDL_STB_FONT_IMPL
 #include "../external/sdl-stb-font/sdlStbFont.h"
 
@@ -91,8 +92,6 @@ void render_sprite(ImageFile image_file, float from_x, float from_y, float from_
 	SDL_SetTextureColorMod(texture, tint.r, tint.g, tint.b);
 	SDL_SetTextureAlphaMod(texture, tint.a);
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
-	SDL_SetTextureColorMod(texture, 255, 255, 255);
-	SDL_SetTextureAlphaMod(texture, 255);
 }
 
 void render_nine_slice(ImageFile image_file, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
@@ -181,27 +180,37 @@ void platform_debug_draw(const Vector2& start, const Vector2& end) {
 #endif
 }
 
-constexpr float FONT_SIZES[] = {16.f, 24.f, 48.f};
-constexpr float CHARACTER_HEIGHTS[] = {32.f, 48.f, 96.f};
-constexpr ImageFile FONT_IMAGES[] = {ImageFile::SMALL_FONT_IMAGE, ImageFile::MEDIUM_FONT_IMAGE, ImageFile::LARGE_FONT_IMAGE};
+void render_text(std::string_view text, float x, float y, float size, u16 mask, u8 r, u8 g, u8 b) {
+	size *= 2.f; // REMOVE
+	u8 font_index = 0;
+	if (size > fonts[0].height) {
+		for (int i = 0; i < NUMBER_OF_FONTS; i++) {
+			if (size > fonts[i].height) {
+				font_index = i;
+				break;
+			}
+		}
+	}
 
-void render_text(std::string_view text, float x, float y, float scale) {
-	scale *= 2.f;
-	u8 font_index;
-	if (scale < 20.f) font_index = 0;
-	else if (scale < 36.f) font_index = 1;
-	else font_index = 2;
+	const float from_width = fonts[font_index].width;
+	const float from_height = fonts[font_index].height;
+	const float render_width = from_width * (size / from_height);
 
-	const float render_scale = scale / FONT_SIZES[1];
+	SDL_Texture* texture = get_sprite(fonts[font_index].file);
+	SDL_SetTextureColorMod(texture, r, g, b);
 
 	const char* character = text.data();
-	while (*character != '\0') {
-		u8 index = static_cast<u8>(*character) - 32;
-		float from_x = index * FONT_SIZES[font_index];
-		SDL_FRect to{x, y, FONT_SIZES[1] * render_scale, CHARACTER_HEIGHTS[1] * render_scale};
-		SDL_FRect from{from_x, 0.f, FONT_SIZES[font_index], CHARACTER_HEIGHTS[font_index]};
-		SDL_RenderTexture(renderer, get_sprite(FONT_IMAGES[font_index]), &from, &to);
-		character++;
-		x += FONT_SIZES[1] * render_scale;
+	u8 length = mask > 0 ? mask : text.size();
+	for (int i = 0; i < length; i++) {
+		u8 index = static_cast<u8>(*(character + i)) - 32;
+		float from_x = index * from_width;
+		SDL_FRect to{x, y, render_width, size};
+		SDL_FRect from{from_x, 0.f, from_width, from_height};
+		SDL_RenderTexture(renderer, texture, &from, &to);
+		x += render_width;
 	}
+
+	// TODO kerning
+	// TODO string breaking
+	// TODO horizontal & vertical alignment
 }

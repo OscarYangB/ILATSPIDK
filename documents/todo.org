@@ -96,6 +96,14 @@
 * Collision
 [[../source/physics.h]]
 * Lighting
+** TODO Normal Maps
+- A light has a luminance and a direction bitmap.
+- Objects can have normal maps.
+- First the direction bitmap and the normal maps are blended together to create a weight map (dot product)
+  - As a hack I could store 3 textures because I can't grayscale a texture
+    - (R,G,B)+(G,B,R)+(B,R,G) OR (R,R,R)+(G+G+G)+(B+B+B)
+  - SDL_SetRenderTarget() and SDL_TEXTUREACCESS_TARGET
+Then the weight map is multiplied by the luminance map and added to final image
 * Level Editor
 - SDL + ImGui
 - Sprite positions
