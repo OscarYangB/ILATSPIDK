@@ -83,13 +83,28 @@ for pair_position in pairs:
                 else:
                     continue
                 kerning_pairs[pair] = kern_value
-print(kerning_pairs)
-print(len(kerning_pairs))
+# end of copying from the internet
+
+kerning_data = {} # want to convert FROM dictionary of tuple->number TO dictionary of dictionary of number
+for pair in kerning_pairs.keys():
+    first = ord(pair[0]) - english_start - 1
+    second = ord(pair[1]) - english_start - 1
+    if first not in kerning_data:
+        kerning_data[first] = {}
+    kerning_data[first][second] = kerning_pairs[pair]
+
+print(kerning_data)
 
 file_text += "constexpr i8 kerning[][%s] = {\n"%number_of_english_characters;
 for i in range(number_of_english_characters):
-    file_text += "\t {},\n" # WIP
-
+    file_text += "\t {"
+    for j in range(number_of_english_characters):
+        if i in kerning_data and j in kerning_data[i]:
+            file_text += f"{kerning_data[i][j]}, "
+        else:
+            file_text += "0, "
+    file_text += "},\n"
+file_text += "};\n\n"
 
 with open("../source/font_data.h", "w") as header:
     header.write(file_text)

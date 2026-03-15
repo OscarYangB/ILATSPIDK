@@ -194,7 +194,8 @@ void render_text(std::string_view text, float x, float y, float size, u16 mask, 
 
 	const float from_width = fonts[font_index].width;
 	const float from_height = fonts[font_index].height;
-	const float render_width = from_width * (size / from_height);
+	const float scale = (size / from_height);
+	const float render_width = from_width * scale;
 
 	SDL_Texture* texture = get_sprite(fonts[font_index].file);
 	SDL_SetTextureColorMod(texture, r, g, b);
@@ -202,12 +203,16 @@ void render_text(std::string_view text, float x, float y, float size, u16 mask, 
 	const char* character = text.data();
 	u8 length = mask > 0 ? mask : text.size();
 	for (int i = 0; i < length; i++) {
-		u8 index = static_cast<u8>(*(character + i)) - 32;
+		u8 index = static_cast<u8>(*(character + i)) - 32; // Fix magic number
+		if (i != 0) {
+			u8 previous_index = static_cast<u8>(*(character + i - 1)) - 32; // Fix DRY
+			x += kerning[previous_index][index]; // Need single kerns or something. Also scale is broken.
+		}
 		float from_x = index * from_width;
 		SDL_FRect to{x, y, render_width, size};
 		SDL_FRect from{from_x, 0.f, from_width, from_height};
 		SDL_RenderTexture(renderer, texture, &from, &to);
-		x += render_width;
+		x += render_width * 0.6f; // fix magic number
 	}
 
 	// TODO kerning
