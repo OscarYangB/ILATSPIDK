@@ -12,14 +12,20 @@ file_text += "constexpr Font fonts[] {\n"
 
 number_of_fonts = 0
 
+width_map = []
+
 def create_font(name : str, size, width, height):
     global font_path
     global number_of_english_characters
+    global width_map
+    width_map = []
     font = ImageFont.truetype(font_path, size)
     image = Image.new('LA', (width * number_of_english_characters, height))
     draw = ImageDraw.Draw(image)
     for i in range(number_of_english_characters):
-        draw.text((i * width, 0), chr(english_start + i), font=font, fill="white")
+        text = chr(english_start + i);
+        width_map.append(draw.textlength(text, font=font))
+        draw.text((i * width + 3, 0), text, font=font, fill="white") # Add a little spacing of 3 from the left
     output_path = f"C:/Projects/ILATSPIDK/assets/atlas/{name}_font.png"
     image.save(output_path)
 
@@ -34,8 +40,13 @@ create_font("medium", 24, 24, 48)
 create_font("large", 48, 48, 96)
 
 file_text += "};\n\n"
-file_text += f"constexpr int NUMBER_OF_FONTS = {number_of_fonts};\n\n"
+file_text += f"constexpr int NUMBER_OF_FONTS = {number_of_fonts};\n"
+file_text += f"constexpr int ENGLISH_STARTING_CHARACTER = {english_start};\n\n"
 
+file_text += "constexpr float character_widths[] = {"
+for width in width_map:
+    file_text += f" {width},"
+file_text += "};\n\n"
 
 # Adapted from https://github.com/adobe-type-tools/kern-dump/blob/main/getKerningPairsFromOTF.py
 from fontTools import ttLib, agl # pip install fonttools
@@ -84,11 +95,12 @@ for pair_position in pairs:
                     continue
                 kerning_pairs[pair] = kern_value
 # end of copying from the internet
+print(kerning_pairs)
 
 kerning_data = {} # want to convert FROM dictionary of tuple->number TO dictionary of dictionary of number
 for pair in kerning_pairs.keys():
-    first = ord(pair[0]) - english_start - 1
-    second = ord(pair[1]) - english_start - 1
+    first = ord(pair[0]) - english_start
+    second = ord(pair[1]) - english_start
     if first not in kerning_data:
         kerning_data[first] = {}
     kerning_data[first][second] = kerning_pairs[pair]

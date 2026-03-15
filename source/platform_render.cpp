@@ -180,12 +180,16 @@ void platform_debug_draw(const Vector2& start, const Vector2& end) {
 #endif
 }
 
+u8 character_to_index(char character) {
+	return static_cast<u8>(character) - ENGLISH_STARTING_CHARACTER;
+}
+
 void render_text(std::string_view text, float x, float y, float size, u16 mask, u8 r, u8 g, u8 b) {
 	size *= 2.f; // REMOVE
 	u8 font_index = 0;
 	if (size > fonts[0].height) {
-		for (int i = 0; i < NUMBER_OF_FONTS; i++) {
-			if (size > fonts[i].height) {
+		for (int i = 1; i < NUMBER_OF_FONTS; i++) {
+			if (size < fonts[i].height || i == NUMBER_OF_FONTS - 1) {
 				font_index = i;
 				break;
 			}
@@ -194,7 +198,7 @@ void render_text(std::string_view text, float x, float y, float size, u16 mask, 
 
 	const float from_width = fonts[font_index].width;
 	const float from_height = fonts[font_index].height;
-	const float scale = (size / from_height);
+	const float scale = size / from_height;
 	const float render_width = from_width * scale;
 
 	SDL_Texture* texture = get_sprite(fonts[font_index].file);
@@ -203,19 +207,18 @@ void render_text(std::string_view text, float x, float y, float size, u16 mask, 
 	const char* character = text.data();
 	u8 length = mask > 0 ? mask : text.size();
 	for (int i = 0; i < length; i++) {
-		u8 index = static_cast<u8>(*(character + i)) - 32; // Fix magic number
+		u8 index = character_to_index(*(character + i));
 		if (i != 0) {
-			u8 previous_index = static_cast<u8>(*(character + i - 1)) - 32; // Fix DRY
-			x += kerning[previous_index][index]; // Need single kerns or something. Also scale is broken.
+			u8 previous_index = character_to_index(*(character + i - 1));
+			x += kerning[previous_index][index] * (size / 1000.f);
 		}
 		float from_x = index * from_width;
 		SDL_FRect to{x, y, render_width, size};
 		SDL_FRect from{from_x, 0.f, from_width, from_height};
-		SDL_RenderTexture(renderer, texture, &from, &to);
-		x += render_width * 0.6f; // fix magic number
+		SDL_RenderTexture(renderer, texture, &from, &to); // I've seen FPS drops to 80 in debug mode
+		x += (character_widths[index] + 0.5f) * (size / fonts[NUMBER_OF_FONTS - 1].height); // character_widths is based on the pixel width of the last font
 	}
 
-	// TODO kerning
 	// TODO string breaking
 	// TODO horizontal & vertical alignment
 }
