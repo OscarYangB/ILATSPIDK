@@ -49,11 +49,11 @@
   - [X] Description
   - [X] Cost
 - [X] Sorting
-- [-] Text render optimization
+- [X] Text render optimization
   - [X] Font bitmap rendering
   - [X] Mipmapping
   - [X] Extract kerning
-  - [ ] Reimplement formatting features (alignment, breaking etc.)
+  - [X] Reimplement formatting features (alignment, breaking etc.)
 - [ ] Draw animation (hand drawn with speed lines)
   - One for each type
 - [ ] Drag to target
