@@ -1,3 +1,6 @@
+* Dependencies
+- SDL3: [[https://github.com/libsdl-org/SDL]]
+- entt: https://github.com/skypjack/entt
 * Asset Importing
 Assets are bundled with the compiled binary of the game using scripts that recurse through the assets folder and generate code as a result. Generated code includes enums to refer to the assets in the rest of the codebase and it uses the experimental ~#embed~ preprocessor directive to bundle the assets. Since assets will be used all over the code base, this is a stupid stupid idea because new assets will destroy compile times.
 * Dialog Language
@@ -82,3 +85,5 @@ play_animation(0.06, 0.0, &AnchoredTransformComponent::width, sprite_entity, [di
 	return smooth_curve<u16>(CARD_SPRITE_WIDTH, animation, starting_value);
 });
 #+end_src
+* Text Rendering
+I initially used a library that created SDL textures from .ttf files at runtime, but I quickly realized that it's too expensive to send a new texture in VRAM every time I need new text. So I wrote a text renderer with a tool that creates font mipmaps and extracts kerning data.

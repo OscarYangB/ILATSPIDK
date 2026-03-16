@@ -35,9 +35,13 @@ def create_font(name : str, size, width, height):
     global number_of_fonts
     number_of_fonts += 1
 
+create_font("extra_small", 8, 8, 16)
 create_font("small", 16, 16, 32)
+create_font("small_medium", 20, 20, 40)
 create_font("medium", 24, 24, 48)
+create_font("medium_large", 36, 36, 72)
 create_font("large", 48, 48, 96)
+create_font("very_large", 72, 72, 144)
 
 file_text += "};\n\n"
 file_text += f"constexpr int NUMBER_OF_FONTS = {number_of_fonts};\n"
@@ -48,64 +52,22 @@ for width in width_map:
     file_text += f" {width},"
 file_text += "};\n\n"
 
-# Adapted from https://github.com/adobe-type-tools/kern-dump/blob/main/getKerningPairsFromOTF.py
-from fontTools import ttLib, agl # pip install fonttools
-
-font_data = ttLib.TTFont(font_path)
-glyph_position_table = font_data['GPOS'].table
-feature_record = glyph_position_table.FeatureList.FeatureRecord
-kern_lookup_list = []
-for feature in feature_record:
-    if feature.FeatureTag == 'kern':
-        for feature_item in feature.Feature.LookupListIndex:
-            if feature_item not in kern_lookup_list:
-                kern_lookup_list.append(feature_item)
-lookup_list = glyph_position_table.LookupList
-lookups = []
-for index in sorted(kern_lookup_list):
-    lookup = lookup_list.Lookup[index]
-    if lookup.LookupType in [2,9]:
-        lookups.append(lookup)
-pairs = []
-for lookup in lookups:
-    for item in lookup.SubTable:
-        if item.LookupType == 9 and item.ExtensionLookupType == 2:
-            item = item.ExtSubTable
-        pairs.append(item)
-kerning_pairs = {}
-for pair_position in pairs:
-    if pair_position.Format == 1:
-        for index, pair_set in enumerate(pair_position.PairSet):
-            for item in pair_set.PairValueRecord:
-                first_glyph = agl.toUnicode(pair_position.Coverage.glyphs[index])
-                second_glyph = agl.toUnicode(item.SecondGlyph)
-                if (ord(first_glyph) < english_start or ord(first_glyph) > last_english_character): continue
-                if (ord(second_glyph) < english_start or ord(second_glyph) > last_english_character): continue
-                pair = first_glyph, second_glyph
-                value_format = pair_position.ValueFormat1
-                if value_format == 5: # right-to-left kerning
-                    x_placement = item.Value1.XPlacement
-                    x_advance = item.Value1.XAdvance
-                    kern_value = f'<x_placement 0 {x_advance} 0>'
-                elif value_format == 0: # right-to-left pair with value <0 0 0 0>
-                    kern_value = "<0 0 0 0>"
-                elif value_format == 4: # left-to-right kerning
-                    kern_value = item.Value1.XAdvance
-                else:
-                    continue
-                kerning_pairs[pair] = kern_value
-# end of copying from the internet
-print(kerning_pairs)
-
-kerning_data = {} # want to convert FROM dictionary of tuple->number TO dictionary of dictionary of number
-for pair in kerning_pairs.keys():
-    first = ord(pair[0]) - english_start
-    second = ord(pair[1]) - english_start
-    if first not in kerning_data:
-        kerning_data[first] = {}
-    kerning_data[first][second] = kerning_pairs[pair]
-
-print(kerning_data)
+from fontTools import agl # pip install fonttools
+from external.getKerningPairsFromOTF import OTFKernReader # https://github.com/adobe-type-tools/kern-dump/blob/main/getKerningPairsFromOTF.py
+kerning_data = {} # want a dictionary of dictionary of number
+kern_reader = OTFKernReader(font_path)
+#print(kern_reader.kerningPairs)
+for pair in kern_reader.kerningPairs:
+    first_glyph = agl.toUnicode(pair[0])
+    if not english_start <= ord(first_glyph) <= last_english_character: continue
+    second_glyph = agl.toUnicode(pair[1])
+    if not english_start <= ord(second_glyph) <= last_english_character: continue
+    first_index = ord(first_glyph) - english_start
+    second_index = ord(second_glyph) - english_start
+    if first_index not in kerning_data:
+        kerning_data[first_index] = {}
+    kerning_data[first_index][second_index] = kern_reader.kerningPairs[pair]
+#print(kerning_data)
 
 file_text += "constexpr i8 kerning[][%s] = {\n"%number_of_english_characters;
 for i in range(number_of_english_characters):

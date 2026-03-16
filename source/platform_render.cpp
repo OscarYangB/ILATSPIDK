@@ -12,9 +12,9 @@ static SDL_Renderer* renderer = nullptr;
 static SDL_Texture* loaded_sprites[NUMBER_OF_IMAGES] {};
 
 void init() {
-	load_sprite(static_cast<int>(ImageFile::SMALL_FONT_IMAGE));
-	load_sprite(static_cast<int>(ImageFile::MEDIUM_FONT_IMAGE));
-	load_sprite(static_cast<int>(ImageFile::LARGE_FONT_IMAGE));
+	for (int i = 0; i < NUMBER_OF_FONTS; i++) {
+		load_sprite(static_cast<int>(fonts[i].file));
+	}
 }
 
 bool start_window() {
@@ -66,10 +66,10 @@ void unload_sprite(int index) {;
 		return; // Sprite wasn't loaded
 	}
 
-	if (index == static_cast<int>(ImageFile::SMALL_FONT_IMAGE) ||
-		index == static_cast<int>(ImageFile::MEDIUM_FONT_IMAGE) ||
-		index == static_cast<int>(ImageFile::LARGE_FONT_IMAGE)) {
-		return; // Keep these guys permanently loaded for now
+	for (int i = 0; i < NUMBER_OF_FONTS; i++) {
+		if (index == static_cast<int>(fonts[i].file)) {
+			return; // Keep fonts permanently loaded for now
+		}
 	}
 
 	SDL_DestroyTexture(loaded_sprites[index]);
@@ -210,7 +210,7 @@ void render_text(std::string_view text, float x, float y, float size, u16 mask, 
 		u8 index = character_to_index(*(character + i));
 		if (i != 0) {
 			u8 previous_index = character_to_index(*(character + i - 1));
-			x += kerning[previous_index][index] * (size / 1000.f);
+			x += kerning[previous_index][index] * (size / 2000.f);
 		}
 		float from_x = index * from_width;
 		SDL_FRect to{x, y, render_width, size};

@@ -115,7 +115,7 @@ void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}
 
 	if (TextComponent* text = ecs.try_get<TextComponent>(entity); text) {
 		// render_text(text->text.get(), position.x, position.y, render_w, render_h,
-		// 			text->colour.r, text->colour.g, text->colour.b, text->size * window_scale() * transform.scale * parent_scale,
+		// 			255, 0, 0, text->size * window_scale() * transform.scale * parent_scale * 1.3f,
 		// 			text->mask, text->x_align, text->y_align);
 		render_text(text->text.get(), position.x, position.y, text->size * window_scale() * transform.scale * parent_scale, text->mask,
 				   text->colour.r, text->colour.g, text->colour.b);

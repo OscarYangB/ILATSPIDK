@@ -36,6 +36,8 @@
 - [ ] C-backspace stops on capital letter and line start
 - [ ] Auto indent after paste
 - [ ] Keep selection after copy paste and tab
+- [ ] Set up #ifdef DEBUG macro
+- [ ] Set up tracy for profiling
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Card UI
@@ -50,10 +52,8 @@
 - [-] Text render optimization
   - [X] Font bitmap rendering
   - [X] Mipmapping
-  - [ ] Extract kerning
-- [ ] JPEG
-  - [ ] Compress into assets folder from another folder
-  - [ ] Load into SDL
+  - [X] Extract kerning
+  - [ ] Reimplement formatting features (alignment, breaking etc.)
 - [ ] Draw animation (hand drawn with speed lines)
   - One for each type
 - [ ] Drag to target
