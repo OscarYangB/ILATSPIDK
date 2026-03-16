@@ -81,7 +81,6 @@ void start() {
 	}
 
 	init_audio();
-	init_font();
 	//play_audio(AudioAsset::SUCCESS_AUDIO);
 
 	//play_animation(10.f, 0.0f, &camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); });
@@ -114,6 +113,9 @@ static void update() {
 	update_input();
 	update_process_input();
 
+	auto [sprite, transform] = ecs.get<SpriteComponent, TransformComponent>(player_character);
+	camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
+
 	update_combat();
 
 	update_generic_animation();
@@ -122,9 +124,6 @@ static void update() {
 
 	update_sprite_resources();
 	update_render();
-
-	auto [sprite, transform] = ecs.get<SpriteComponent, TransformComponent>(player_character);
-	camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
 }
 
 double fixed_update_timer = 0.0;

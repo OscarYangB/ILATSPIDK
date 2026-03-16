@@ -278,19 +278,20 @@ void refresh_hand_buttons() {
 				auto& name = ecs.emplace<TextComponent>(name_entity);
 				name.text = card->name;
 				name.colour = WHITE;
-				name.size = 16;
+				name.size = 24;
 				name.x_align = HorizontalAnchor::CENTER;
 
 				entt::entity description_entity = ecs.create();
 				auto& description_transform = ecs.emplace<AnchoredTransformComponent>(description_entity);
-				description_transform.width = CARD_SPRITE_WIDTH;
-				description_transform.height = 200.f;
-				description_transform.relative_position = {10.f, 115.f};
+				constexpr float DESCRIPTION_MARGIN = 10.f;
+				description_transform.width = CARD_SPRITE_WIDTH - 2.f * DESCRIPTION_MARGIN;
+				description_transform.height = 50.f;
+				description_transform.relative_position = {DESCRIPTION_MARGIN, 115.f};
 				transform.add_child(entity, description_entity);
 				auto& description = ecs.emplace<TextComponent>(description_entity);
 				description.text = card->description;
 				description.colour = WHITE;
-				description.size = 12;
+				description.size = 16;
 
 				entt::entity cost_entity = ecs.create();
 				auto& cost_transform = ecs.emplace<AnchoredTransformComponent>(cost_entity);
@@ -301,7 +302,7 @@ void refresh_hand_buttons() {
 				auto& cost = ecs.emplace<TextComponent>(cost_entity);
 				cost.text = {number_to_string((card->cost))};
 				cost.colour = BLACK;
-				cost.size = 30;
+				cost.size = 32;
 			}
 		}
 		{ // Button

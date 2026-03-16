@@ -20,7 +20,7 @@ constexpr CardData card_data[] {
 			.activate = [](CharacterComponent& character, const Characters& targets) {
 				std::cout << "Fireball activated" << "\n";
 			}},
-	{.name= {"Saturn"}, .description = {"The power of Saturn"}, .play_text = {"is evoking the power of Saturn!"},
+	{.name= {"Saturn"}, .description = {"The power of Saturn. This text is very long and will create a line break."}, .play_text = {"is evoking the power of Saturn!"},
 			 .cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::PSYCHIC,
 			 .play = [](CharacterComponent& character, const Characters& targets) {
 
