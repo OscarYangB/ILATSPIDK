@@ -5,13 +5,13 @@
 #include "font_structures.h"
 
 constexpr Font fonts[] {
-	{ImageFile::EXTRA_SMALL_FONT_IMAGE, 8, 8, 16},
-	{ImageFile::SMALL_FONT_IMAGE, 16, 16, 32},
-	{ImageFile::SMALL_MEDIUM_FONT_IMAGE, 20, 20, 40},
-	{ImageFile::MEDIUM_FONT_IMAGE, 24, 24, 48},
-	{ImageFile::MEDIUM_LARGE_FONT_IMAGE, 36, 36, 72},
-	{ImageFile::LARGE_FONT_IMAGE, 48, 48, 96},
-	{ImageFile::VERY_LARGE_FONT_IMAGE, 72, 72, 144},
+	{ImageFile::EXTRA_SMALL_FONT_IMAGE, 8, 8, 12},
+	{ImageFile::SMALL_FONT_IMAGE, 16, 16, 24},
+	{ImageFile::SMALL_MEDIUM_FONT_IMAGE, 20, 20, 30},
+	{ImageFile::MEDIUM_FONT_IMAGE, 24, 24, 36},
+	{ImageFile::MEDIUM_LARGE_FONT_IMAGE, 36, 36, 54},
+	{ImageFile::LARGE_FONT_IMAGE, 48, 48, 72},
+	{ImageFile::VERY_LARGE_FONT_IMAGE, 72, 72, 108},
 };
 
 constexpr int NUMBER_OF_FONTS = 7;

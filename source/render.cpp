@@ -44,7 +44,7 @@ void draw_debug_lines() {
 
 void render_fps_counter() {
 #ifndef NDEBUG
-	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 255, 0, 0, 50, 0, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
+	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 50, 255, 0, 0, 0, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
 #endif
 }
 
@@ -114,11 +114,8 @@ void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}
 	float render_h = transform.render_height(parent_scale);
 
 	if (TextComponent* text = ecs.try_get<TextComponent>(entity); text) {
-		// render_text(text->text.get(), position.x, position.y, render_w, render_h,
-		// 			255, 0, 0, text->size * window_scale() * transform.scale * parent_scale * 1.3f,
-		// 			text->mask, text->x_align, text->y_align);
-		render_text(text->text.get(), position.x, position.y, text->size * window_scale() * transform.scale * parent_scale, text->mask,
-				   text->colour.r, text->colour.g, text->colour.b);
+		render_text(text->text.get(), position.x, position.y, render_w, render_h, text->size * window_scale() * transform.scale * parent_scale, text->mask,
+				   text->colour.r, text->colour.g, text->colour.b, text->x_align, text->y_align);
 	} else if (SpriteComponent* sprite_component = ecs.try_get<SpriteComponent>(entity); sprite_component) {
 		NineSliceComponent* nine_slice = ecs.try_get<NineSliceComponent>(entity);
 

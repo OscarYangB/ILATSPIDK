@@ -138,38 +138,6 @@ int window_height() {
 	return h;
 }
 
-void render_text(std::string_view text, u16 x, u16 y, u16 w, u16 h, u8 r, u8 g, u8 b, u8 size, u16 mask, HorizontalAnchor x_align, VerticalAnchor y_align) {
-	sdl_stb_font_cache font_cache;
-	font_cache.bindRenderer(renderer);
-	font_cache.faceSize = size;
-	font_cache.loadFont(atkinson_hyperlegible, sizeof atkinson_hyperlegible);
-	std::vector<sttfont_formatted_text> broken_string;
-	font_cache.breakString(text.data(), broken_string, w);
-
-	u16 total_height = 0.f;
-	for (auto& string : broken_string) total_height += font_cache.getTextHeight(string);
-	if (y_align == VerticalAnchor::CENTER) y += h / 2 - total_height / 2;
-	if (y_align == VerticalAnchor::BOTTOM) y += h - total_height;
-
-	u16 height_accumulation = y;
-	u16 mask_index = mask;
-	for (auto& string : broken_string) {
-		std::string masked_string = mask == 0 ? string.getString() : string.substr(0, std::min(static_cast<u16>(string.size()), mask_index));
-		mask_index -= std::min(static_cast<u16>(string.size()), mask_index);
-		sdl_stb_prerendered_text text_render;
-		font_cache.renderTextToObject(&text_render, masked_string);
-
-		u16 render_x = x;
-		u16 text_width = font_cache.getTextWidth(string);
-		if (x_align == HorizontalAnchor::CENTER) render_x += w / 2 - text_width / 2;
-		if (x_align == HorizontalAnchor::RIGHT) render_x += w - text_width;
-
-		text_render.drawWithColorMod(render_x, height_accumulation, r, g, b, 255);
-		text_render.freeTexture();
-		height_accumulation += font_cache.getTextHeight(string);
-	}
-}
-
 void platform_debug_draw(const Vector2& start, const Vector2& end) {
 #ifndef NDEBUG
 	Vector2 pixel_start = world_to_pixel(start);
@@ -184,8 +152,11 @@ u8 character_to_index(char character) {
 	return static_cast<u8>(character) - ENGLISH_STARTING_CHARACTER;
 }
 
-void render_text(std::string_view text, float x, float y, float size, u16 mask, u8 r, u8 g, u8 b) {
-	size *= 2.f; // REMOVE
+void render_text(std::string_view text, float x, float y, float w, float h, float size, u16 mask, u8 r, u8 g, u8 b, HorizontalAnchor x_align, VerticalAnchor y_align) {
+	if (text.empty()) {
+		return;
+	}
+
 	u8 font_index = 0;
 	if (size > fonts[0].height) {
 		for (int i = 1; i < NUMBER_OF_FONTS; i++) {
@@ -196,29 +167,81 @@ void render_text(std::string_view text, float x, float y, float size, u16 mask, 
 		}
 	}
 
+	//SDL_FRect debug_rect = {x, y, w, h};
+	//SDL_RenderRect(renderer, &debug_rect);
+
+	const float right_bound = x + w;
 	const float from_width = fonts[font_index].width;
 	const float from_height = fonts[font_index].height;
 	const float scale = size / from_height;
 	const float render_width = from_width * scale;
 
-	SDL_Texture* texture = get_sprite(fonts[font_index].file);
-	SDL_SetTextureColorMod(texture, r, g, b);
-
-	const char* character = text.data();
+	float current_x = x;
+	float current_y = y;
+	const char* first_character = text.data();
 	u8 length = mask > 0 ? mask : text.size();
+	u8 line_index = 0;
+	std::vector<u8> line_indices{}; line_indices.reserve(length);
+	std::vector<float> line_widths{};
+	std::vector<float> x_positions{}; x_positions.reserve(length);
+	std::vector<float> y_positions{}; y_positions.reserve(length);
+	int last_space_index = -1;
 	for (int i = 0; i < length; i++) {
-		u8 index = character_to_index(*(character + i));
+		char character = *(first_character + i);
+		if (character == ' ') last_space_index = i;
+		u8 index = character_to_index(character);
 		if (i != 0) {
-			u8 previous_index = character_to_index(*(character + i - 1));
-			x += kerning[previous_index][index] * (size / 2000.f);
+			u8 previous_index = character_to_index(*(first_character + i - 1));
+			current_x += kerning[previous_index][index] * (size / 2000.f);
 		}
-		float from_x = index * from_width;
-		SDL_FRect to{x, y, render_width, size};
-		SDL_FRect from{from_x, 0.f, from_width, from_height};
-		SDL_RenderTexture(renderer, texture, &from, &to); // I've seen FPS drops to 80 in debug mode
-		x += (character_widths[index] + 0.5f) * (size / fonts[NUMBER_OF_FONTS - 1].height); // character_widths is based on the pixel width of the last font
+		x_positions.push_back(current_x);
+		y_positions.push_back(current_y);
+		line_indices.push_back(line_index);
+		current_x += (character_widths[index] + 0.5f) * (size / fonts[NUMBER_OF_FONTS - 1].height); // character_widths is based on the pixel width of the last font
+
+		if (current_x > right_bound) { // Line break algorithm
+			current_y += size * 0.8f;
+			u8 break_index = last_space_index > 0 ? last_space_index + 1 : i + 1;
+			float line_width = x_positions[break_index] - x;
+			line_widths.push_back(line_width);
+			current_x -= line_width;
+			line_index++;
+			for (int j = break_index; j <= i; j++) {
+				x_positions[j] -= line_width;
+				y_positions[j] = current_y;
+				line_indices[j]++;
+			}
+		}
 	}
 
-	// TODO string breaking
-	// TODO horizontal & vertical alignment
+	line_widths.push_back(current_x - x);
+
+	float total_height = current_y + size * 0.8f - y;
+	for (int i = 0; i < length; i++) {
+		float x_align_offset = 0.f;
+		float y_align_offset = 0.f;
+		switch(x_align) {
+			case HorizontalAnchor::LEFT: break;
+			case HorizontalAnchor::CENTER: x_align_offset += (w - line_widths[line_indices[i]]) / 2.0f; break;
+			case HorizontalAnchor::RIGHT: x_align_offset += w - line_widths[line_indices[i]]; break;
+		}
+		switch(y_align) {
+			case VerticalAnchor::TOP: break;
+			case VerticalAnchor::CENTER: y_align_offset += (h - total_height) / 2.0f; break;
+			case VerticalAnchor::BOTTOM: y_align_offset += h - total_height; break;
+		}
+		x_positions[i] += x_align_offset;
+		y_positions[i] += y_align_offset;
+	}
+
+	SDL_Texture* texture = get_sprite(fonts[font_index].file);
+	SDL_SetTextureColorMod(texture, r, g, b);
+	for (int i = 0; i < length; i++) {
+		char character = *(first_character + i);
+		u8 index = character_to_index(character);
+		float from_x = index * from_width;
+		SDL_FRect to{x_positions[i], y_positions[i], render_width, size};
+		SDL_FRect from{from_x, 0.f, from_width, from_height};
+		SDL_RenderTexture(renderer, texture, &from, &to); // Investigate performace impact here
+	}
 }

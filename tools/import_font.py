@@ -14,12 +14,14 @@ number_of_fonts = 0
 
 width_map = []
 
-def create_font(name : str, size, width, height):
+def create_font(name : str, size : int):
     global font_path
     global number_of_english_characters
     global width_map
     width_map = []
     font = ImageFont.truetype(font_path, size)
+    width : int = size
+    height : int = round(width * 1.5)
     image = Image.new('LA', (width * number_of_english_characters, height))
     draw = ImageDraw.Draw(image)
     for i in range(number_of_english_characters):
@@ -35,13 +37,13 @@ def create_font(name : str, size, width, height):
     global number_of_fonts
     number_of_fonts += 1
 
-create_font("extra_small", 8, 8, 16)
-create_font("small", 16, 16, 32)
-create_font("small_medium", 20, 20, 40)
-create_font("medium", 24, 24, 48)
-create_font("medium_large", 36, 36, 72)
-create_font("large", 48, 48, 96)
-create_font("very_large", 72, 72, 144)
+create_font("extra_small", 8)
+create_font("small", 16)
+create_font("small_medium", 20)
+create_font("medium", 24)
+create_font("medium_large", 36)
+create_font("large", 48)
+create_font("very_large", 72)
 
 file_text += "};\n\n"
 file_text += f"constexpr int NUMBER_OF_FONTS = {number_of_fonts};\n"
