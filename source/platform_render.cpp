@@ -3,8 +3,6 @@
 #include "image_data.h"
 #include "render.h"
 #include "font_data.h"
-#define SDL_STB_FONT_IMPL
-#include "../external/sdl-stb-font/sdlStbFont.h"
 
 static SDL_Window* window = nullptr;
 static SDL_Renderer* renderer = nullptr;
@@ -21,16 +19,14 @@ bool start_window() {
     SDL_SetAppMetadata("I Love All The Strange People I Don't Know", "0.1", "");
 
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
-        SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
         return false;
     }
 
     if (!SDL_CreateWindowAndRenderer("I Love All The Strange People I Don't Know", 1920, 1080, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
-		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return false;
     }
 
-	SDL_SetRenderVSync(renderer, 1); // TODO Make this a setting
+	enable_vsync();
     SDL_SetRenderLogicalPresentation(renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_DISABLED);
 
 	init();
@@ -244,4 +240,12 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 		SDL_FRect from{from_x, 0.f, from_width, from_height};
 		SDL_RenderTexture(renderer, texture, &from, &to); // Investigate performace impact here
 	}
+}
+
+void enable_vsync() {
+	SDL_SetRenderVSync(renderer, 1); // TODO Make this a setting
+}
+
+void disable_vsync() {
+	SDL_SetRenderVSync(renderer, 0); // TODO Make this a setting
 }

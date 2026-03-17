@@ -33,6 +33,8 @@ while True:
         os.chdir("./build")
         subprocess.call(os.path.abspath("build.bat"), shell=True)
         os.chdir("../")
+    elif command == "pdb" or command == "p":
+        subprocess.run(["C:/cv2pdb/cv2pdb.exe", "./build/ILATSPIDK.exe", "./build/ILATSPIDK_pdb.exe"], shell=True)
     elif command.startswith("new ") or command.startswith("n "):
         name = command.removeprefix("new ")
         name = name.removeprefix("n ")
@@ -60,6 +62,7 @@ while True:
         print("(d)ialog")
         print("(f)ont")
         print("(b)uild")
+        print("(p)db")
         print("(n)ew <filename>")
         print("(r)emove <filename>")
         print("(q)uit")

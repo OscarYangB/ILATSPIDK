@@ -1,0 +1,34 @@
+* Tools Used
+** Programming
+- Linked Libraries
+  - SDL3 [[https://github.com/libsdl-org/SDL]]
+  - entt [[https://github.com/skypjack/entt]]
+- C++ Development Tools
+  - mingw [[https://github.com/mstorsjo/llvm-mingw]]
+    - clangd
+    - clang
+    - mingw32-make
+  - cmake
+  - emacs
+    - lsp-mode [[https://github.com/emacs-lsp/lsp-mode]]
+    - dap-mode [[https://github.com/emacs-lsp/dap-mode]]
+  - gdb
+    - llvm libcxx pretty printer [[https://github.com/llvm/llvm-project/blob/main/libcxx/utils/gdb/libcxx/printers.py]]
+  - ag [[https://github.com/ggreer/the_silver_searcher]]
+  - Superluminal [[https://superluminal.eu/]]
+  - cv2pdb [[https://github.com/rainers/cv2pdb]]
+- Python
+  - basedpyright [[https://github.com/DetachHead/basedpyright]]
+  - oxipng [[https://github.com/oxipng/oxipng]]
+  - pillow [[https://pypi.org/project/pillow/]]
+  - fonttools [[https://github.com/fonttools/fonttools]]
+  - kern-dump [[https://github.com/adobe-type-tools/kern-dump]]
+  - Aseprite command line [[https://www.aseprite.org/cli/]]
+** Graphics
+- Art
+  - Aseprite [[https://www.aseprite.org/]]
+  - Rebelle [[https://www.escapemotions.com/products/rebelle/about]]
+- Fonts
+  - Atkinson Hyperlegible [[https://www.brailleinstitute.org/freefont/]]
+** Music
+- Reaper [[https://www.reaper.fm/]]

@@ -1,6 +1,11 @@
 build/*
 !build/build.bat
+
+release/*
+!release/build.bat
+
 external/*
 tools/external/*
+
 assets/*
 .cache/*

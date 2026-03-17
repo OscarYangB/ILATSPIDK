@@ -44,7 +44,7 @@ void draw_debug_lines() {
 
 void render_fps_counter() {
 #ifndef NDEBUG
-	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 50, 255, 0, 0, 0, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
+	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 50, 0, 255, 0, 0, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
 #endif
 }
 

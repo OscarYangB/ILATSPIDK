@@ -36,8 +36,7 @@
 - [ ] C-backspace stops on capital letter and line start
 - [ ] Auto indent after paste
 - [ ] Keep selection after copy paste and tab
-- [ ] Set up #ifdef DEBUG macro
-- [ ] Set up tracy for profiling
+- [ ] Remove Tracy. Superliminal is better. Add tool to convert to .pdb quickly
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Card UI

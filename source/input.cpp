@@ -1,7 +1,7 @@
 #include "input.h"
 #include <queue>
 #include <SDL3/SDL.h>
-
+#include "platform_render.h"
 static Input inputs[NUMBER_OF_INPUT_TYPES] {};
 static std::queue<InputEvent> input_events {};
 float mouse_x {0.0f};
@@ -36,11 +36,13 @@ void handle_input_event(SDL_KeyboardEvent event) {
 	}
 
 	if (event.key == SDLK_Z) {
-		input_events.push({InputType::RHYTHM_1, event.timestamp, event.down});
+		//input_events.push({InputType::RHYTHM_1, event.timestamp, event.down});
+		enable_vsync();
 	}
 
 	if (event.key == SDLK_X) {
-		input_events.push({InputType::RHYTHM_2, event.timestamp, event.down});
+		//input_events.push({InputType::RHYTHM_2, event.timestamp, event.down});
+		disable_vsync();
 	}
 }
 
