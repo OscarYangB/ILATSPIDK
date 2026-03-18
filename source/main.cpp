@@ -19,8 +19,6 @@
 #include "character_animation.h"
 #include "combat.h"
 
-static u64 start_frame_time = 0.0;
-
 void button_hovered() {
 	std::cout << "button hovered\n";
 }
@@ -45,10 +43,6 @@ void start() {
 		auto& interaction = ecs.emplace<InteractionComponent>(entity);
 		interaction.box = sprite.bounding_box();
 		interaction.on_interact = [](){ start_dialog(TABLE_DIALOG[0]); };
-
-		// play_animation(20.0, 0.0, &TransformComponent::position, entity, [](Animation& animation, Vector2 current_value) {
-		//  	return Vector2{current_value.x, sinusoid_curve(500.f, 50.f, 0.f, animation, current_value.y)};
-		// });
 	}
 	{ // Background
 		const entt::entity background = ecs.create();
@@ -57,33 +51,8 @@ void start() {
 		auto& transform = ecs.emplace<TransformComponent>(background);
 		transform.position = Vector2{-1000.0f, 700.0f};
 	}
-	{ // Button
-		// const entt::entity entity = ecs.create();
-		// auto& sprite = ecs.emplace<SpriteComponent>(entity);
-		// sprite.renderable = {SpriteGroup<1>{AtlasIndex::TEST_BUTTON}};
-		// auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
-		// transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = 800; transform.height = 400;
-		// auto& button = ecs.emplace<Button>(entity);
-		// button.on_hover = button_hovered; button.on_click = button_clicked;
-		// auto& nine = ecs.emplace<NineSliceComponent>(entity);
-		// nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
-	}
-	{ // Text
-		// const entt::entity entity = ecs.create();
-		// auto& text = ecs.emplace<TextComponent>(entity);
-		// text.text = "hello world hello world hello world hellow world hwllo world hellow world hello world hello world hellow world";
-		// text.r = 255; text.g = 0; text.b = 100; text.size = 100;
-		// text.x_align = HorizontalAnchor::RIGHT;
-		// text.y_align = VerticalAnchor::BOTTOM;
-		// auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
-		// using namespace entt::literals;
-		// transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = 800; transform.height = 400;
-	}
 
 	init_audio();
-	//play_audio(AudioAsset::SUCCESS_AUDIO);
-
-	//play_animation(10.f, 0.0f, &camera_scale, [](auto... params) { return sinusoid_curve(0.2f, 3.f, 0.f, params...); });
 }
 
 static void update_process_input() {
@@ -113,7 +82,7 @@ static void update() {
 	update_input();
 	update_process_input();
 
-	auto [sprite, transform] = ecs.get<SpriteComponent, TransformComponent>(player_character);
+	auto [entity, sprite, transform] = *ecs.view<SpriteComponent, TransformComponent, PlayerCharacterComponent>().each().begin();
 	camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
 
 	update_combat();
@@ -124,12 +93,6 @@ static void update() {
 
 	update_sprite_resources();
 	update_render();
-}
-
-double fixed_update_timer = 0.0;
-
-void fixed_update() {
-	//update_generic_animation();
 }
 
 int main(int argc, char* argv[]) {
@@ -144,6 +107,8 @@ int main(int argc, char* argv[]) {
 	start();
     std::cout << "Initialized" << "\n";
 
+	u64 start_frame_time = 0.0;
+
     while (!done) {
 		const u64 frame_time = 8000000; // In nanoseconds
 		const u64 time_elapsed = SDL_GetTicksNS() - start_frame_time;
@@ -154,12 +119,6 @@ int main(int argc, char* argv[]) {
 
 		delta_time = (SDL_GetTicksNS() - start_frame_time) / 1000000000.0;
 		start_frame_time = SDL_GetTicksNS();
-
-		fixed_update_timer += delta_time;
-		while (fixed_update_timer > FIXED_DELTA_TIME) {
-			fixed_update();
-			fixed_update_timer -= FIXED_DELTA_TIME;
-		}
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {

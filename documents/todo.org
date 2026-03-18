@@ -36,7 +36,6 @@
 - [ ] C-backspace stops on capital letter and line start
 - [ ] Auto indent after paste
 - [ ] Keep selection after copy paste and tab
-- [ ] Remove Tracy. Superliminal is better. Add tool to convert to .pdb quickly
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Card UI
@@ -60,6 +59,7 @@
 - [ ] Play animation
 - [ ] Health Bar
 - [ ] Hover and Queue Indicator
+- [ ] Card can't be played indicator
 - [ ] Turn Bar
 * Combat
 [[../source/combat.h]]
@@ -86,7 +86,7 @@
 ** TODO Skill tree
 ** TODO Dialog
 - [X] Compiling from .dlg
-- [ ] UI upgrade
+- [ ] Better UI
 
 * Audio
 [[../source/audio.h]]
@@ -114,3 +114,10 @@ Then the weight map is multiplied by the luminance map and added to final image
 - Save/load scene as project
 - std::filesystem and ImGui to place
 - Move tool with multiselect
+* Optimization
+- If want automatic multithreading need to delay new entities being added to the registry until end of frame.
+  - Can use storage or something? Or entt::exclude?
+- Updates that touch everything like button, generic animation, needs to be on main thread
+- Input and render needs to be on main thread
+- Removing ecs from global state
+  - Can use “update_<name>(entt::registry& ecs)” and <name>_system(View<Component> view)
