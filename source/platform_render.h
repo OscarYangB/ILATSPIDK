@@ -26,7 +26,7 @@ void unload_sprite(int index);
 int window_width();
 int window_height();
 
-void render_text(std::string_view text, float x, float y, float w, float h, float size, u16 mask, u8 r, u8 g, u8 b, HorizontalAnchor x_align, VerticalAnchor y_align);
+void render_text(std::string_view text, float x, float y, float w, float h, float size, u8 mask, u8 r, u8 g, u8 b, HorizontalAnchor x_align, VerticalAnchor y_align);
 
 void platform_debug_draw(const Vector2& start, const Vector2& end);
 

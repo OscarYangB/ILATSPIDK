@@ -1,4 +1,4 @@
-\| Number |   | Date             | Tasks                           | Milestone         |
+| Number |   | Date             | Tasks                           | Milestone         |
 |--------+---+------------------+---------------------------------+-------------------|
 | #1     |   | <2026-01-04 Sun> | Character moving, buttons,audio |                   |
 | #2     |   | <2026-01-18 Sun> | Collision, asset loading        |                   |
@@ -112,9 +112,10 @@ Then the weight map is multiplied by the luminance map and added to final image
 - Just amalgamate the atlas entries to display a sprite
 - Export position and collider data to c++
 - Save/load scene as project
-- std::filesystem and ImGui to place
+- std::filesystem and ImGui to place asset files
 - Move tool with multiselect
 * Optimization
+- Start with removing the ecs global state and other nasty things
 - If want automatic multithreading need to delay new entities being added to the registry until end of frame.
   - Can use storage or something? Or entt::exclude?
 - Updates that touch everything like button, generic animation, needs to be on main thread

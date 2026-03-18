@@ -87,7 +87,7 @@ void start_combat() {
 		auto& new_character = ecs.emplace<CharacterComponent>(entity);
 		new_character.init_from_data(data);
 		for (int i = 0; i < 5; i++) new_character.draw();
-		characters.push_back(&new_character);
+		characters.push_back(entity);
 	}
 
 	combat = {characters, 0};
@@ -134,7 +134,7 @@ void Combat::update() {
 }
 
 CharacterComponent* Combat::get_active_character() {
-	return characters.at(turn_index);
+	return &ecs.get<CharacterComponent>(characters.at(turn_index));
 }
 
 float Combat::get_bar_progress() {

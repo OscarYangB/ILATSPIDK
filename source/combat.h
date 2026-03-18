@@ -5,9 +5,10 @@
 #include "image_data.h"
 #include <optional>
 #include "text.h"
+#include <entt/entt.hpp>
 
 struct CharacterComponent;
-using Characters = std::vector<CharacterComponent*>; // TODO Store entity and not pointer
+using Characters = std::vector<entt::entity>;
 
 enum class CardType {
 	PSYCHIC,

@@ -3,6 +3,7 @@
 #include "image_data.h"
 #include "render.h"
 #include "font_data.h"
+#include "fixed_list.h"
 
 static SDL_Window* window = nullptr;
 static SDL_Renderer* renderer = nullptr;
@@ -148,7 +149,9 @@ u8 character_to_index(char character) {
 	return static_cast<u8>(character) - ENGLISH_STARTING_CHARACTER;
 }
 
-void render_text(std::string_view text, float x, float y, float w, float h, float size, u16 mask, u8 r, u8 g, u8 b, HorizontalAnchor x_align, VerticalAnchor y_align) {
+constexpr u8 MAX_TEXT_LENGTH = 255;
+
+void render_text(std::string_view text, float x, float y, float w, float h, float size, u8 mask, u8 r, u8 g, u8 b, HorizontalAnchor x_align, VerticalAnchor y_align) {
 	if (text.empty()) {
 		return;
 	}
@@ -177,10 +180,10 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 	const char* first_character = text.data();
 	u8 length = mask > 0 ? mask : text.size();
 	u8 line_index = 0;
-	std::vector<u8> line_indices{}; line_indices.reserve(length);
-	std::vector<float> line_widths{};
-	std::vector<float> x_positions{}; x_positions.reserve(length);
-	std::vector<float> y_positions{}; y_positions.reserve(length);
+	std::array<u8, MAX_TEXT_LENGTH> line_indices{};
+	FixedList<float, MAX_TEXT_LENGTH> line_widths{};
+	std::array<float, MAX_TEXT_LENGTH> x_positions{};
+	std::array<float, MAX_TEXT_LENGTH> y_positions{};
 	int last_space_index = -1;
 	for (int i = 0; i < length; i++) {
 		char character = *(first_character + i);
@@ -190,9 +193,9 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 			u8 previous_index = character_to_index(*(first_character + i - 1));
 			current_x += kerning[previous_index][index] * (size / 2000.f);
 		}
-		x_positions.push_back(current_x);
-		y_positions.push_back(current_y);
-		line_indices.push_back(line_index);
+		x_positions[i] = current_x;
+		y_positions[i] = current_y;
+		line_indices[i] = line_index;
 		current_x += (character_widths[index] + 0.5f) * (size / fonts[NUMBER_OF_FONTS - 1].height); // character_widths is based on the pixel width of the last font
 
 		if (current_x > right_bound) { // Line break algorithm
