@@ -6,8 +6,19 @@ void update_cycle_animations() {
 	auto view = ecs.view<CycleAnimationComponent, SpriteComponent>();
 
 	for (auto [entity, animation, sprite] : view.each()) {
+		float delta = delta_time;
+		if (animation.delay > 0.0) {
+			animation.delay -= delta_time;
+
+			if (animation.delay <= 0.0) {
+				delta = -animation.delay;
+			} else {
+				continue;
+			}
+		}
+
 		const double animation_delta = 1.0 / animation.frequency;
-		animation.timer += delta_time;
+		animation.timer += delta;
 		if (animation.timer > animation_delta) {
 			animation.timer -= animation_delta;
 			animation.index++;

@@ -374,31 +374,29 @@ void play_queued_draw_animations() {
 
 	CharacterComponent* character = combat.value().get_active_character();
 
-	for (u8 index : draw_animation_queue) {
+	for (int i = 0; i < draw_animation_queue.size(); i++) {
+		u8 index = draw_animation_queue[i];
 		CardType type = character->hand.at(index)->card_type;
 
-		constexpr double DURATION = 0.25;
-
-		play_animation(DURATION, 0.0, &SpriteComponent::visible, hand_sprites[index], [](Animation& animation, bool starting_value) {
-			return animation.is_finished();
-		});
+		constexpr double DURATION = 0.2;
+		double delay = 0.02 * i;
 
 		entt::entity entity = ecs.create();
 		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
 		transform.x_anchor = HorizontalAnchor::CENTER;
 		transform.y_anchor = VerticalAnchor::BOTTOM;
-		transform.relative_position = {0.f, 0.f};
+		transform.relative_position = {card_x_offset(character->hand.size(), index) + 400.f, -100.f};
 		transform.height = CARD_SPRITE_HEIGHT; transform.width = CARD_SPRITE_WIDTH;
 		transform.sort_order = 1;
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
-		sprite.sprites = {Sprite::CARD_GROOVE_2};
+		sprite.sprites = {Sprite::CARD_GROOVE_2}; // TODO should use Sprite::None
 
-		play_animation(DURATION, 0.0, &AnchoredTransformComponent::relative_position, entity, [index](Animation& animation, Vector2 starting_value) {
+		play_animation(DURATION, delay, &AnchoredTransformComponent::relative_position, entity, [index](Animation& animation, Vector2 starting_value) {
 			Vector2 target = ecs.get<AnchoredTransformComponent>(hand_sprites[index]).relative_position;
-			return Vector2{smooth_curve(target.x, animation, starting_value.x + 800.f), smooth_curve(target.y, animation, starting_value.y)};
+			return Vector2{smooth_curve(target.x, animation, starting_value.x), smooth_curve(target.y, animation, starting_value.y)};
 		});
 
-		play_animation(DURATION, 0.0, &AnchoredTransformComponent::scale, entity, [index](Animation& animation, float starting_value) {
+		play_animation(DURATION, delay, &AnchoredTransformComponent::scale, entity, [index](Animation& animation, float starting_value) {
 			float target = ecs.get<AnchoredTransformComponent>(hand_sprites[index]).scale;
 			return smooth_curve(target, animation, starting_value);
 		});
@@ -410,7 +408,16 @@ void play_queued_draw_animations() {
 			case CardType::GROOVE: animation.sprites = {Sprite::CARD_GROOVE_2, Sprite::CARD_GROOVE_3, Sprite::CARD_GROOVE_4, Sprite::CARD_GROOVE_5, Sprite::CARD_GROOVE_6,Sprite::CARD_GROOVE_7, Sprite::CARD_GROOVE_8, Sprite::CARD_GROOVE_9, Sprite::CARD_GROOVE_10 }; break;
 		}
 		animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
-		animation.frequency = 1.0 / ((DURATION + 0.1) / (double)animation.sprites.size());
+		animation.frequency = 1.0 / ((DURATION) / (double)animation.sprites.size());
+		animation.delay = delay;
+
+		play_animation(0.0, 0.0, &SpriteComponent::visible, hand_sprites[index], [entity](Animation& animation, bool starting_value) {
+			if (!ecs.valid(entity)) {
+				animation.should_remove = true; // TODO Still has issues where card is invisible for a frame too long
+				return true;
+			}
+			return false;
+		});
 	}
 
 	draw_animation_queue.clear();

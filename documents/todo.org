@@ -31,16 +31,6 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
-#+STARTUP: latexpreview
-
-\begin{equation}                        % arbitrary environments,
-x=\sqrt{b}                              % even tables, figures, etc
-\end{equation}
-\begin{equation}
-x=\frac{1/2}
-\end{equation}
-#+STARTUP: nolatexpreview
-
 * Workflow
 - [ ] Tab to indent according to mode when line is empty and no selection
 - [ ] C-backspace stops on capital letter and line start
@@ -62,13 +52,13 @@ x=\frac{1/2}
   - [X] Mipmapping
   - [X] Extract kerning
   - [X] Reimplement formatting features (alignment, breaking etc.)
-- [ ] Draw animation (hand drawn with speed lines)
+- [X] Draw animation (hand drawn with speed lines)
   - One for each type
-- [ ] Drag to target
-  - Highlights nearest target to mouse
-- [ ] Play animation
 - [ ] Health Bar
 - [ ] Hover and Queue Indicator
+- [ ] Play animation
+- [ ] Drag to target
+  - Highlights nearest target to mouse
 - [ ] Card can't be played indicator
 - [ ] Turn Bar
 * Combat

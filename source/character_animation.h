@@ -15,7 +15,8 @@ struct CycleAnimationComponent {
 	FinishBehaviour finish_behaviour = FinishBehaviour::LOOP;
 
 	u8 index = 0;
-	double timer = 0.f;
+	double timer = 0.0;
+	double delay = 0.0;
 };
 
 void update_cycle_animations();
