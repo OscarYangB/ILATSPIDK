@@ -1,5 +1,4 @@
 #include "game.h"
 
-entt::registry ecs = {};
-entt::entity player_character = entt::null;
+entt::registry ecs = {}; // GLOBAL STATE BAD
 double delta_time = 0.0;

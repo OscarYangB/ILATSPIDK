@@ -6,6 +6,7 @@
 #include "combat.h"
 #include "character_animation.h"
 #include "card_data.h"
+#include "kerry_anim_controller.h"
 
 entt::entity spawn_player() {
 	const entt::entity entity = ecs.create();
@@ -26,7 +27,10 @@ entt::entity spawn_player() {
 	character.type = CharacterType::GOOD;
 	character.starting_deck = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::SATURN, CardID::SATURN, CardID::HEAL });
 
-	player_character = entity;
+	auto& animation = ecs.emplace<CharacterAnimationComponent>(entity);
+
+	ecs.emplace<PlayerCharacterComponent>(entity);
+
 	return entity;
 }
 

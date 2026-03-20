@@ -80,7 +80,7 @@ struct TextComponent {
 	Text text{};
 	Colour colour = BLACK;
 	u8 size = 50;
-	u16 mask = 0; // How many characters to display? 0 means all
+	u8 mask = 0; // How many characters to display? 0 means all
 
 	HorizontalAnchor x_align = HorizontalAnchor::LEFT;
 	VerticalAnchor y_align = VerticalAnchor::TOP;

@@ -9,7 +9,7 @@ bool Animation::is_finished() const {
 	return get_animation_time() >= duration;
 }
 
-std::vector<Animation> animations {};
+std::vector<Animation> animations {}; // TODO consider thread safety
 static u64 id_counter = 0;
 static bool pause_id_increment = false;
 

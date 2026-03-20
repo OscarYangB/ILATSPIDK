@@ -4,6 +4,7 @@
 #include "movement_controller.h"
 #include "render.h"
 #include "physics.h"
+#include "spawn.h"
 
 void update_interact() {
 	if (!input_down_this_frame(InputType:: INTERACT)) {
@@ -13,10 +14,10 @@ void update_interact() {
 
 	constexpr float INTERACTION_RANGE = 100.f;
 
-	auto [player_movement, player_transform, player_sprite] = ecs.get<PlayerMovementComponent, TransformComponent, SpriteComponent>(player_character);
+	auto [entity, movement, transform, sprite] = *ecs.view<PlayerMovementComponent, TransformComponent, SpriteComponent, PlayerCharacterComponent>().each().begin();
 
 	Vector2 direction = Vector2::down();
-	switch (player_movement.direction) {
+	switch (movement.direction) {
 	case CharacterDirection::UP:
 		direction = Vector2::up();
 		break;
@@ -32,7 +33,7 @@ void update_interact() {
 	}
 
 	std::vector<InteractionComponent*> results {};
-	raytest<InteractionComponent>(results, player_transform.position + player_sprite.bounding_box().center(), direction, INTERACTION_RANGE);
+	raytest<InteractionComponent>(results, transform.position + sprite.bounding_box().center(), direction, INTERACTION_RANGE);
 	for (InteractionComponent* component : results) {
 		if (component && component->on_interact) component->on_interact();
 	}

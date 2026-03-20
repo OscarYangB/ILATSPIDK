@@ -1,4 +1,4 @@
-\| Number |   | Date             | Tasks                           | Milestone         |
+| Number |   | Date             | Tasks                           | Milestone         |
 |--------+---+------------------+---------------------------------+-------------------|
 | #1     |   | <2026-01-04 Sun> | Character moving, buttons,audio |                   |
 | #2     |   | <2026-01-18 Sun> | Collision, asset loading        |                   |
@@ -36,7 +36,6 @@
 - [ ] C-backspace stops on capital letter and line start
 - [ ] Auto indent after paste
 - [ ] Keep selection after copy paste and tab
-- [ ] Remove Tracy. Superliminal is better. Add tool to convert to .pdb quickly
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Card UI
@@ -60,6 +59,7 @@
 - [ ] Play animation
 - [ ] Health Bar
 - [ ] Hover and Queue Indicator
+- [ ] Card can't be played indicator
 - [ ] Turn Bar
 * Combat
 [[../source/combat.h]]
@@ -86,7 +86,7 @@
 ** TODO Skill tree
 ** TODO Dialog
 - [X] Compiling from .dlg
-- [ ] UI upgrade
+- [ ] Better UI
 
 * Audio
 [[../source/audio.h]]
@@ -112,5 +112,13 @@ Then the weight map is multiplied by the luminance map and added to final image
 - Just amalgamate the atlas entries to display a sprite
 - Export position and collider data to c++
 - Save/load scene as project
-- std::filesystem and ImGui to place
+- std::filesystem and ImGui to place asset files
 - Move tool with multiselect
+* Optimization
+- Start with removing the ecs global state and other nasty things
+- If want automatic multithreading need to delay new entities being added to the registry until end of frame.
+  - Can use storage or something? Or entt::exclude?
+- Updates that touch everything like button, generic animation, needs to be on main thread
+- Input and render needs to be on main thread
+- Removing ecs from global state
+  - Can use “update_<name>(entt::registry& ecs)” and <name>_system(View<Component> view)

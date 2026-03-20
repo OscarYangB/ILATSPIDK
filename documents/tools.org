@@ -1,17 +1,20 @@
 * Tools Used
 ** Programming
 - Linked Libraries
-  - SDL3 [[https://github.com/libsdl-org/SDL]]
-  - entt [[https://github.com/skypjack/entt]]
+  - SDL 3.4.0 [[https://github.com/libsdl-org/SDL]]
+  - entt 3.16.0  [[https://github.com/skypjack/entt]]
 - C++ Development Tools
+  - cmake 4.2.1
   - mingw [[https://github.com/mstorsjo/llvm-mingw]]
     - clangd
     - clang
     - mingw32-make
-  - cmake
   - emacs
     - lsp-mode [[https://github.com/emacs-lsp/lsp-mode]]
     - dap-mode [[https://github.com/emacs-lsp/dap-mode]]
+    - org-mode [[https://orgmode.org/]]
+    - magit [[https://magit.vc/]]
+  - git
   - gdb
     - llvm libcxx pretty printer [[https://github.com/llvm/llvm-project/blob/main/libcxx/utils/gdb/libcxx/printers.py]]
   - ag [[https://github.com/ggreer/the_silver_searcher]]
@@ -27,7 +30,7 @@
 ** Graphics
 - Art
   - Aseprite [[https://www.aseprite.org/]]
-  - Rebelle [[https://www.escapemotions.com/products/rebelle/about]]
+  - Rebelle 8 [[https://www.escapemotions.com/products/rebelle/about]]
 - Fonts
   - Atkinson Hyperlegible [[https://www.brailleinstitute.org/freefont/]]
 ** Music

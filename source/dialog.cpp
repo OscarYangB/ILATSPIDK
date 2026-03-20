@@ -4,6 +4,7 @@
 #include "input.h"
 #include "button.h"
 
+// TODO make these components
 entt::entity background = entt::null;
 entt::entity dialog_text = entt::null;
 const Dialog* dialog = nullptr;
