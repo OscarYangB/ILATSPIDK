@@ -10,6 +10,8 @@ void ui_end_combat();
 void ui_on_bar_end();
 void ui_on_turn_start();
 
+void play_draw_animation(int index);
+
 struct HandCardComponent {
 	u8 index{};
 	entt::entity sprite_entity{};

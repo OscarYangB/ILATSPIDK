@@ -3,7 +3,7 @@
 #include <SDL3/SDL.h>
 
 SDL_AudioStream* audio_stream = nullptr;
-std::vector<PlayingAudio> playing_audio{}; // TODO consider thread safety
+std::vector<PlayingAudio> playing_audio{};
 
 void init_audio() {
 	SDL_AudioSpec spec;

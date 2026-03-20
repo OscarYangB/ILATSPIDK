@@ -11,11 +11,14 @@ void update_cycle_animations() {
 		if (animation.timer > animation_delta) {
 			animation.timer -= animation_delta;
 			animation.index++;
-			if (animation.index >= animation.sprites.size() && animation.destroy_on_finish) {
-				ecs.destroy(entity);
+			if (animation.index >= animation.sprites.size()) {
+				switch (animation.finish_behaviour) {
+					case FinishBehaviour::LOOP: animation.index %= animation.sprites.size(); break;
+					case FinishBehaviour::DESTROY_COMPONENT: ecs.remove<CycleAnimationComponent>(entity); break;
+					case FinishBehaviour::DESTROY_ENTITY: ecs.destroy(entity); break;
+				}
 				continue;
 			}
-			animation.index %= animation.sprites.size();
 		}
 
 		sprite.sprites.at(0) = animation.sprites.at(animation.index);

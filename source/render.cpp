@@ -78,6 +78,8 @@ void render_transform(entt::entity entity) {
 	SpriteComponent& sprite_component = ecs.get<SpriteComponent>(entity);
 	Vector2 position = world_to_pixel(transform.position);
 
+	if (!sprite_component.visible) return;
+
 	for (int i = 0; i < sprite_component.sprites.size(); i++) {
 		u16 index = static_cast<u16>(sprite_component.sprites.at(i));
 		u16 atlas_x = sprite_atlas_transform[index].x;
@@ -117,6 +119,7 @@ void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}
 		render_text(text->text.get(), position.x, position.y, render_w, render_h, text->size * window_scale() * transform.scale * parent_scale, text->mask,
 				   text->colour.r, text->colour.g, text->colour.b, text->x_align, text->y_align);
 	} else if (SpriteComponent* sprite_component = ecs.try_get<SpriteComponent>(entity); sprite_component) {
+		if (!sprite_component->visible) return;
 		NineSliceComponent* nine_slice = ecs.try_get<NineSliceComponent>(entity);
 
 		for (int i = 0; i < sprite_component->sprites.size(); i++) {

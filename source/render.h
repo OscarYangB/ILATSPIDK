@@ -29,6 +29,7 @@ struct SpriteComponent {
 	std::vector<Sprite> sprites{};
 	std::unordered_map<u8, Colour> tints{};
 	std::unordered_map<u8, Box> masks{};
+	bool visible = true;
 
 	Box bounding_box();
 	Box visible_bounding_box();

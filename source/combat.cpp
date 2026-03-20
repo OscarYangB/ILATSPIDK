@@ -6,7 +6,6 @@
 #include <random>
 #include "card_data.h"
 
-// TODO figure out what to do with this
 std::optional<Combat> combat = std::nullopt;
 
 void CharacterComponent::init_from_data(const CharacterDataComponent& new_data) {
@@ -41,6 +40,7 @@ void CharacterComponent::draw() {
 	Card card = deck.back();
 	deck.pop_back();
 	hand.push_back(card);
+	play_draw_animation(hand.size() - 1);
 	std::cout << "drew: " << card->name.get() << " \n";
 }
 

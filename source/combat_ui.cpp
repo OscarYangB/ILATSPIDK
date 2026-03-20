@@ -12,7 +12,9 @@
 static std::vector<entt::entity> gamebars{};
 static std::vector<entt::entity> hand_buttons{};
 static std::vector<entt::entity> hand_sprites{};
-std::optional<entt::entity> dragged_card{};
+static std::vector<entt::entity> hand_frames{};
+static std::optional<entt::entity> dragged_card{};
+static std::vector<u8> draw_animation_queue{};
 
 void create_gamebar() {
 	for (int i = 0; i < BARS_PER_TURN; i++) {
@@ -112,7 +114,7 @@ void update_gamebar() {
 			auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
 			animation.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4};
 			animation.frequency = 12.f;
-			animation.destroy_on_finish = true;
+			animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
 		}
 	}
 }
@@ -131,7 +133,7 @@ void ui_on_bar_end() {
 	auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
 	animation.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4};
 	animation.frequency = 12.f;
-	animation.destroy_on_finish = true;
+	animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
 }
 
 void ui_start_combat() {
@@ -232,6 +234,7 @@ void refresh_hand_buttons() {
 	hand_buttons.clear();
 	for (entt::entity entity : hand_sprites) ecs.destroy(entity);
 	hand_sprites.clear();
+	hand_frames.clear();
 
 	CharacterComponent* character = combat.value().get_active_character();
 	for (int i = 0; i < character->hand.size(); i++) {
@@ -247,6 +250,7 @@ void refresh_hand_buttons() {
 			transform.y_anchor = VerticalAnchor::BOTTOM;
 			transform.relative_position = {card_x_offset(character->hand.size(), i), CARD_SPRITE_HIDDEN_OFFSET};
 			transform.height = CARD_SPRITE_HEIGHT; transform.width = CARD_SPRITE_WIDTH;
+			auto& sprite = ecs.emplace<SpriteComponent>(entity);
 			{ // Sprite Children
 				entt::entity art_entity = ecs.create();
 				auto& art_transform = ecs.emplace<AnchoredTransformComponent>(art_entity);
@@ -268,6 +272,7 @@ void refresh_hand_buttons() {
 					case CardType::MAGIC: sprite.sprites = {Sprite::CARD_MAGIC_1, Sprite::CARD_MAGIC_LVL_1}; break;
 					case CardType::GROOVE: sprite.sprites = {Sprite::CARD_GROOVE_1, Sprite::CARD_GROOVE_LVL_1}; break;
 				}
+				hand_frames.push_back(frame_entity);
 
 				entt::entity name_entity = ecs.create();
 				auto& name_transform = ecs.emplace<AnchoredTransformComponent>(name_entity);
@@ -362,9 +367,64 @@ void ui_end_combat() {
 	end_combat();
 }
 
+void play_queued_draw_animations() {
+	if (draw_animation_queue.empty()) {
+		return;
+	}
+
+	CharacterComponent* character = combat.value().get_active_character();
+
+	for (u8 index : draw_animation_queue) {
+		CardType type = character->hand.at(index)->card_type;
+
+		constexpr double DURATION = 0.25;
+
+		play_animation(DURATION, 0.0, &SpriteComponent::visible, hand_sprites[index], [](Animation& animation, bool starting_value) {
+			return animation.is_finished();
+		});
+
+		entt::entity entity = ecs.create();
+		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+		transform.x_anchor = HorizontalAnchor::CENTER;
+		transform.y_anchor = VerticalAnchor::BOTTOM;
+		transform.relative_position = {0.f, 0.f};
+		transform.height = CARD_SPRITE_HEIGHT; transform.width = CARD_SPRITE_WIDTH;
+		transform.sort_order = 1;
+		auto& sprite = ecs.emplace<SpriteComponent>(entity);
+		sprite.sprites = {Sprite::CARD_GROOVE_2};
+
+		play_animation(DURATION, 0.0, &AnchoredTransformComponent::relative_position, entity, [index](Animation& animation, Vector2 starting_value) {
+			Vector2 target = ecs.get<AnchoredTransformComponent>(hand_sprites[index]).relative_position;
+			return Vector2{smooth_curve(target.x, animation, starting_value.x + 800.f), smooth_curve(target.y, animation, starting_value.y)};
+		});
+
+		play_animation(DURATION, 0.0, &AnchoredTransformComponent::scale, entity, [index](Animation& animation, float starting_value) {
+			float target = ecs.get<AnchoredTransformComponent>(hand_sprites[index]).scale;
+			return smooth_curve(target, animation, starting_value);
+		});
+
+		auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
+		switch (type) {
+			case CardType::PSYCHIC: animation.sprites = {Sprite::CARD_PSYCHIC_2, Sprite::CARD_PSYCHIC_3, Sprite::CARD_PSYCHIC_4, Sprite::CARD_PSYCHIC_5, Sprite::CARD_PSYCHIC_6,Sprite::CARD_PSYCHIC_7, Sprite::CARD_PSYCHIC_8, Sprite::CARD_PSYCHIC_9, Sprite::CARD_PSYCHIC_10 }; break;
+			case CardType::MAGIC: animation.sprites = {Sprite::CARD_MAGIC_2, Sprite::CARD_MAGIC_3, Sprite::CARD_MAGIC_4, Sprite::CARD_MAGIC_5, Sprite::CARD_MAGIC_6,Sprite::CARD_MAGIC_7, Sprite::CARD_MAGIC_8, Sprite::CARD_MAGIC_9, Sprite::CARD_MAGIC_10 }; break;
+			case CardType::GROOVE: animation.sprites = {Sprite::CARD_GROOVE_2, Sprite::CARD_GROOVE_3, Sprite::CARD_GROOVE_4, Sprite::CARD_GROOVE_5, Sprite::CARD_GROOVE_6,Sprite::CARD_GROOVE_7, Sprite::CARD_GROOVE_8, Sprite::CARD_GROOVE_9, Sprite::CARD_GROOVE_10 }; break;
+		}
+		animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
+		animation.frequency = 1.0 / ((DURATION + 0.1) / (double)animation.sprites.size());
+	}
+
+	draw_animation_queue.clear();
+}
+
+
 void ui_on_turn_start() {
 	dragged_card.reset();
 	refresh_hand_buttons();
+	play_queued_draw_animations();
+}
+
+void play_draw_animation(int index) {
+	draw_animation_queue.push_back(index);
 }
 
 Card HandCardComponent::get_card() {
