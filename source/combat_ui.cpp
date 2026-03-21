@@ -411,12 +411,8 @@ void play_queued_draw_animations() {
 		animation.frequency = 1.0 / ((DURATION) / (double)animation.sprites.size());
 		animation.delay = delay;
 
-		play_animation(0.0, 0.0, &SpriteComponent::visible, hand_sprites[index], [entity](Animation& animation, bool starting_value) {
-			if (!ecs.valid(entity)) {
-				animation.should_remove = true; // TODO Still has issues where card is invisible for a frame too long
-				return true;
-			}
-			return false;
+		play_animation(DURATION + delay - 0.01, 0.f, &SpriteComponent::visible, hand_sprites[index], [entity](Animation& animation, bool starting_value) {
+			return animation.is_finished();
 		});
 	}
 

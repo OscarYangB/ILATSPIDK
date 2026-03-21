@@ -8,7 +8,8 @@ enum class CardID {
 	FIREBALL,
 	SATURN,
 	MIND_READ,
-	HEAL
+	HEAL,
+	GRENADE
 };
 
 constexpr CardData card_data[] {
@@ -39,6 +40,14 @@ constexpr CardData card_data[] {
 			 }},
 	{.name= {"Heal"}, .description = {"Heal an ally"}, .play_text = {"is healing an ally!"},
 			 .cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::MAGIC,
+			 .play = [](CharacterComponent& character, const Characters& targets) {
+
+			 },
+			 .activate = [](CharacterComponent& character, const Characters& targets) {
+
+			 }},
+	{.name= {"Grenade"}, .description = {"Explode an area"}, .play_text = {"is throwing a grenade!"},
+			 .cost = 2, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::GROOVE,
 			 .play = [](CharacterComponent& character, const Characters& targets) {
 
 			 },
