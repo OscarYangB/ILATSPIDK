@@ -216,6 +216,7 @@ void update_sprite_resources() { // Going to load/unload the textures based on w
 
 	for (auto [entity, sprite] : view.each()) {
 		for (Sprite sprite : sprite.sprites) {
+			if (sprite == Sprite::NONE) continue;
 			is_loaded[sprite_to_image_file_index(sprite)] = true;
 		}
 	}
