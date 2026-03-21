@@ -76,7 +76,16 @@ void sort_sprites() {
 void render_transform(entt::entity entity) {
 	TransformComponent& transform = ecs.get<TransformComponent>(entity);
 	SpriteComponent& sprite_component = ecs.get<SpriteComponent>(entity);
-	Vector2 position = world_to_pixel(transform.position);
+	Vector2 world_position = transform.position;
+
+	TransformComponent* parent_transform = &transform;
+	while (parent_transform->parent != entt::null) {
+		parent_transform = ecs.try_get<TransformComponent>(parent_transform->parent);
+		if (parent_transform == nullptr) break;
+		world_position += parent_transform->position;
+	}
+
+	Vector2 position = world_to_pixel(world_position);
 
 	if (!sprite_component.visible) return;
 
@@ -107,16 +116,22 @@ void render_transform(entt::entity entity) {
 
 		render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
 	}
+
+	if (!transform.children.empty()) {
+		for (entt::entity child : transform.children) {
+			render_transform(child);
+		}
+	}
 }
 
-void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}, float parent_scale = 1.f, float canvas_width = window_width(), float canvas_height = window_height()) {
+void render_anchored_transform(entt::entity entity) {
 	AnchoredTransformComponent& transform = ecs.get<AnchoredTransformComponent>(entity);
-	Vector2 position = transform.render_position(parent_position, parent_scale, canvas_width, canvas_height);
-	float render_w = transform.render_width(parent_scale);
-	float render_h = transform.render_height(parent_scale);
+	Vector2 position = transform.render_position();
+	float render_w = transform.render_width();
+	float render_h = transform.render_height();
 
 	if (TextComponent* text = ecs.try_get<TextComponent>(entity); text) {
-		render_text(text->text.get(), position.x, position.y, render_w, render_h, text->size * window_scale() * transform.scale * parent_scale, text->mask,
+		render_text(text->text.get(), position.x, position.y, render_w, render_h, text->size * window_scale() * transform.get_recursive_scale(), text->mask,
 				   text->colour.r, text->colour.g, text->colour.b, text->x_align, text->y_align);
 	} else if (SpriteComponent* sprite_component = ecs.try_get<SpriteComponent>(entity); sprite_component) {
 		if (!sprite_component->visible) return;
@@ -158,7 +173,7 @@ void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}
 
 	if (!transform.children.empty()) {
 		for (entt::entity child : transform.children) {
-			render_anchored_transform(child, parent_position + position, parent_scale * transform.scale, render_w, render_h);
+			render_anchored_transform(child);
 		}
 	}
 }
@@ -166,6 +181,7 @@ void render_anchored_transform(entt::entity entity, Vector2 parent_position = {}
 void render_sprites() {
 	auto transforms = ecs.view<TransformComponent, SpriteComponent>();
 	for (auto [entity, transform, sprite] : transforms.each()) {
+		if (transform.parent != entt::null) continue;
 		render_transform(entity);
 	}
 
@@ -211,29 +227,25 @@ Vector2 world_to_pixel(const Vector2& in) {
 				   (-in.y + camera_position.y) * render_scale() + window_height() / 2.0f};
 }
 
-Vector2 AnchoredTransformComponent::render_position() const  {
+Vector2 AnchoredTransformComponent::render_position() const {
+	Vector2 parent_position;
+	float canvas_width;
+	float canvas_height;
 	if (parent == entt::null) {
-		return render_position({}, 1.f, window_width(), window_height());
+		parent_position = {};
+		canvas_width = window_width();
+		canvas_height = window_height();
+	} else {
+		auto& parent_transform = ecs.get<AnchoredTransformComponent>(parent);
+		parent_position = parent_transform.render_position();
+		canvas_width = parent_transform.render_width();
+		canvas_height = parent_transform.render_height();
 	}
 
-	auto& parent_transform = ecs.get<AnchoredTransformComponent>(parent);
-	return render_position(parent_transform.render_position(), get_parent_scale(), parent_transform.render_width(), parent_transform.render_height());
-}
+	Vector2 position_offset = relative_position * window_scale() * get_parent_scale() + parent_position;
 
-float AnchoredTransformComponent::render_width() const {
-	return render_width(get_parent_scale());
-}
-
-float AnchoredTransformComponent::render_height() const {
-	return render_height(get_parent_scale());
-}
-
-Vector2 AnchoredTransformComponent::render_position(Vector2 parent_position, float parent_scale, float canvas_width, float canvas_height) const {
-	AnchoredTransformComponent* parent_transform{};
-	Vector2 position_offset = relative_position * window_scale() * parent_scale + parent_position;
-
-	const float scaled_width = render_width(parent_scale);
-	const float scaled_height = render_height(parent_scale);
+	const float scaled_width = render_width();
+	const float scaled_height = render_height();
 	Vector2 anchor_offset{};
 
 	switch(y_anchor) {
@@ -251,12 +263,12 @@ Vector2 AnchoredTransformComponent::render_position(Vector2 parent_position, flo
 	return position_offset + anchor_offset;
 }
 
-float AnchoredTransformComponent::render_width(float parent_scale) const {
-	return width * window_scale() * parent_scale * scale;
+float AnchoredTransformComponent::render_width() const {
+	return width * window_scale() * get_recursive_scale();
 }
 
-float AnchoredTransformComponent::render_height(float parent_scale) const {
-	return height * window_scale() * parent_scale * scale;
+float AnchoredTransformComponent::render_height() const {
+	return height * window_scale() * get_recursive_scale();
 }
 
 bool TransformComponent::move(entt::entity entity_to_move, const Vector2& new_position) {
@@ -318,19 +330,19 @@ Box SpriteComponent::visible_bounding_box() {
 	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
 }
 
-void AnchoredTransformComponent::add_child(entt::entity parent, entt::entity child) {
+void HierarchyComponent::add_child(entt::entity parent, entt::entity child) {
 	AnchoredTransformComponent& child_transform = ecs.get<AnchoredTransformComponent>(child);
 	child_transform.parent = parent;
 	children.push_back(child);
 }
 
-void AnchoredTransformComponent::remove_child(entt::entity child) {
+void HierarchyComponent::remove_child(entt::entity child) {
 	AnchoredTransformComponent& child_transform = ecs.get<AnchoredTransformComponent>(child);
 	child_transform.parent = entt::null;
 	std::erase_if(children, [child](entt::entity current_child){ return current_child == child; } );
 }
 
-void AnchoredTransformComponent::on_destroy(entt::registry& registry, const entt::entity entt) {
+void HierarchyComponent::on_destroy(entt::registry& registry, const entt::entity entt) {
 	AnchoredTransformComponent& transform = registry.get<AnchoredTransformComponent>(entt);
 	std::vector<entt::entity> children {transform.children};
 	for (entt::entity child : children) {
@@ -341,6 +353,10 @@ void AnchoredTransformComponent::on_destroy(entt::registry& registry, const entt
 		AnchoredTransformComponent& parent_transform = registry.get<AnchoredTransformComponent>(transform.parent);
 		parent_transform.remove_child(entt);
 	}
+}
+
+float AnchoredTransformComponent::get_recursive_scale() const {
+	return get_parent_scale() * scale;
 }
 
 float AnchoredTransformComponent::get_parent_scale() const {

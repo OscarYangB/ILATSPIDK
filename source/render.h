@@ -8,7 +8,16 @@
 
 enum class ImageAsset;
 
-struct TransformComponent {
+struct HierarchyComponent {
+	std::vector<entt::entity> children{};
+	entt::entity parent = entt::null;
+
+	void add_child(entt::entity parent, entt::entity child);
+	void remove_child(entt::entity child);
+	static void on_destroy(entt::registry& registry, const entt::entity entt);
+};
+
+struct TransformComponent : HierarchyComponent {
 	Vector2 position{};
 
 	bool move(entt::entity entity_to_move, const Vector2& new_position);
@@ -47,27 +56,20 @@ enum class HorizontalAnchor {
 	CENTER,
 };
 
-struct AnchoredTransformComponent {
+struct AnchoredTransformComponent : HierarchyComponent {
 	HorizontalAnchor x_anchor{};
 	VerticalAnchor y_anchor{};
 	Vector2 relative_position{};
 	u16 width{};
 	u16 height{};
 	u8 sort_order{};
-	std::vector<entt::entity> children{};
-	entt::entity parent = entt::null;
 	float scale = 1.f;
 
+	float get_recursive_scale() const;
 	float get_parent_scale() const;
 	Vector2 render_position() const;
 	float render_width() const;
 	float render_height() const;
-	Vector2 render_position(Vector2 parent_position, float parent_scale, float canvas_width, float canvas_height) const;
-	float render_width(float parent_scale) const;
-	float render_height(float parent_scale) const;
-	void add_child(entt::entity parent, entt::entity child);
-	void remove_child(entt::entity child);
-	static void on_destroy(entt::registry& registry, const entt::entity entt);
 };
 
 struct NineSliceComponent {
