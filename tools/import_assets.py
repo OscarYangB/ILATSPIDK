@@ -94,6 +94,7 @@ image_size_text += "};\n\n"
 image_file_text += image_size_text
 image_file_text += "constexpr int NUMBER_OF_IMAGES = %s;\n\n\n"%number_of_images
 
+atlas_enum_text += "\tNONE,\n"
 atlas_enum_text += "};\n\n"
 image_file_text += atlas_enum_text
 atlas_data_text += "};\n\n"

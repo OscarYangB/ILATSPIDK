@@ -90,6 +90,10 @@ void render_transform(entt::entity entity) {
 	if (!sprite_component.visible) return;
 
 	for (int i = 0; i < sprite_component.sprites.size(); i++) {
+		if (sprite_component.sprites.at(i) == Sprite::NONE) {
+			continue;
+		}
+
 		u16 index = static_cast<u16>(sprite_component.sprites.at(i));
 		u16 atlas_x = sprite_atlas_transform[index].x;
 		u16 atlas_y = sprite_atlas_transform[index].y;

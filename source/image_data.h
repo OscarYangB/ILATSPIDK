@@ -299,6 +299,7 @@ enum class Sprite {
 	KERRY_UP_CAPE_5,
 	KERRY_UP_CAPE_6,
 	VERY_LARGE_FONT,
+	NONE,
 };
 
 constexpr SpriteAtlasTransform sprite_atlas_transform[] {
