@@ -126,10 +126,7 @@ void update_dialog() {
 }
 
 void delete_choice_buttons() {
-	for (entt::entity button : choice_buttons) {
-		ecs.destroy(button);
-	}
-
+	ecs.destroy(choice_buttons.begin(), choice_buttons.end());
 	choice_buttons.clear();
 }
 

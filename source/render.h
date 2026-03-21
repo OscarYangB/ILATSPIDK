@@ -5,19 +5,42 @@
 #include "definitions.h"
 #include "entt/entt.hpp"
 #include "text.h"
+#include "game.h"
 
 enum class ImageAsset;
 
+template<typename T>
 struct HierarchyComponent {
 	std::vector<entt::entity> children{};
 	entt::entity parent = entt::null;
 
-	void add_child(entt::entity parent, entt::entity child);
-	void remove_child(entt::entity child);
-	static void on_destroy(entt::registry& registry, const entt::entity entt);
+	void add_child(entt::entity parent, entt::entity child) {
+		T& child_transform = ecs.get<T>(child);
+		child_transform.parent = parent;
+		children.push_back(child);
+	}
+
+	void remove_child(entt::entity child) {
+		T& child_transform = ecs.get<T>(child);
+		child_transform.parent = entt::null;
+		std::erase_if(children, [child](entt::entity current_child){ return current_child == child; } );
+	}
+
+	static void on_destroy(entt::registry& registry, const entt::entity entt) {
+		T& transform = registry.get<T>(entt);
+		std::vector<entt::entity> children {transform.children};
+		for (entt::entity child : children) {
+			ecs.destroy(child); // calls on_destroy to recursively destroy all descendents
+		}
+
+		if (transform.parent != entt::null && ecs.valid(transform.parent)) {
+			T& parent_transform = registry.get<T>(transform.parent);
+			parent_transform.remove_child(entt);
+		}
+	}
 };
 
-struct TransformComponent : HierarchyComponent {
+struct TransformComponent : HierarchyComponent<TransformComponent> {
 	Vector2 position{};
 
 	bool move(entt::entity entity_to_move, const Vector2& new_position);
@@ -56,7 +79,7 @@ enum class HorizontalAnchor {
 	CENTER,
 };
 
-struct AnchoredTransformComponent : HierarchyComponent {
+struct AnchoredTransformComponent : HierarchyComponent<AnchoredTransformComponent> {
 	HorizontalAnchor x_anchor{};
 	VerticalAnchor y_anchor{};
 	Vector2 relative_position{};

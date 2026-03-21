@@ -338,31 +338,6 @@ Box SpriteComponent::visible_bounding_box() {
 	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
 }
 
-void HierarchyComponent::add_child(entt::entity parent, entt::entity child) {
-	AnchoredTransformComponent& child_transform = ecs.get<AnchoredTransformComponent>(child);
-	child_transform.parent = parent;
-	children.push_back(child);
-}
-
-void HierarchyComponent::remove_child(entt::entity child) {
-	AnchoredTransformComponent& child_transform = ecs.get<AnchoredTransformComponent>(child);
-	child_transform.parent = entt::null;
-	std::erase_if(children, [child](entt::entity current_child){ return current_child == child; } );
-}
-
-void HierarchyComponent::on_destroy(entt::registry& registry, const entt::entity entt) {
-	AnchoredTransformComponent& transform = registry.get<AnchoredTransformComponent>(entt);
-	std::vector<entt::entity> children {transform.children};
-	for (entt::entity child : children) {
-		ecs.destroy(child); // calls on_destroy to recursively destroy all descendents
-	}
-
-	if (transform.parent != entt::null && ecs.valid(transform.parent)) {
-		AnchoredTransformComponent& parent_transform = registry.get<AnchoredTransformComponent>(transform.parent);
-		parent_transform.remove_child(entt);
-	}
-}
-
 float AnchoredTransformComponent::get_recursive_scale() const {
 	return get_parent_scale() * scale;
 }
