@@ -15,6 +15,52 @@ static std::vector<entt::entity> hand_sprites{};
 static std::vector<entt::entity> hand_frames{};
 static std::optional<entt::entity> dragged_card{};
 static std::vector<u8> draw_animation_queue{};
+static std::vector<entt::entity> healthbars{};
+
+void create_healthbars() {
+	healthbars.clear();
+	healthbars.reserve(combat->characters.size());
+
+	for (entt::entity character_entity : combat->characters) {
+		auto& character_transform = ecs.get<TransformComponent>(character_entity);
+		auto& character_component = ecs.get<CharacterComponent>(character_entity);
+
+		auto entity = ecs.create();
+		auto& transform = ecs.emplace<TransformComponent>(entity);
+		transform.position = {0.f, -50.f};
+		character_transform.add_child(character_entity, entity);
+		auto& sprite = ecs.emplace<SpriteComponent>(entity);
+		sprite.sprites = { Sprite::HEALTHBAR_DYNAMIC_1, Sprite::HEALTHBAR_GOOD_1, Sprite::HEALTHBAR_OUTLINE_1};
+		switch (character_component.data->type) {
+		case CharacterType::GOOD: sprite.sprites.at(1) = Sprite::HEALTHBAR_GOOD_1; break;
+		case CharacterType::EVIL: sprite.sprites.at(1) = Sprite::HEALTHBAR_EVIL_1; break;
+		case CharacterType::FURNITURE: sprite.sprites.at(1) = Sprite::HEALTHBAR_NEUTRAL_1; break;
+		}
+		//sprite.masks = {{{},{}}, {{},{}}}; // TODO
+		healthbars.push_back(entity);
+
+		constexpr u8 HEALTHBAR_WIDTH = 173;
+		float health_units = character_component.health / 100.f;
+		int number_of_health_units = std::ceil(health_units);
+		float health_unit_width = HEALTHBAR_WIDTH / health_units;
+		float divider_offset = (health_units - number_of_health_units) * health_unit_width;
+		for (int i = 1; i < number_of_health_units; i++) {
+			float x_position = (float)i * health_unit_width;
+			if (HEALTHBAR_WIDTH - x_position < 10.f) break;
+			entt::entity divider = ecs.create();
+			auto& divider_transform = ecs.emplace<TransformComponent>(divider);
+			transform.add_child(entity, divider);
+			divider_transform.position.x = x_position;
+			auto& divider_sprite = ecs.emplace<SpriteComponent>(divider);
+			divider_sprite.sprites = {Sprite::HEALTHBAR_DIVIDER_1};
+		}
+	}
+}
+
+void destroy_healthbars() {
+	for (entt::entity healthbar : healthbars) ecs.destroy(healthbar);
+	healthbars.clear();
+}
 
 void create_gamebar() {
 	for (int i = 0; i < BARS_PER_TURN; i++) {
@@ -36,10 +82,7 @@ void create_gamebar() {
 }
 
 void destroy_gamebar() {
-	for (entt::entity entity : gamebars) {
-		ecs.destroy(entity);
-	}
-
+	for (entt::entity gamebar : gamebars) ecs.destroy(gamebar);
 	gamebars.clear();
 }
 
@@ -138,6 +181,7 @@ void ui_on_bar_end() {
 
 void ui_start_combat() {
 	create_gamebar();
+	create_healthbars();
 }
 
 constexpr double CARD_HOVER_WIDTH = 145.f;
@@ -231,7 +275,7 @@ void on_card_click(entt::entity entity) {
 
 void refresh_hand_buttons() {
 	for (entt::entity entity : hand_buttons) ecs.destroy(entity);
-	hand_buttons.clear();
+	 hand_buttons.clear();
 	for (entt::entity entity : hand_sprites) ecs.destroy(entity);
 	hand_sprites.clear();
 	hand_frames.clear();
@@ -302,7 +346,7 @@ void refresh_hand_buttons() {
 				auto& cost_transform = ecs.emplace<AnchoredTransformComponent>(cost_entity);
 				cost_transform.width = CARD_SPRITE_WIDTH;
 				cost_transform.height = 200.f;
-				cost_transform.relative_position = {125.f, 6.f};
+				cost_transform.relative_position = {123.5f, 6.5f};
 				transform.add_child(entity, cost_entity);
 				auto& cost = ecs.emplace<TextComponent>(cost_entity);
 				cost.text = {number_to_string((card->cost))};
@@ -364,7 +408,8 @@ void ui_update_combat() {
 }
 
 void ui_end_combat() {
-	end_combat();
+	destroy_gamebar();
+	destroy_healthbars();
 }
 
 void play_queued_draw_animations() {
@@ -389,7 +434,7 @@ void play_queued_draw_animations() {
 		transform.height = CARD_SPRITE_HEIGHT; transform.width = CARD_SPRITE_WIDTH;
 		transform.sort_order = 1;
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
-		sprite.sprites = {Sprite::CARD_GROOVE_2}; // TODO should use Sprite::None
+		sprite.sprites = {Sprite::NONE};
 
 		play_animation(DURATION, delay, &AnchoredTransformComponent::relative_position, entity, [index](Animation& animation, Vector2 starting_value) {
 			Vector2 target = ecs.get<AnchoredTransformComponent>(hand_sprites[index]).relative_position;

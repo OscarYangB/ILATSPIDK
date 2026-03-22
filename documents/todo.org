@@ -55,12 +55,14 @@
 - [X] Draw animation (hand drawn with speed lines)
   - One for each type
 - [ ] Health Bar
+- [ ] Disable movement. Character face forward.
 - [ ] Hover and Queue Indicator
 - [ ] Play animation
 - [ ] Drag to target
   - Highlights nearest target to mouse
 - [ ] Card can't be played indicator
 - [ ] Turn Bar
+- [ ] Teleport highlight unoccupied area
 * Combat
 [[../source/combat.h]]
 ** TODO Enemies

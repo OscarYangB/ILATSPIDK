@@ -28,9 +28,12 @@ struct HierarchyComponent {
 
 	static void on_destroy(entt::registry& registry, const entt::entity entt) {
 		T& transform = registry.get<T>(entt);
-		std::vector<entt::entity> children {transform.children};
-		for (entt::entity child : children) {
-			ecs.destroy(child); // calls on_destroy to recursively destroy all descendents
+
+		if (!transform.children.empty()) {
+			std::vector<entt::entity> children {transform.children};
+			for (entt::entity child : children) {
+				ecs.destroy(child); // calls on_destroy to recursively destroy all descendents
+			}
 		}
 
 		if (transform.parent != entt::null && ecs.valid(transform.parent)) {

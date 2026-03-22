@@ -23,7 +23,7 @@ entt::entity spawn_player() {
 	collider = KERRY_COLLIDER;
 
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);
-	character.starting_health = 100.f;
+	character.starting_health = 150.f;
 	character.type = CharacterType::GOOD;
 	character.starting_deck = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE });
 
@@ -50,7 +50,7 @@ entt::entity spawn_grakeny() {
 	animation.frequency = 2.f;
 
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);
-	character.starting_health = 100.f;
+	character.starting_health = 1000.f;
 	character.type = CharacterType::EVIL;
 	character.starting_deck = make_cards({ });
 

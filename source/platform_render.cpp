@@ -27,7 +27,7 @@ bool start_window() {
         return false;
     }
 
-//	enable_vsync();
+	//enable_vsync();
     SDL_SetRenderLogicalPresentation(renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_DISABLED);
 
 	init();

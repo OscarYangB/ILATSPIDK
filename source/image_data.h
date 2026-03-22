@@ -49,6 +49,10 @@ constexpr char grakeny[] {
 	#embed "..\assets\atlas\Grakeny.png"
 };
 
+constexpr char healthbar[] { 
+	#embed "..\assets\atlas\healthbar.png"
+};
+
 constexpr char large_font[] { 
 	#embed "..\assets\atlas\large_font.png"
 };
@@ -89,6 +93,7 @@ enum class ImageFile {
 	EXTRA_SMALL_FONT_IMAGE,
 	GAMEBAR_IMAGE,
 	GRAKENY_IMAGE,
+	HEALTHBAR_IMAGE,
 	LARGE_FONT_IMAGE,
 	MEDIUM_FONT_IMAGE,
 	MEDIUM_LARGE_FONT_IMAGE,
@@ -108,6 +113,7 @@ constexpr const char* image_file_data[] {
 	extra_small_font,
 	gamebar,
 	grakeny,
+	healthbar,
 	large_font,
 	medium_font,
 	medium_large_font,
@@ -127,6 +133,7 @@ constexpr int image_file_sizes[] {
 	sizeof(extra_small_font),
 	sizeof(gamebar),
 	sizeof(grakeny),
+	sizeof(healthbar),
 	sizeof(large_font),
 	sizeof(medium_font),
 	sizeof(medium_large_font),
@@ -136,7 +143,7 @@ constexpr int image_file_sizes[] {
 	sizeof(very_large_font),
 };
 
-constexpr int NUMBER_OF_IMAGES = 16;
+constexpr int NUMBER_OF_IMAGES = 17;
 
 
 enum class Sprite {
@@ -198,6 +205,12 @@ enum class Sprite {
 	GRAKENY_1,
 	GRAKENY_2,
 	GRAKENY_3,
+	HEALTHBAR_DYNAMIC_1,
+	HEALTHBAR_GOOD_1,
+	HEALTHBAR_EVIL_1,
+	HEALTHBAR_NEUTRAL_1,
+	HEALTHBAR_DIVIDER_1,
+	HEALTHBAR_OUTLINE_1,
 	LARGE_FONT,
 	MEDIUM_FONT,
 	MEDIUM_LARGE_FONT,
@@ -329,7 +342,7 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 1200, 300, 400, 14, 8, 286, 394},
 	{300, 1200, 300, 400, 12, 7, 300, 400},
 	{600, 1200, 300, 400, 9, 0, 300, 400},
-	{900, 1200, 300, 400, 228, 0, 300, 73},
+	{900, 1200, 300, 400, 221, 0, 300, 78},
 	{1200, 1200, 300, 400, 6, 12, 291, 395},
 	{1500, 1200, 300, 400, 122, 194, 273, 282},
 	{0, 1600, 300, 400, 126, 154, 279, 336},
@@ -361,6 +374,12 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 0, 200, 300, 48, 85, 150, 209},
 	{200, 0, 200, 300, 46, 84, 152, 208},
 	{0, 300, 200, 300, 44, 85, 151, 209},
+	{0, 0, 175, 21, 3, 3, 172, 18},
+	{175, 0, 175, 21, 3, 3, 172, 18},
+	{350, 0, 175, 21, 3, 3, 172, 18},
+	{0, 21, 175, 21, 3, 3, 172, 18},
+	{175, 21, 175, 21, 1, 2, 7, 20},
+	{350, 21, 175, 21, 1, 1, 174, 20},
 	{0, 0, 4560, 72, 54, 10, 4540, 56},
 	{0, 0, 2280, 36, 28, 5, 2272, 28},
 	{0, 0, 3420, 54, 41, 8, 3406, 42},
@@ -523,6 +542,12 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::GRAKENY_IMAGE,
 	ImageFile::GRAKENY_IMAGE,
 	ImageFile::GRAKENY_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
 	ImageFile::LARGE_FONT_IMAGE,
 	ImageFile::MEDIUM_FONT_IMAGE,
 	ImageFile::MEDIUM_LARGE_FONT_IMAGE,
