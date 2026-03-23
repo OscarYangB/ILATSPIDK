@@ -650,5 +650,4 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::TEST_ATLAS_IMAGE,
 	ImageFile::VERY_LARGE_FONT_IMAGE,
 };
-constexpr int sprite_to_image_file_index(Sprite atlas_index) { return static_cast<int>(sprite_to_image_file[static_cast<int>(atlas_index)]); }
 

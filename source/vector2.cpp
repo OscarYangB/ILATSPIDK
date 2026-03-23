@@ -80,9 +80,9 @@ Vector2 Box::center() {
 }
 
 float Box::width() {
-	return right_bottom.x - left_top.x;
+	return std::abs(right_bottom.x - left_top.x);
 }
 
 float Box::height() {
-	return left_top.y - right_bottom.y;
+	return std::abs(left_top.y - right_bottom.y);
 }

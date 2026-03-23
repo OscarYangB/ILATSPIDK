@@ -99,8 +99,7 @@ atlas_enum_text += "};\n\n"
 image_file_text += atlas_enum_text
 atlas_data_text += "};\n\n"
 image_file_text += atlas_data_text
-atlas_to_image_text += "};\n"
-atlas_to_image_text += "constexpr int sprite_to_image_file_index(Sprite atlas_index) { return static_cast<int>(sprite_to_image_file[static_cast<int>(atlas_index)]); }\n\n"
+atlas_to_image_text += "};\n\n"
 image_file_text += atlas_to_image_text
 
 audio_enum_text += "};\n\n"

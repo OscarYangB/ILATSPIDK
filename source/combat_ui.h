@@ -11,6 +11,7 @@ void ui_on_bar_end();
 void ui_on_turn_start();
 
 void play_draw_animation(int index);
+void refresh_health_bar(entt::entity character);
 
 struct HandCardComponent {
 	u8 index{};

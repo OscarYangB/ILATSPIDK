@@ -3,6 +3,7 @@
 #include "platform_render.h"
 #include "game.h"
 #include "physics.h"
+#include "image_utils.h"
 
 Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.0f; // Gameplay code can write to this

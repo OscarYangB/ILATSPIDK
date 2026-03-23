@@ -6,6 +6,7 @@
 #include "input.h"
 #include "character_animation.h"
 #include "animation.h"
+#include "image_utils.h"
 
 #include <iostream>
 
@@ -15,6 +16,9 @@ static std::vector<entt::entity> hand_sprites{};
 static std::optional<entt::entity> dragged_card{};
 static std::vector<u8> draw_animation_queue{};
 static std::vector<entt::entity> healthbars{};
+
+constexpr u8 HEALTHBAR_WIDTH = get_sprite_dimensions(Sprite::HEALTHBAR_OUTLINE_1).w;
+constexpr u8 HEALTHBAR_HEIGHT = get_sprite_dimensions(Sprite::HEALTHBAR_OUTLINE_1).h;
 
 void create_healthbars() {
 	healthbars.clear();
@@ -29,17 +33,16 @@ void create_healthbars() {
 		transform.position = {0.f, -50.f};
 		character_transform.add_child(character_entity, entity);
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
-		sprite.sprites = { Sprite::HEALTHBAR_DYNAMIC_1, Sprite::HEALTHBAR_GOOD_1, Sprite::HEALTHBAR_OUTLINE_1};
+		sprite.sprites = { Sprite::HEALTHBAR_OUTLINE_1, Sprite::HEALTHBAR_DYNAMIC_1, Sprite::HEALTHBAR_GOOD_1};
 		switch (character_component.data->type) {
-		case CharacterType::GOOD: sprite.sprites.at(1) = Sprite::HEALTHBAR_GOOD_1; break;
-		case CharacterType::EVIL: sprite.sprites.at(1) = Sprite::HEALTHBAR_EVIL_1; break;
-		case CharacterType::FURNITURE: sprite.sprites.at(1) = Sprite::HEALTHBAR_NEUTRAL_1; break;
+		case CharacterType::GOOD: sprite.sprites.at(2) = Sprite::HEALTHBAR_GOOD_1; break;
+		case CharacterType::EVIL: sprite.sprites.at(2) = Sprite::HEALTHBAR_EVIL_1; break;
+		case CharacterType::FURNITURE: sprite.sprites.at(2) = Sprite::HEALTHBAR_NEUTRAL_1; break;
 		}
-		//sprite.masks = {{{},{}}, {{},{}}}; // TODO
+		sprite.masks[1] = {{0.f, 0.f}, {HEALTHBAR_WIDTH, HEALTHBAR_HEIGHT}};
 		healthbars.push_back(entity);
 
-		constexpr u8 HEALTHBAR_WIDTH = 173;
-		float health_units = character_component.health / 100.f;
+		float health_units = character_component.max_health / 100.f;
 		int number_of_health_units = std::ceil(health_units);
 		float health_unit_width = HEALTHBAR_WIDTH / health_units;
 		float divider_offset = (health_units - number_of_health_units) * health_unit_width;
@@ -59,6 +62,27 @@ void create_healthbars() {
 void destroy_healthbars() {
 	for (entt::entity healthbar : healthbars) ecs.destroy(healthbar);
 	healthbars.clear();
+}
+
+void refresh_health_bar(entt::entity character) {
+	CharacterComponent character_component = ecs.get<CharacterComponent>(character);
+	float health = character_component.health / character_component.max_health;
+
+	for (entt::entity entity : healthbars) {
+		auto& transform = ecs.get<TransformComponent>(entity);
+		if (transform.parent == character) {
+			auto& sprite = ecs.get<SpriteComponent>(entity);
+			sprite.masks[2] = {{0.f, 0.f}, {HEALTHBAR_WIDTH * health, HEALTHBAR_HEIGHT}};
+
+			play_animation(0.2, 0.0, &SpriteComponent::masks, entity, [](Animation& animation, std::unordered_map<u8, Box> starting_value) {
+				std::unordered_map<u8, Box> new_value = starting_value;
+				float new_width = fast_start_curve(starting_value[2].width(), animation, starting_value[1].width());
+				new_value[1] = {{0.f, 0.f}, {new_width, HEALTHBAR_HEIGHT}};
+				return new_value;
+			});
+			break;
+		}
+	}
 }
 
 void create_gamebar() {
@@ -176,6 +200,11 @@ void ui_on_bar_end() {
 	animation.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4};
 	animation.frequency = 12.f;
 	animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
+
+	// TEST
+	ecs.get<CharacterComponent>(combat->characters.at(1)).damage(100.f);
+	refresh_health_bar(combat->characters.at(1));
+	// TEST
 }
 
 void ui_start_combat() {
