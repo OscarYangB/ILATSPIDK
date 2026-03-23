@@ -346,7 +346,7 @@ void refresh_hand_buttons() {
 				auto& cost_transform = ecs.emplace<AnchoredTransformComponent>(cost_entity);
 				cost_transform.width = CARD_SPRITE_WIDTH;
 				cost_transform.height = 200.f;
-				cost_transform.relative_position = {123.5f, 6.5f};
+				cost_transform.relative_position = {123.5f, 7.f};
 				transform.add_child(entity, cost_entity);
 				auto& cost = ecs.emplace<TextComponent>(cost_entity);
 				cost.text = {number_to_string((card->cost))};

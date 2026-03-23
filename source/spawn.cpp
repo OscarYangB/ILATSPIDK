@@ -50,7 +50,7 @@ entt::entity spawn_grakeny() {
 	animation.frequency = 2.f;
 
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);
-	character.starting_health = 1000.f;
+	character.starting_health = 800.f;
 	character.type = CharacterType::EVIL;
 	character.starting_deck = make_cards({ });
 
