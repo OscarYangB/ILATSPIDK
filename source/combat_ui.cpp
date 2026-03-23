@@ -30,7 +30,7 @@ void create_healthbars() {
 
 		auto entity = ecs.create();
 		auto& transform = ecs.emplace<TransformComponent>(entity);
-		transform.position = {0.f, -50.f};
+		transform.position = {10.f, -50.f};
 		character_transform.add_child(character_entity, entity);
 		auto& sprite = ecs.emplace<SpriteComponent>(entity);
 		sprite.sprites = { Sprite::HEALTHBAR_OUTLINE_1, Sprite::HEALTHBAR_DYNAMIC_1, Sprite::HEALTHBAR_GOOD_1};
@@ -64,13 +64,12 @@ void destroy_healthbars() {
 	healthbars.clear();
 }
 
-void refresh_health_bar(entt::entity character) {
-	CharacterComponent character_component = ecs.get<CharacterComponent>(character);
-	float health = character_component.health / character_component.max_health;
+void refresh_health_bar(const CharacterComponent& character) {
+	float health = character.health / character.max_health;
 
 	for (entt::entity entity : healthbars) {
 		auto& transform = ecs.get<TransformComponent>(entity);
-		if (transform.parent == character) {
+		if (&ecs.get<CharacterComponent>(transform.parent) == &character) {
 			auto& sprite = ecs.get<SpriteComponent>(entity);
 			sprite.masks[2] = {{0.f, 0.f}, {HEALTHBAR_WIDTH * health, HEALTHBAR_HEIGHT}};
 
@@ -202,8 +201,9 @@ void ui_on_bar_end() {
 	animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
 
 	// TEST
-	ecs.get<CharacterComponent>(combat->characters.at(1)).damage(100.f);
-	refresh_health_bar(combat->characters.at(1));
+	CharacterComponent& character = ecs.get<CharacterComponent>(combat->characters.at(1));
+	character.damage(100.f);
+	refresh_health_bar(character);
 	// TEST
 }
 

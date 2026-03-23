@@ -54,7 +54,7 @@
   - [X] Reimplement formatting features (alignment, breaking etc.)
 - [X] Draw animation (hand drawn with speed lines)
   - One for each type
-- [ ] Health Bar
+- [X] Health Bar
 - [ ] Disable movement. Character face forward.
 - [ ] Hover and Queue Indicator
 - [ ] Play animation

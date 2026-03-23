@@ -30,6 +30,7 @@ void CharacterComponent::damage(float amount) {
 	shield -= damage_to_shield;
 	health -= amount - damage_to_shield;
 	health = std::clamp(health, 0.f, max_health);
+	refresh_health_bar(*this);
 }
 
 void CharacterComponent::draw() {
