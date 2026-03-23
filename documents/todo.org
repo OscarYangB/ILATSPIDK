@@ -5,21 +5,21 @@
 | #3     |   | <2026-02-01 Sun> | Dialog                          |                   |
 | #4     |   | <2026-02-15 Sun> | Gameplay UI                     |                   |
 | #5     |   | <2026-03-01 Sun> | Gameplay UI, Rendering          |                   |
-| #6     | X | <2026-03-15 Sun> | Gameplay UI, Inventory          |                   |
-| #7     |   | <2026-03-29 Sun> | Widgets, controller             |                   |
-| #8     |   | <2026-04-12 Sun> | Quest                           |                   |
-| #9     |   | <2026-04-26 Sun> | Save/Load                       |                   |
-| #10    |   | <2026-05-10 Sun> | Skill tree                      | VERTICAL SLICE    |
+| #6     | X | <2026-03-15 Sun> | Gameplay UI                     |                   |
+| #7     |   | <2026-03-29 Sun> | Gameplay                        |                   |
+| #8     |   | <2026-04-12 Sun> | Inventory                       |                   |
+| #9     |   | <2026-04-26 Sun> | Quest                           |                   |
+| #10    |   | <2026-05-10 Sun> | Save/Load                       | VERTICAL SLICE    |
 |--------+---+------------------+---------------------------------+-------------------|
-| #11    |   | <2026-05-24 Sun> | Rendering, lighting, effects    |                   |
-| #12    |   | <2026-06-07 Sun> | Menus                           |                   |
-| #13    |   | <2026-06-21 Sun> | Level Editor                    |                   |
-| #14    |   | <2026-07-05 Sun> | Level Content                   |                   |
-| #15    |   | <2026-07-19 Sun> | Card Content                    |                   |
-| #16    |   | <2026-08-02 Sun> | Character Content               |                   |
-| #17    |   | <2026-08-16 Sun> | Enemy Content                   |                   |
-| #18    |   | <2026-08-30 Sun> |                                 |                   |
-| #19    |   | <2026-09-13 Sun> |                                 | CONTENT MILESTONE |
+| #11    |   | <2026-05-24 Sun> | Widgets, controller             |                   |
+| #12    |   | <2026-06-07 Sun> | Skill tree                      |                   |
+| #13    |   | <2026-06-21 Sun> | Rendering, lighting, effects    |                   |
+| #14    |   | <2026-07-05 Sun> | Menus                           |                   |
+| #15    |   | <2026-07-19 Sun> | Level Editor                    |                   |
+| #16    |   | <2026-08-02 Sun> | Level Content                   |                   |
+| #17    |   | <2026-08-16 Sun> | Card Content                    |                   |
+| #18    |   | <2026-08-30 Sun> | Character Content               |                   |
+| #19    |   | <2026-09-13 Sun> | Enemy Content                   | CONTENT MILESTONE |
 |--------+---+------------------+---------------------------------+-------------------|
 | #20    |   | <2026-09-27 Sun> |                                 |                   |
 | #21    |   | <2026-10-11 Sun> |                                 |                   |

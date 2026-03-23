@@ -64,7 +64,7 @@ void destroy_healthbars() {
 	healthbars.clear();
 }
 
-void refresh_health_bar(const CharacterComponent& character) {
+void refresh_health_bar(const CharacterComponent& character, bool is_heal) {
 	float health = character.health / character.max_health;
 
 	for (entt::entity entity : healthbars) {
@@ -72,6 +72,7 @@ void refresh_health_bar(const CharacterComponent& character) {
 		if (&ecs.get<CharacterComponent>(transform.parent) == &character) {
 			auto& sprite = ecs.get<SpriteComponent>(entity);
 			sprite.masks[2] = {{0.f, 0.f}, {HEALTHBAR_WIDTH * health, HEALTHBAR_HEIGHT}};
+			sprite.sprites[1] = is_heal ? Sprite::HEALTHBAR_HEAL_1 : Sprite::HEALTHBAR_DYNAMIC_1;
 
 			play_animation(0.2, 0.0, &SpriteComponent::masks, entity, [](Animation& animation, std::unordered_map<u8, Box> starting_value) {
 				std::unordered_map<u8, Box> new_value = starting_value;
@@ -201,9 +202,9 @@ void ui_on_bar_end() {
 	animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
 
 	// TEST
-	CharacterComponent& character = ecs.get<CharacterComponent>(combat->characters.at(1));
-	character.damage(100.f);
-	refresh_health_bar(character);
+	CharacterComponent& character = ecs.get<CharacterComponent>(combat->characters.at(0));
+	character.damage(40.f);
+	refresh_health_bar(character, true);
 	// TEST
 }
 

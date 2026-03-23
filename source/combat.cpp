@@ -23,6 +23,7 @@ void CharacterComponent::init_from_data(const CharacterDataComponent& new_data) 
 void CharacterComponent::heal(float amount) {
 	health += amount;
 	health = std::clamp(health, 0.f, max_health);
+	refresh_health_bar(*this, true);
 }
 
 void CharacterComponent::damage(float amount) {
@@ -30,7 +31,7 @@ void CharacterComponent::damage(float amount) {
 	shield -= damage_to_shield;
 	health -= amount - damage_to_shield;
 	health = std::clamp(health, 0.f, max_health);
-	refresh_health_bar(*this);
+	refresh_health_bar(*this, false);
 }
 
 void CharacterComponent::draw() {
