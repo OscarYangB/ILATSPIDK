@@ -2,6 +2,7 @@
 
 #include "entt/entt.hpp"
 #include "image_data.h"
+#include "fixed_list.h"
 
 enum class FinishBehaviour {
 	LOOP,
@@ -10,7 +11,7 @@ enum class FinishBehaviour {
 };
 
 struct CycleAnimationComponent {
-	std::vector<Sprite> sprites{};
+	FixedList<Sprite, 10> sprites{};
 	double frequency{};
 	FinishBehaviour finish_behaviour = FinishBehaviour::LOOP;
 

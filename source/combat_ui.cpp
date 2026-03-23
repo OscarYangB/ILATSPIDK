@@ -12,7 +12,6 @@
 static std::vector<entt::entity> gamebars{};
 static std::vector<entt::entity> hand_buttons{};
 static std::vector<entt::entity> hand_sprites{};
-static std::vector<entt::entity> hand_frames{};
 static std::optional<entt::entity> dragged_card{};
 static std::vector<u8> draw_animation_queue{};
 static std::vector<entt::entity> healthbars{};
@@ -87,7 +86,7 @@ void destroy_gamebar() {
 }
 
 void cycle_gamebar_animation(u8 index) {
-	auto& sprite = ecs.get<SpriteComponent>(gamebars[index]);
+	auto& sprite = ecs.get<SpriteComponent>(gamebars.at(index));
 	Sprite next_sprite;
 	switch (sprite.sprites.at(0)) {
 		case Sprite::GAMEBAR_START_1:
@@ -278,7 +277,6 @@ void refresh_hand_buttons() {
 	 hand_buttons.clear();
 	for (entt::entity entity : hand_sprites) ecs.destroy(entity);
 	hand_sprites.clear();
-	hand_frames.clear();
 
 	CharacterComponent* character = combat.value().get_active_character();
 	for (int i = 0; i < character->hand.size(); i++) {
@@ -316,7 +314,6 @@ void refresh_hand_buttons() {
 					case CardType::MAGIC: sprite.sprites = {Sprite::CARD_MAGIC_1, Sprite::CARD_MAGIC_LVL_1}; break;
 					case CardType::GROOVE: sprite.sprites = {Sprite::CARD_GROOVE_1, Sprite::CARD_GROOVE_LVL_1}; break;
 				}
-				hand_frames.push_back(frame_entity);
 
 				entt::entity name_entity = ecs.create();
 				auto& name_transform = ecs.emplace<AnchoredTransformComponent>(name_entity);
@@ -420,7 +417,7 @@ void play_queued_draw_animations() {
 	CharacterComponent* character = combat.value().get_active_character();
 
 	for (int i = 0; i < draw_animation_queue.size(); i++) {
-		u8 index = draw_animation_queue[i];
+		u8 index = draw_animation_queue.at(i);
 		CardType type = character->hand.at(index)->card_type;
 
 		constexpr double DURATION = 0.2;
@@ -437,12 +434,12 @@ void play_queued_draw_animations() {
 		sprite.sprites = {Sprite::NONE};
 
 		play_animation(DURATION, delay, &AnchoredTransformComponent::relative_position, entity, [index](Animation& animation, Vector2 starting_value) {
-			Vector2 target = ecs.get<AnchoredTransformComponent>(hand_sprites[index]).relative_position;
+			Vector2 target = ecs.get<AnchoredTransformComponent>(hand_sprites.at(index)).relative_position;
 			return Vector2{smooth_curve(target.x, animation, starting_value.x), smooth_curve(target.y, animation, starting_value.y)};
 		});
 
 		play_animation(DURATION, delay, &AnchoredTransformComponent::scale, entity, [index](Animation& animation, float starting_value) {
-			float target = ecs.get<AnchoredTransformComponent>(hand_sprites[index]).scale;
+			float target = ecs.get<AnchoredTransformComponent>(hand_sprites.at(index)).scale;
 			return smooth_curve(target, animation, starting_value);
 		});
 
@@ -456,7 +453,7 @@ void play_queued_draw_animations() {
 		animation.frequency = 1.0 / ((DURATION) / (double)animation.sprites.size());
 		animation.delay = delay;
 
-		play_animation(DURATION + delay - 0.01, 0.f, &SpriteComponent::visible, hand_sprites[index], [entity](Animation& animation, bool starting_value) {
+		play_animation(DURATION + delay - 0.01, 0.f, &SpriteComponent::visible, hand_sprites.at(index), [entity](Animation& animation, bool starting_value) {
 			return animation.is_finished();
 		});
 	}
@@ -477,5 +474,5 @@ void play_draw_animation(int index) {
 
 Card HandCardComponent::get_card() {
 	// Assumes the active character
-	return combat.value().get_active_character()->hand[index];
+	return combat.value().get_active_character()->hand.at(index);
 }

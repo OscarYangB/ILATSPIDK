@@ -307,6 +307,10 @@ bool TransformComponent::can_move(entt::entity entity_to_move, const Vector2& ne
 }
 
 Box SpriteComponent::bounding_box() {
+	if (sprites.empty()) {
+		return {};
+	}
+
 	int index = static_cast<int>(sprites.at(0));
 	u16 w = sprite_atlas_transform[index].w;
 	u16 h = sprite_atlas_transform[index].h;

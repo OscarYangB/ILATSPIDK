@@ -16,7 +16,7 @@ void init_audio() {
 
 void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount) {
 	for (int i = 0; i < playing_audio.size(); i++) {
-		u32 samples_to_play = SDL_min(total_amount, playing_audio[i].remaining_samples());
+		u32 samples_to_play = SDL_min(total_amount, playing_audio.at(i).remaining_samples());
 		SDL_PutAudioStreamData(stream, playing_audio.at(i).data + playing_audio.at(i).position, samples_to_play);
 		playing_audio.at(i).position += samples_to_play;
 	}

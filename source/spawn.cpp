@@ -46,7 +46,7 @@ entt::entity spawn_grakeny() {
 	collider = GRAKENY_COLLIDER;
 
 	auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
-	animation.sprites = {{Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}};
+	animation.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3};
 	animation.frequency = 2.f;
 
 	auto& character = ecs.emplace<CharacterDataComponent>(entity);

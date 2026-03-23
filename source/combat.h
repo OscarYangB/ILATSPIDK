@@ -6,9 +6,10 @@
 #include <optional>
 #include "text.h"
 #include <entt/entt.hpp>
+#include "fixed_list.h"
 
 struct CharacterComponent;
-using Characters = std::vector<entt::entity>;
+using Characters = FixedList<entt::entity, 20>;
 
 enum class CardType {
 	PSYCHIC,

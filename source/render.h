@@ -6,6 +6,7 @@
 #include "entt/entt.hpp"
 #include "text.h"
 #include "game.h"
+#include "fixed_list.h"
 
 enum class ImageAsset;
 
@@ -61,7 +62,7 @@ constexpr Colour BLACK = {0, 0, 0, 255};
 constexpr Colour WHITE = {255, 255, 255, 255};
 
 struct SpriteComponent {
-	std::vector<Sprite> sprites{};
+	FixedList<Sprite, 10> sprites{};
 	std::unordered_map<u8, Colour> tints{};
 	std::unordered_map<u8, Box> masks{};
 	bool visible = true;
