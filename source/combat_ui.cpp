@@ -74,9 +74,9 @@ void refresh_health_bar(const CharacterComponent& character, bool is_heal) {
 			sprite.masks[2] = {{0.f, 0.f}, {HEALTHBAR_WIDTH * health, HEALTHBAR_HEIGHT}};
 			sprite.sprites[1] = is_heal ? Sprite::HEALTHBAR_HEAL_1 : Sprite::HEALTHBAR_DYNAMIC_1;
 
-			play_animation(0.2, 0.0, &SpriteComponent::masks, entity, [](Animation& animation, std::unordered_map<u8, Box> starting_value) {
-				std::unordered_map<u8, Box> new_value = starting_value;
-				float new_width = fast_start_curve(starting_value[2].width(), animation, starting_value[1].width());
+			play_animation(0.2, 0.0, &SpriteComponent::masks, entity, [](Animation& animation, auto starting_value) {
+				auto new_value = starting_value;
+				float new_width = fast_start_curve(starting_value.at(2).value().width(), animation, starting_value.at(1).value().width());
 				new_value[1] = {{0.f, 0.f}, {new_width, HEALTHBAR_HEIGHT}};
 				return new_value;
 			});
@@ -204,7 +204,7 @@ void ui_on_bar_end() {
 	// TEST
 	CharacterComponent& character = ecs.get<CharacterComponent>(combat->characters.at(0));
 	character.damage(40.f);
-	refresh_health_bar(character, true);
+	refresh_health_bar(character, false);
 	// TEST
 }
 

@@ -101,8 +101,8 @@ void render_transform(entt::entity entity) {
 		u16 atlas_w = sprite_atlas_transform[index].w;
 		u16 atlas_h = sprite_atlas_transform[index].h;
 
-		if (sprite_component.masks.contains(i)) {
-			Box mask = sprite_component.masks[i];
+		if (sprite_component.masks.at(i).has_value()) {
+			Box mask = sprite_component.masks.at(i).value();
 			atlas_x += mask.left_top.x;
 			atlas_y -= mask.left_top.y;
 			atlas_w = mask.width();
@@ -117,7 +117,7 @@ void render_transform(entt::entity entity) {
 		if (position.x > window_width() || position.y > window_height()) continue;
 		if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
-		Colour tint = sprite_component.tints.contains(i) ? sprite_component.tints[i] : Colour{};
+		Colour tint = sprite_component.tints.at(i).has_value() ? sprite_component.tints.at(i).value() : Colour{};
 
 		render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
 	}
@@ -152,8 +152,8 @@ void render_anchored_transform(entt::entity entity) {
 			u16 atlas_w = sprite_atlas_transform[index].w;
 			u16 atlas_h = sprite_atlas_transform[index].h;
 
-			if (sprite_component->masks.contains(i)) {
-				Box mask = sprite_component->masks[i];
+			if (sprite_component->masks.at(i).has_value()) {
+				Box mask = sprite_component->masks.at(i).value();
 				atlas_x += mask.left_top.x;
 				atlas_y -= mask.left_top.y;
 				atlas_w = mask.width();
@@ -168,7 +168,7 @@ void render_anchored_transform(entt::entity entity) {
 			if (position.x > window_width() || position.y > window_height()) continue;
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
-			Colour tint = sprite_component->tints.contains(i) ? sprite_component->tints[i] : Colour{};
+			Colour tint = sprite_component->tints.at(i).has_value() ? sprite_component->tints.at(i).value() : Colour{};
 
 			if (nine_slice) {
 				render_nine_slice(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,

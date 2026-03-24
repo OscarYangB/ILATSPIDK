@@ -62,9 +62,10 @@ constexpr Colour BLACK = {0, 0, 0, 255};
 constexpr Colour WHITE = {255, 255, 255, 255};
 
 struct SpriteComponent {
-	FixedList<Sprite, 10> sprites{};
-	std::unordered_map<u8, Colour> tints{};
-	std::unordered_map<u8, Box> masks{};
+	static constexpr u8 MAX_SPRITES = 10;
+	FixedList<Sprite, MAX_SPRITES> sprites{};
+	std::array<std::optional<Colour>, MAX_SPRITES> tints{};
+	std::array<std::optional<Box>, MAX_SPRITES> masks{};
 	bool visible = true;
 
 	Box bounding_box();
