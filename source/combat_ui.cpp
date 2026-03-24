@@ -7,6 +7,7 @@
 #include "character_animation.h"
 #include "animation.h"
 #include "image_utils.h"
+#include "movement_controller.h"
 
 #include <iostream>
 
@@ -211,6 +212,12 @@ void ui_on_bar_end() {
 void ui_start_combat() {
 	create_gamebar();
 	create_healthbars();
+
+	auto view = ecs.view<CharacterComponent, PlayerMovementComponent>();
+	for (auto [entity, character, movement] : view.each()) {
+		movement.direction = CharacterDirection::DOWN;
+	}
+	input_mode_stack.push(InputMode::COMBAT);
 }
 
 constexpr double CARD_HOVER_WIDTH = 145.f;
@@ -437,6 +444,7 @@ void ui_update_combat() {
 void ui_end_combat() {
 	destroy_gamebar();
 	destroy_healthbars();
+	input_mode_stack.pop();
 }
 
 void play_queued_draw_animations() {

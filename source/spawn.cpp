@@ -6,7 +6,6 @@
 #include "combat.h"
 #include "character_animation.h"
 #include "card_data.h"
-#include "kerry_anim_controller.h"
 
 entt::entity spawn_player() {
 	const entt::entity entity = ecs.create();

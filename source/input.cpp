@@ -5,6 +5,7 @@
 
 static Input inputs[NUMBER_OF_INPUT_TYPES] {};
 static std::queue<InputEvent> input_events {};
+
 float mouse_x {0.0f};
 float mouse_y {0.0f};
 std::stack<InputMode> input_mode_stack {{InputMode::EXPLORE}};

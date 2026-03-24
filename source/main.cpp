@@ -1,7 +1,6 @@
 #include "collider_data.h"
 #include "image_data.h"
 #include "audio.h"
-#include "kerry_anim_controller.h"
 #include "render.h"
 #include <SDL3/SDL.h>
 #include <iostream>
