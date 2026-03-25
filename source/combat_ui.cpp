@@ -9,8 +9,6 @@
 #include "image_utils.h"
 #include "movement_controller.h"
 
-#include <iostream>
-
 static std::vector<entt::entity> gamebars{};
 static std::vector<entt::entity> hand_buttons{};
 static std::vector<entt::entity> hand_sprites{};
@@ -238,7 +236,6 @@ float card_x_offset(u8 hand_size, u8 index) {
 void on_card_hover(entt::entity hovered_entity) {
 	auto& hovered_card = ecs.get<HandCardComponent>(hovered_entity);
 	u8 index = hovered_card.index;
-	std::cout << "Card is hovered: " << hovered_card.get_card()->name.get() << "\n";
 
 	ecs.get<AnchoredTransformComponent>(hovered_entity).height = CARD_HOVER_EXPANDED_HEIGHT;
 

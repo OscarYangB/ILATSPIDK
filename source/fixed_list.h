@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cassert>
 
 template<typename T, size_t max_size>
 struct FixedList {
@@ -14,13 +15,10 @@ struct FixedList {
 	}
 
 	void push_back(T value) {
+		assert(current_size < max_size);
+
 		array[current_size] = value;
 		current_size++;
-#ifndef NDEBUG
-		if (current_size > max_size) {
-			throw::std::out_of_range("Out of max size!");
-		}
-#endif
 	}
 
 	T pop_back() {
@@ -34,11 +32,7 @@ struct FixedList {
 	}
 
 	T& at(size_t index) {
-#ifndef NDEBUG
-		if (index >= current_size) {
-			throw std::out_of_range("Out of the defined range!");
-		}
-#endif
+		assert(index < current_size);
 		return array[index];
 	}
 

@@ -41,9 +41,7 @@ bool animation_playing(u64 id) {
 }
 
 u32 start_animation_group() {
-	if (pause_id_increment) {
-		throw std::runtime_error("Animation group has already been started!");
-	}
+	assert(!pause_id_increment);
 
 	id_counter++;
 	pause_id_increment = true;

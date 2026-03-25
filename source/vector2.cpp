@@ -1,6 +1,6 @@
 #include "vector2.h"
 #include <cmath>
-#include <stdexcept>
+#include <cassert>
 
 bool Vector2::operator==(const Vector2& other) const {
 	return x == other.x && y == other.y;
@@ -51,10 +51,7 @@ Vector2& Vector2::operator/=(const float other) {
 }
 
 Vector2 Vector2::normalized() {
-	if (x == 0.f && y == 0.f) {
-		throw std::runtime_error("Cannot normalize the zero vector!");
-	}
-
+	assert(!(x == 0.f && y == 0.f));
 	float mag = magnitude();
 	return Vector2{x / mag, y / mag};
 }

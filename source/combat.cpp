@@ -2,7 +2,6 @@
 #include <algorithm>
 #include "game.h"
 #include "combat_ui.h"
-#include <iostream>
 #include <random>
 #include "card_data.h"
 
@@ -43,7 +42,6 @@ void CharacterComponent::draw() {
 	deck.pop_back();
 	hand.push_back(card);
 	play_draw_animation(hand.size() - 1);
-	std::cout << "drew: " << card->name.get() << " \n";
 }
 
 void CharacterComponent::play_card(u8 hand_index, const Characters& targets) {
@@ -97,15 +95,11 @@ void start_combat() {
 
 	combat.value().get_active_character()->on_turn_start();
 	ui_on_turn_start();
-
-	std::cout << "combat started" << "\n";
 }
 
 void end_combat() {
 	ecs.clear<CharacterComponent>();
 	combat.reset();
-
-	std::cout << "combat ended" << "\n";
 }
 
 void Combat::update() {
@@ -122,7 +116,6 @@ void Combat::update() {
 
 			if (turn_index >= characters.size()) { // Cycle ends
 				turn_index = 0;
-				std::cout << "cycle has ended" << "\n";
 			}
 
 			get_active_character()->on_turn_start();
