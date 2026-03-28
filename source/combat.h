@@ -69,6 +69,7 @@ struct CharacterDataComponent {
 };
 
 struct CharacterComponent {
+	entt::entity entity{};
 	const CharacterDataComponent* data{};
 	float health{};
 	float max_health{};
@@ -104,6 +105,7 @@ struct Combat {
 	void update();
 	float get_bar_progress();
 	CharacterComponent* get_active_character();
+	entt::entity get_active_character_entity();
 	float get_discrete_bar_progress();
 };
 

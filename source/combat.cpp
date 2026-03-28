@@ -41,7 +41,8 @@ void CharacterComponent::draw() {
 	Card card = deck.back();
 	deck.pop_back();
 	hand.push_back(card);
-	play_draw_animation(hand.size() - 1);
+
+	ui_add_hand_visual(*this, hand.size() - 1);
 }
 
 void CharacterComponent::play_card(u8 hand_index, const Characters& targets) {
@@ -53,6 +54,8 @@ void CharacterComponent::play_card(u8 hand_index, const Characters& targets) {
 	played_card.value().bars_until_activate = card->cost;
 	played_card.value().targets = targets;
 	card->play(*this, targets);
+
+	ui_destroy_hand_visual(*this, hand_index);
 }
 
 void CharacterComponent::on_bar_end() {
@@ -85,13 +88,17 @@ void start_combat() {
 	auto view = ecs.view<CharacterDataComponent>();
 	for (auto [entity, data] : view.each()) { // Currently based on order in which characters were added to ecs
 		auto& new_character = ecs.emplace<CharacterComponent>(entity);
+		new_character.entity = entity;
 		new_character.init_from_data(data);
-		for (int i = 0; i < 5; i++) new_character.draw();
 		characters.push_back(entity);
 	}
 
 	combat = {characters, 0};
 	ui_start_combat();
+
+	for (auto [entity, character] : ecs.view<CharacterComponent>().each()) {
+		for (int i = 0; i < 5; i++) character.draw();
+	}
 
 	combat.value().get_active_character()->on_turn_start();
 	ui_on_turn_start();
@@ -129,7 +136,11 @@ void Combat::update() {
 }
 
 CharacterComponent* Combat::get_active_character() {
-	return &ecs.get<CharacterComponent>(characters.at(turn_index));
+	return &ecs.get<CharacterComponent>(get_active_character_entity());
+}
+
+entt::entity Combat::get_active_character_entity() {
+	return characters.at(turn_index);
 }
 
 float Combat::get_bar_progress() {

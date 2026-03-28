@@ -25,10 +25,6 @@ u32 register_animation(Animation animation) {
 	return id_counter;
 }
 
-u32 play_animation(double duration, double delay, entt::poly<Updater> updater) {
-	return register_animation(Animation{duration, delay, updater});
-}
-
 void stop_animation(u64 id) {
 	std::erase_if(animations, [id](const Animation& animation){ return animation.id == id; });
 }

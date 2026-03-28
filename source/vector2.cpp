@@ -18,14 +18,6 @@ float Vector2::operator*(const Vector2& other) const {
 	return x * other.x + y * other.y;
 }
 
-Vector2 Vector2::operator*(const float other) const {
-	return Vector2{x * other, y * other};
-}
-
-Vector2 Vector2::operator/(const float other) const {
-	return Vector2{x / other, y / other};
-}
-
 Vector2& Vector2::operator+=(const Vector2& other) {
 	this->x += other.x;
 	this->y += other.y;
@@ -35,18 +27,6 @@ Vector2& Vector2::operator+=(const Vector2& other) {
 Vector2& Vector2::operator-=(const Vector2& other) {
 	this->x -= other.x;
 	this->y -= other.y;
-	return *this;
-}
-
-Vector2& Vector2::operator*=(const float other) {
-	this->x *= other;
-	this->y *= other;
-	return *this;
-}
-
-Vector2& Vector2::operator/=(const float other) {
-	this->x /= other;
-	this->y /= other;
 	return *this;
 }
 

@@ -34,8 +34,6 @@
 * Workflow
 - [ ] Tab to indent according to mode when line is empty and no selection
 - [ ] C-backspace stops on capital letter and line start
-- [ ] Auto indent after paste
-- [ ] Keep selection after copy paste and tab
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Combat UI

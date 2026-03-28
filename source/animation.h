@@ -58,23 +58,9 @@ struct ComponentAnimation {
 	}
 };
 
-template <typename T>
-struct PointerAnimation {
-	/* When using this, make sure this pointer remains valid throughout the animation
-	   (ie. it's a global variable or the owner stops the animation when it dies) */
-	T* to_animate{};
-	Curve<T> curve{};
-	T starting_value;
-
-	void update(Animation& animation) {
-		*to_animate = curve(animation, starting_value);
-	}
-};
-
 extern std::vector<Animation> animations;
 u32 register_animation(Animation animation);
 
-u32 play_animation(double duration, double delay, entt::poly<Updater> updater);
 void update_generic_animation();
 void stop_animation(u64 id);
 bool animation_playing(u64 id);
@@ -86,12 +72,6 @@ u64 play_animation(double duration, double delay, MemberType ComponentType::* me
 	MemberType starting_value = ecs.get<ComponentType>(entity).*member;
 	return register_animation(Animation{duration, delay, ComponentAnimation<MemberType, ComponentType>{entity, curve, member, starting_value}});
 }
-
-template <typename T, typename CurveType>
-u64 play_animation(double duration, double delay, T* to_animate, CurveType curve) {
-	return register_animation(Animation{duration, delay, PointerAnimation<T>{to_animate, curve, *to_animate}});
-}
-
 
 template <typename T>
 T linear_curve(T target_value, Animation& animation, T starting_value) {
