@@ -4,7 +4,7 @@
 #include "render.h"
 
 void update_movement() {
-	auto view = ecs.view<TransformComponent, PlayerMovementComponent>();
+	auto view = ecs.view<TransformComp, PlayerMovementComp>();
 
 	for (auto [entity, transform, movement] : view.each()) {
 		Vector2 movement_direction = Vector2::zero();

@@ -5,7 +5,7 @@
 #include <random>
 #include "card_data.h"
 
-void CharacterComponent::init_from_data(const CharacterDataComponent& new_data) {
+void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 	data = &new_data;
 	health = data->starting_health;
 	max_health = data->starting_health;
@@ -17,13 +17,13 @@ void CharacterComponent::init_from_data(const CharacterDataComponent& new_data) 
 	played_card = std::nullopt;
 }
 
-void CharacterComponent::heal(float amount) {
+void CharacterComp::heal(float amount) {
 	health += amount;
 	health = std::clamp(health, 0.f, max_health);
 	refresh_health_bar(*this, true);
 }
 
-void CharacterComponent::damage(float amount) {
+void CharacterComp::damage(float amount) {
 	float damage_to_shield = std::min(shield, amount);
 	shield -= damage_to_shield;
 	health -= amount - damage_to_shield;
@@ -31,7 +31,7 @@ void CharacterComponent::damage(float amount) {
 	refresh_health_bar(*this, false);
 }
 
-void CharacterComponent::draw(u8 amount) {
+void CharacterComp::draw(u8 amount) {
 	for (int i = 0; i < amount; i++) {
 		if (deck.empty()) {
 			break;
@@ -46,7 +46,7 @@ void CharacterComponent::draw(u8 amount) {
 	ui_play_queued_draw_animations();
 }
 
-void CharacterComponent::play_card(u8 hand_index, const Characters& targets) {
+void CharacterComp::play_card(u8 hand_index, const Characters& targets) {
 	Card card = hand.at(hand_index);
 	hand.erase(hand.begin() + hand_index);
 
@@ -59,7 +59,7 @@ void CharacterComponent::play_card(u8 hand_index, const Characters& targets) {
 	ui_destroy_hand_visual(*this, hand_index);
 }
 
-void CharacterComponent::on_bar_end() {
+void CharacterComp::on_bar_end() {
 	if (!played_card.has_value()) {
 		return;
 	}
@@ -72,7 +72,7 @@ void CharacterComponent::on_bar_end() {
 	}
 }
 
-void CharacterComponent::on_turn_start() {
+void CharacterComp::on_turn_start() {
 	draw();
 }
 
@@ -90,9 +90,9 @@ void update_combat() {
 
 void start_combat() {
 	Characters characters{};
-	auto view = ecs.view<CharacterDataComponent>();
+	auto view = ecs.view<CharacterDataComp>();
 	for (auto [entity, data] : view.each()) { // Currently based on order in which characters were added to ecs
-		auto& new_character = ecs.emplace<CharacterComponent>(entity);
+		auto& new_character = ecs.emplace<CharacterComp>(entity);
 		new_character.entity = entity;
 		new_character.init_from_data(data);
 		characters.push_back(entity);
@@ -101,7 +101,7 @@ void start_combat() {
 	auto& combat = ecs.ctx().emplace<CombatSingleton>(characters);
 	ui_start_combat();
 
-	for (auto [entity, character] : ecs.view<CharacterComponent>().each()) {
+	for (auto [entity, character] : ecs.view<CharacterComp>().each()) {
 		character.draw(5);
 	}
 
@@ -110,7 +110,7 @@ void start_combat() {
 }
 
 void end_combat() {
-	ecs.clear<CharacterComponent>();
+	ecs.clear<CharacterComp>();
 	ecs.ctx().erase<CombatSingleton>();
 }
 
@@ -144,8 +144,8 @@ void CombatSingleton::update() {
 	ui_update_combat();
 }
 
-CharacterComponent* CombatSingleton::get_active_character() {
-	return &ecs.get<CharacterComponent>(get_active_character_entity());
+CharacterComp* CombatSingleton::get_active_character() {
+	return &ecs.get<CharacterComp>(get_active_character_entity());
 }
 
 entt::entity CombatSingleton::get_active_character_entity() {

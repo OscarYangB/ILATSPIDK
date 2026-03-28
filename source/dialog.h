@@ -21,7 +21,7 @@ struct DialogVisitor {
 	void operator()(const DialogJump&);
 };
 
-struct DialogChoiceComponent {
+struct DialogChoiceComp {
 	u16 jump_index = 0;
 };
 

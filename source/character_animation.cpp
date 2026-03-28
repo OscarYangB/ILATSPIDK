@@ -5,7 +5,7 @@
 #include "input.h"
 
 void update_cycle_animations() {
-	auto view = ecs.view<CycleAnimationComponent, SpriteComponent>();
+	auto view = ecs.view<CycleAnimationComp, SpriteComp>();
 
 	for (auto [entity, animation, sprite] : view.each()) {
 		float delta = delta_time;
@@ -27,7 +27,7 @@ void update_cycle_animations() {
 			if (animation.index >= animation.sprites.size()) {
 				switch (animation.finish_behaviour) {
 					case FinishBehaviour::LOOP: animation.index %= animation.sprites.size(); break;
-					case FinishBehaviour::DESTROY_COMPONENT: ecs.remove<CycleAnimationComponent>(entity); break;
+					case FinishBehaviour::DESTROY_COMPONENT: ecs.remove<CycleAnimationComp>(entity); break;
 					case FinishBehaviour::DESTROY_ENTITY: ecs.destroy(entity); break;
 				}
 				continue;
@@ -39,7 +39,7 @@ void update_cycle_animations() {
 }
 
 
-u8 CharacterAnimationComponent::get_moving_left_leg_sprite() {
+u8 CharacterAnimationComp::get_moving_left_leg_sprite() {
 	if (leg_moving_index < 3) {
 		return 0;
 	} else {
@@ -47,7 +47,7 @@ u8 CharacterAnimationComponent::get_moving_left_leg_sprite() {
 	}
 }
 
-u8 CharacterAnimationComponent::get_moving_right_leg_sprite() {
+u8 CharacterAnimationComp::get_moving_right_leg_sprite() {
 	if (leg_moving_index < 3) {
 		return leg_moving_index == 2 ? 2 : leg_moving_index + 2;
 	} else {
@@ -56,7 +56,7 @@ u8 CharacterAnimationComponent::get_moving_right_leg_sprite() {
 }
 
 void update_character_animation() {
-	auto view = ecs.view<SpriteComponent, const PlayerMovementComponent, const TransformComponent, CharacterAnimationComponent>();
+	auto view = ecs.view<SpriteComp, const PlayerMovementComp, const TransformComp, CharacterAnimationComp>();
 
 	for (auto [entity, sprite, movement, transform, animation] : view.each()) {
 		animation.timer += delta_time;

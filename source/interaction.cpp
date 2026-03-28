@@ -14,7 +14,7 @@ void update_interact() {
 
 	constexpr float INTERACTION_RANGE = 100.f;
 
-	auto [entity, movement, transform, sprite] = *ecs.view<PlayerMovementComponent, TransformComponent, SpriteComponent, PlayerCharacterComponent>().each().begin();
+	auto [entity, movement, transform, sprite] = *ecs.view<PlayerMovementComp, TransformComp, SpriteComp, PlayerCharacterComp>().each().begin();
 
 	Vector2 direction = Vector2::down();
 	switch (movement.direction) {
@@ -32,9 +32,9 @@ void update_interact() {
 		break;
 	}
 
-	std::vector<InteractionComponent*> results {};
-	raytest<InteractionComponent>(results, transform.position + sprite.bounding_box().center(), direction, INTERACTION_RANGE);
-	for (InteractionComponent* component : results) {
+	std::vector<InteractionComp*> results {};
+	raytest<InteractionComp>(results, transform.position + sprite.bounding_box().center(), direction, INTERACTION_RANGE);
+	for (InteractionComp* component : results) {
 		if (component && component->on_interact) component->on_interact();
 	}
 }

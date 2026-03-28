@@ -11,7 +11,7 @@
 enum class ImageAsset;
 
 template<typename T>
-struct HierarchyComponent {
+struct HierarchyComp {
 	std::vector<entt::entity> children{};
 	entt::entity parent = entt::null;
 
@@ -44,7 +44,7 @@ struct HierarchyComponent {
 	}
 };
 
-struct TransformComponent : HierarchyComponent<TransformComponent> {
+struct TransformComp : HierarchyComp<TransformComp> {
 	Vector2 position{};
 
 	bool move(entt::entity entity_to_move, const Vector2& new_position);
@@ -61,7 +61,7 @@ struct Colour {
 constexpr Colour BLACK = {0, 0, 0, 255};
 constexpr Colour WHITE = {255, 255, 255, 255};
 
-struct SpriteComponent {
+struct SpriteComp {
 	static constexpr u8 MAX_SPRITES = 10;
 	FixedList<Sprite, MAX_SPRITES> sprites{};
 	std::array<std::optional<Colour>, MAX_SPRITES> tints{};
@@ -84,7 +84,7 @@ enum class XAnchor {
 	CENTER,
 };
 
-struct UITransformComponent : HierarchyComponent<UITransformComponent> {
+struct UITransformComp : HierarchyComp<UITransformComp> {
 	XAnchor x_anchor{};
 	YAnchor y_anchor{};
 	Vector2 relative_position{};
@@ -100,14 +100,14 @@ struct UITransformComponent : HierarchyComponent<UITransformComponent> {
 	float render_height() const;
 };
 
-struct NineSliceComponent {
+struct NineSliceComp {
 	u16 x{};
 	u16 y{};
 	u16 w{};
 	u16 h{};
 };
 
-struct TextComponent {
+struct TextComp {
 	Text text{};
 	Colour colour = BLACK;
 	u8 size = 50;

@@ -20,19 +20,19 @@ void start_dialog(const Dialog& new_dialog) {
 	dialog.dialog = &new_dialog;
 
 	dialog.background = ecs.create();
-	auto& background_transform = ecs.emplace<UITransformComponent>(dialog.background);
+	auto& background_transform = ecs.emplace<UITransformComp>(dialog.background);
 	background_transform.x_anchor = XAnchor::CENTER; background_transform.y_anchor = YAnchor::BOTTOM;
 	background_transform.width = WIDTH; background_transform.height = HEIGHT;
-	auto& nine = ecs.emplace<NineSliceComponent>(dialog.background);
+	auto& nine = ecs.emplace<NineSliceComp>(dialog.background);
 	nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
-	auto& sprite = ecs.emplace<SpriteComponent>(dialog.background);
+	auto& sprite = ecs.emplace<SpriteComp>(dialog.background);
 	sprite.sprites = {Sprite::TEST_BUTTON};
 
 	dialog.dialog_text = ecs.create();
-	auto& dialog_transform = ecs.emplace<UITransformComponent>(dialog.dialog_text);
+	auto& dialog_transform = ecs.emplace<UITransformComp>(dialog.dialog_text);
 	dialog_transform.x_anchor = XAnchor::CENTER; dialog_transform.y_anchor = YAnchor::BOTTOM;
 	dialog_transform.width = WIDTH - X_MARGIN; dialog_transform.height = HEIGHT - Y_MARGIN;
-	auto& text_component = ecs.emplace<TextComponent>(dialog.dialog_text);
+	auto& text_component = ecs.emplace<TextComp>(dialog.dialog_text);
 	dialog_transform.sort_order = 1;
 	background_transform.add_child(dialog.background, dialog.dialog_text);
 
@@ -72,7 +72,7 @@ static void update_dialog_input() {
 		return;
 	}
 
-	if (!ecs.view<DialogChoiceComponent>().empty()) {
+	if (!ecs.view<DialogChoiceComp>().empty()) {
 		return;
 	}
 
@@ -93,7 +93,7 @@ static void update_dialog_animation() {
 		return;
 	}
 
-	auto& text_component = ecs.get<TextComponent>(dialog.dialog_text);
+	auto& text_component = ecs.get<TextComp>(dialog.dialog_text);
 
 	if (text_component.mask == 0) {
 		return;
@@ -124,12 +124,12 @@ void update_dialog() {
 }
 
 void delete_choice_buttons() {
-	auto view = ecs.view<DialogChoiceComponent>();
+	auto view = ecs.view<DialogChoiceComp>();
 	ecs.destroy(view.begin(), view.end());
 }
 
 void choice_made(entt::entity entity) {
-	auto& choice = ecs.get<DialogChoiceComponent>(entity);
+	auto& choice = ecs.get<DialogChoiceComp>(entity);
 	get_dialog().visitor.index = choice.jump_index;
 	delete_choice_buttons();
 	progress_dialog();
@@ -139,22 +139,22 @@ void make_choice_button(const Text& choice_text, u16 jump_index, u8 choice_index
 	DialogSingleton& dialog = get_dialog();
 
 	auto entity = ecs.create();
-	auto& transform = ecs.emplace<UITransformComponent>(entity);
+	auto& transform = ecs.emplace<UITransformComp>(entity);
 	transform.x_anchor = XAnchor::CENTER; transform.y_anchor = YAnchor::BOTTOM; transform.width = WIDTH; transform.height = CHOICE_BUTTON_HEIGHT;
 	transform.relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_index};
-	auto& background_transform = ecs.get<UITransformComponent>(dialog.background); background_transform.add_child(dialog.background, entity);
-	auto& text_component = ecs.emplace<TextComponent>(entity);
+	auto& background_transform = ecs.get<UITransformComp>(dialog.background); background_transform.add_child(dialog.background, entity);
+	auto& text_component = ecs.emplace<TextComp>(entity);
 	text_component.text = choice_text;
-	auto& button_component = ecs.emplace<ButtonComponent>(entity);
+	auto& button_component = ecs.emplace<ButtonComp>(entity);
 	button_component.on_click = choice_made;
-	auto& choice_component = ecs.emplace<DialogChoiceComponent>(entity);
+	auto& choice_component = ecs.emplace<DialogChoiceComp>(entity);
 	choice_component.jump_index = jump_index;
 }
 
 void DialogVisitor::operator()(const DialogLine& line) {
 	DialogSingleton& dialog = get_dialog();
 
-	TextComponent& text = ecs.get<TextComponent>(dialog.dialog_text);
+	TextComp& text = ecs.get<TextComp>(dialog.dialog_text);
 	text.text = line.line;
 	index++;
 
@@ -166,7 +166,7 @@ void DialogVisitor::operator()(const DialogLine& line) {
 void DialogVisitor::operator()(const DialogChoice& choice) {
 	DialogSingleton& dialog = get_dialog();
 
-	ecs.get<TextComponent>(dialog.dialog_text).text = Text{};
+	ecs.get<TextComp>(dialog.dialog_text).text = Text{};
 
 	const DialogChoice* current_choice = &choice;
 	u16 current_index = index + 1;

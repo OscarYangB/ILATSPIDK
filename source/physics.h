@@ -4,18 +4,18 @@
 #include "game.h"
 #include "render.h"
 
-struct BoxColliderComponent {
+struct BoxColliderComp {
 	Box box{};
 };
 
-bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComponent& first_collider, const BoxColliderComponent& second_collider);
+bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComp& first_collider, const BoxColliderComp& second_collider);
 bool line_segments_intersect(const Vector2& start_1, const Vector2& end_1, const Vector2& start_2, const Vector2& end_2);
 bool point_in_box(const Box& box, const Vector2& vector);
 
-template<typename BoxComponent>
-void raytest(std::vector<BoxComponent*>& out, const Vector2& position, const Vector2& direction, float length) {
+template<typename BoxComp>
+void raytest(std::vector<BoxComp*>& out, const Vector2& position, const Vector2& direction, float length) {
 	Vector2 line_end = position + direction * length;
-	auto view = ecs.view<BoxComponent, TransformComponent>();
+	auto view = ecs.view<BoxComp, TransformComp>();
 
 	//debug_draw(position, line_end);
 

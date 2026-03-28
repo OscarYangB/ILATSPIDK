@@ -8,7 +8,7 @@
 #include <entt/entt.hpp>
 #include "fixed_list.h"
 
-struct CharacterComponent;
+struct CharacterComp;
 using Characters = FixedList<entt::entity, 20>;
 
 enum class CardType {
@@ -27,8 +27,8 @@ struct CardData {
 	u8 number_of_targets{};
 	CardType card_type;
 
-	void (*play)(CharacterComponent& character, const Characters& targets);
-	void (*activate)(CharacterComponent& character, const Characters& targets);
+	void (*play)(CharacterComp& character, const Characters& targets);
+	void (*activate)(CharacterComp& character, const Characters& targets);
 };
 
 using Card = const CardData*;
@@ -58,7 +58,7 @@ struct StatusEffect {
 	void (*on_remove)();
 };
 
-struct CharacterDataComponent {
+struct CharacterDataComp {
 	float starting_health{};
 	float starting_shield = 0.f;
 	CharacterType type{};
@@ -68,9 +68,9 @@ struct CharacterDataComponent {
 	static constexpr auto in_place_delete = true;
 };
 
-struct CharacterComponent {
+struct CharacterComp {
 	entt::entity entity{};
-	const CharacterDataComponent* data{};
+	const CharacterDataComp* data{};
 	float health{};
 	float max_health{};
 	float shield{};
@@ -79,7 +79,7 @@ struct CharacterComponent {
 	std::vector<StatusEffect> status_effects{};
 	std::optional<PlayedCard> played_card{};
 
-	void init_from_data(const CharacterDataComponent& new_data);
+	void init_from_data(const CharacterDataComp& new_data);
 	inline bool is_alive() { return health > 0.f; }
 	void heal(float amount);
 	void damage(float amount);
@@ -104,7 +104,7 @@ struct CombatSingleton {
 
 	void update();
 	float get_bar_progress();
-	CharacterComponent* get_active_character();
+	CharacterComp* get_active_character();
 	entt::entity get_active_character_entity();
 	float get_discrete_bar_progress();
 };

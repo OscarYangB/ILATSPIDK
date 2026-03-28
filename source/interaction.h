@@ -2,7 +2,7 @@
 
 #include "vector2.h"
 
-struct InteractionComponent {
+struct InteractionComp {
 	void (*on_interact)() = nullptr;
 	Box box{};
 };

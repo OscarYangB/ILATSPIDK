@@ -53,17 +53,17 @@ void sort_sprites() {
 	// true -> second is above
 	// false -> first is above
 
-	ecs.sort<UITransformComponent>([](entt::entity first, entt::entity second) {
-		UITransformComponent& first_transform = ecs.get<UITransformComponent>(first);
-		UITransformComponent& second_transform = ecs.get<UITransformComponent>(second);
+	ecs.sort<UITransformComp>([](entt::entity first, entt::entity second) {
+		UITransformComp& first_transform = ecs.get<UITransformComp>(first);
+		UITransformComp& second_transform = ecs.get<UITransformComp>(second);
 		return first_transform.sort_order < second_transform.sort_order;
 	});
 
-	ecs.sort<TransformComponent>([](entt::entity first, entt::entity second) {
-		BoxColliderComponent* first_collider = ecs.try_get<BoxColliderComponent>(first);
-		BoxColliderComponent* second_collider = ecs.try_get<BoxColliderComponent>(second);
-		TransformComponent& first_transform = ecs.get<TransformComponent>(first);
-		TransformComponent& second_transform = ecs.get<TransformComponent>(second);
+	ecs.sort<TransformComp>([](entt::entity first, entt::entity second) {
+		BoxColliderComp* first_collider = ecs.try_get<BoxColliderComp>(first);
+		BoxColliderComp* second_collider = ecs.try_get<BoxColliderComp>(second);
+		TransformComp& first_transform = ecs.get<TransformComp>(first);
+		TransformComp& second_transform = ecs.get<TransformComp>(second);
 
 		// Background
 		if (!first_collider) return true;
@@ -75,13 +75,13 @@ void sort_sprites() {
 }
 
 void render_transform(entt::entity entity) {
-	TransformComponent& transform = ecs.get<TransformComponent>(entity);
-	SpriteComponent& sprite_component = ecs.get<SpriteComponent>(entity);
+	TransformComp& transform = ecs.get<TransformComp>(entity);
+	SpriteComp& sprite_component = ecs.get<SpriteComp>(entity);
 	Vector2 world_position = transform.position;
 
-	TransformComponent* parent_transform = &transform;
+	TransformComp* parent_transform = &transform;
 	while (parent_transform->parent != entt::null) {
-		parent_transform = ecs.try_get<TransformComponent>(parent_transform->parent);
+		parent_transform = ecs.try_get<TransformComp>(parent_transform->parent);
 		if (parent_transform == nullptr) break;
 		world_position += parent_transform->position;
 	}
@@ -130,17 +130,17 @@ void render_transform(entt::entity entity) {
 }
 
 void render_anchored_transform(entt::entity entity) {
-	UITransformComponent& transform = ecs.get<UITransformComponent>(entity);
+	UITransformComp& transform = ecs.get<UITransformComp>(entity);
 	Vector2 position = transform.render_position();
 	float render_w = transform.render_width();
 	float render_h = transform.render_height();
 
-	if (TextComponent* text = ecs.try_get<TextComponent>(entity); text) {
+	if (TextComp* text = ecs.try_get<TextComp>(entity); text) {
 		render_text(text->text.get(), position.x, position.y, render_w, render_h, text->size * window_scale() * transform.get_recursive_scale(), text->mask,
-				   text->colour.r, text->colour.g, text->colour.b, text->x_align, text->y_align);
-	} else if (SpriteComponent* sprite_component = ecs.try_get<SpriteComponent>(entity); sprite_component) {
+					text->colour.r, text->colour.g, text->colour.b, text->x_align, text->y_align);
+	} else if (SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity); sprite_component) {
 		if (!sprite_component->visible) return;
-		NineSliceComponent* nine_slice = ecs.try_get<NineSliceComponent>(entity);
+		NineSliceComp* nine_slice = ecs.try_get<NineSliceComp>(entity);
 
 		for (int i = 0; i < sprite_component->sprites.size(); i++) {
 			if (sprite_component->sprites.at(i) == Sprite::NONE) {
@@ -187,13 +187,13 @@ void render_anchored_transform(entt::entity entity) {
 }
 
 void render_sprites() {
-	auto transforms = ecs.view<TransformComponent, SpriteComponent>();
+	auto transforms = ecs.view<TransformComp, SpriteComp>();
 	for (auto [entity, transform, sprite] : transforms.each()) {
 		if (transform.parent != entt::null) continue;
 		render_transform(entity);
 	}
 
-	auto anchored_transforms = ecs.view<UITransformComponent>();
+	auto anchored_transforms = ecs.view<UITransformComp>();
 	for (auto [entity, transform] : anchored_transforms.each()) {
 		if (transform.parent != entt::null) continue;
 		render_anchored_transform(entity);
@@ -213,7 +213,7 @@ void update_render() {
 
 void update_sprite_resources() { // Going to load/unload the textures based on what existing entities need. Watch out--could become a performance concern
 	bool is_loaded[NUMBER_OF_IMAGES];
-	auto view = ecs.view<SpriteComponent>();
+	auto view = ecs.view<SpriteComp>();
 
 	for (auto [entity, sprite] : view.each()) {
 		for (Sprite sprite : sprite.sprites) {
@@ -236,7 +236,7 @@ Vector2 world_to_pixel(const Vector2& in) {
 				   (-in.y + camera_position.y) * render_scale() + window_height() / 2.0f};
 }
 
-Vector2 UITransformComponent::render_position() const {
+Vector2 UITransformComp::render_position() const {
 	Vector2 parent_position;
 	float canvas_width;
 	float canvas_height;
@@ -245,7 +245,7 @@ Vector2 UITransformComponent::render_position() const {
 		canvas_width = window_width();
 		canvas_height = window_height();
 	} else {
-		auto& parent_transform = ecs.get<UITransformComponent>(parent);
+		auto& parent_transform = ecs.get<UITransformComp>(parent);
 		parent_position = parent_transform.render_position();
 		canvas_width = parent_transform.render_width();
 		canvas_height = parent_transform.render_height();
@@ -272,15 +272,15 @@ Vector2 UITransformComponent::render_position() const {
 	return position_offset + anchor_offset;
 }
 
-float UITransformComponent::render_width() const {
+float UITransformComp::render_width() const {
 	return width * window_scale() * get_recursive_scale();
 }
 
-float UITransformComponent::render_height() const {
+float UITransformComp::render_height() const {
 	return height * window_scale() * get_recursive_scale();
 }
 
-bool TransformComponent::move(entt::entity entity_to_move, const Vector2& new_position) {
+bool TransformComp::move(entt::entity entity_to_move, const Vector2& new_position) {
 	if (can_move(entity_to_move, new_position)) {
 		position = new_position;
 		return true;
@@ -289,9 +289,9 @@ bool TransformComponent::move(entt::entity entity_to_move, const Vector2& new_po
 	return false;
 }
 
-bool TransformComponent::can_move(entt::entity entity_to_move, const Vector2& new_position) {
-	if (BoxColliderComponent* collider_to_move = ecs.try_get<BoxColliderComponent>(entity_to_move); collider_to_move != nullptr) {
-		auto view = ecs.view<BoxColliderComponent, TransformComponent>();
+bool TransformComp::can_move(entt::entity entity_to_move, const Vector2& new_position) {
+	if (BoxColliderComp* collider_to_move = ecs.try_get<BoxColliderComp>(entity_to_move); collider_to_move != nullptr) {
+		auto view = ecs.view<BoxColliderComp, TransformComp>();
 
 		for (auto [entity, collider, transform] : view.each()) {
 			if (entity == entity_to_move) continue;
@@ -307,7 +307,7 @@ bool TransformComponent::can_move(entt::entity entity_to_move, const Vector2& ne
 	return true; // No collider on entity_to_move
 }
 
-Box SpriteComponent::bounding_box() {
+Box SpriteComp::bounding_box() {
 	if (sprites.empty()) {
 		return {};
 	}
@@ -325,7 +325,7 @@ Box SpriteComponent::bounding_box() {
 	return {{0.f, 0.f}, {(float)w, -((float)h)}};
 }
 
-Box SpriteComponent::visible_bounding_box() {
+Box SpriteComp::visible_bounding_box() {
 	int index = static_cast<int>(sprites.at(0));
 	u16 left = sprite_atlas_transform[index].visible_left; // These use downward-positive y-coordinates
 	u16 right = sprite_atlas_transform[index].visible_right;
@@ -343,16 +343,16 @@ Box SpriteComponent::visible_bounding_box() {
 	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
 }
 
-float UITransformComponent::get_recursive_scale() const {
+float UITransformComp::get_recursive_scale() const {
 	return get_parent_scale() * scale;
 }
 
-float UITransformComponent::get_parent_scale() const {
+float UITransformComp::get_parent_scale() const {
 	float result = 1.f;
-	const UITransformComponent* transform = this;
+	const UITransformComp* transform = this;
 	while (true) {
 		if (transform->parent == entt::null) break;
-		transform = &ecs.get<UITransformComponent>(transform->parent);
+		transform = &ecs.get<UITransformComp>(transform->parent);
 		result *= transform->scale;
 	}
 	return result;

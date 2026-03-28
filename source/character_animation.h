@@ -10,7 +10,7 @@ enum class FinishBehaviour {
 	DESTROY_COMPONENT,
 };
 
-struct CycleAnimationComponent {
+struct CycleAnimationComp {
 	FixedList<Sprite, 10> sprites{};
 	double frequency{};
 	FinishBehaviour finish_behaviour = FinishBehaviour::LOOP;
@@ -20,7 +20,7 @@ struct CycleAnimationComponent {
 	double delay = 0.0;
 };
 
-struct CharacterAnimationComponent {
+struct CharacterAnimationComp {
 	u8 body_index{};
 	u8 leg_idle_index{};
 	u8 leg_moving_index{};

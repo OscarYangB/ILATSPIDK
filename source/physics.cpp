@@ -1,6 +1,6 @@
 #include "physics.h"
 
-bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComponent& first_collider, const BoxColliderComponent& second_collider) {
+bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComp& first_collider, const BoxColliderComp& second_collider) {
 	Vector2 first_left_top = first_position + first_collider.box.left_top;
 	Vector2 first_right_bottom = first_position + first_collider.box.right_bottom;
 	Vector2 second_left_top = second_position + second_collider.box.left_top;

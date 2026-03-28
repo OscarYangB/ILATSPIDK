@@ -10,25 +10,25 @@
 entt::entity spawn_player() {
 	const entt::entity entity = ecs.create();
 
-	auto& sprite = ecs.emplace<SpriteComponent>(entity);
+	auto& sprite = ecs.emplace<SpriteComp>(entity);
 	sprite.sprites = {Sprite::KERRY, Sprite::KERRY, Sprite::KERRY, Sprite::KERRY, Sprite::KERRY};
 
-	ecs.emplace<TransformComponent>(entity);
+	ecs.emplace<TransformComp>(entity);
 
-	auto& movement = ecs.emplace<PlayerMovementComponent>(entity);
+	auto& movement = ecs.emplace<PlayerMovementComp>(entity);
 	movement.speed = 200.f;
 
-	auto& collider = ecs.emplace<BoxColliderComponent>(entity);
+	auto& collider = ecs.emplace<BoxColliderComp>(entity);
 	collider = KERRY_COLLIDER;
 
-	auto& character = ecs.emplace<CharacterDataComponent>(entity);
+	auto& character = ecs.emplace<CharacterDataComp>(entity);
 	character.starting_health = 150.f;
 	character.type = CharacterType::GOOD;
 	character.starting_deck = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE });
 
-	auto& animation = ecs.emplace<CharacterAnimationComponent>(entity);
+	auto& animation = ecs.emplace<CharacterAnimationComp>(entity);
 
-	ecs.emplace<PlayerCharacterComponent>(entity);
+	ecs.emplace<PlayerCharacterComp>(entity);
 
 	return entity;
 }
@@ -36,19 +36,19 @@ entt::entity spawn_player() {
 entt::entity spawn_grakeny() {
 	const entt::entity entity = ecs.create();
 
-	auto& sprite = ecs.emplace<SpriteComponent>(entity);
+	auto& sprite = ecs.emplace<SpriteComp>(entity);
 	sprite.sprites = {Sprite::GRAKENY_1};
 
-	ecs.emplace<TransformComponent>(entity);
+	ecs.emplace<TransformComp>(entity);
 
-	auto& collider = ecs.emplace<BoxColliderComponent>(entity);
+	auto& collider = ecs.emplace<BoxColliderComp>(entity);
 	collider = GRAKENY_COLLIDER;
 
-	auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
+	auto& animation = ecs.emplace<CycleAnimationComp>(entity);
 	animation.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3};
 	animation.frequency = 2.f;
 
-	auto& character = ecs.emplace<CharacterDataComponent>(entity);
+	auto& character = ecs.emplace<CharacterDataComp>(entity);
 	character.starting_health = 800.f;
 	character.type = CharacterType::EVIL;
 	character.starting_deck = make_cards({ });

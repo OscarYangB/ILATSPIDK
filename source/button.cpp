@@ -3,14 +3,14 @@
 #include "game.h"
 #include "input.h"
 
-bool is_button_hovered(const ButtonComponent& button, const UITransformComponent& transform) {
+bool is_button_hovered(const ButtonComp& button, const UITransformComp& transform) {
 	Vector2 position = transform.render_position();
 	return get_mouse_x() > position.x && get_mouse_x() < position.x + transform.render_width() &&
 		   get_mouse_y() > position.y && get_mouse_y() < position.y + transform.render_height();
 }
 
 void update_button() {
-	auto buttons = ecs.view<ButtonComponent, const UITransformComponent>();
+	auto buttons = ecs.view<ButtonComp, const UITransformComp>();
 
 	for (auto [entity, button, transform] : buttons.each()) {
 		if (!is_button_hovered(button, transform) && button.is_hovered) {

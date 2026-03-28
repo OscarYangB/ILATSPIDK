@@ -28,26 +28,26 @@ void button_clicked() {
 
 void start() {
 	entt::entity grakeny = spawn_grakeny();
-	ecs.get<TransformComponent>(grakeny).position = Vector2(300.f, 300.f);
+	ecs.get<TransformComp>(grakeny).position = Vector2(300.f, 300.f);
 	spawn_player();
 
 	{ // TABLE
 		const entt::entity entity = ecs.create();
-		auto& sprite = ecs.emplace<SpriteComponent>(entity);
+		auto& sprite = ecs.emplace<SpriteComp>(entity);
 		sprite.sprites = {Sprite::TABLE};
-		auto& transform = ecs.emplace<TransformComponent>(entity);
+		auto& transform = ecs.emplace<TransformComp>(entity);
 		transform.position = {0.f, 0.f};
-		auto& collider = ecs.emplace<BoxColliderComponent>(entity);
+		auto& collider = ecs.emplace<BoxColliderComp>(entity);
 		collider = TABLE_COLLIDER;
-		auto& interaction = ecs.emplace<InteractionComponent>(entity);
+		auto& interaction = ecs.emplace<InteractionComp>(entity);
 		interaction.box = sprite.bounding_box();
 		interaction.on_interact = [](){ start_dialog(TABLE_DIALOG[0]); };
 	}
 	{ // Background
 		const entt::entity background = ecs.create();
-		auto& sprite = ecs.emplace<SpriteComponent>(background);
+		auto& sprite = ecs.emplace<SpriteComp>(background);
 		sprite.sprites = {Sprite::TEST_BACKGROUND};
-		auto& transform = ecs.emplace<TransformComponent>(background);
+		auto& transform = ecs.emplace<TransformComp>(background);
 		transform.position = Vector2{-1000.0f, 700.0f};
 	}
 
@@ -81,7 +81,7 @@ static void update() {
 	update_input();
 	update_process_input();
 
-	auto [entity, sprite, transform] = *ecs.view<SpriteComponent, TransformComponent, PlayerCharacterComponent>().each().begin();
+	auto [entity, sprite, transform] = *ecs.view<SpriteComp, TransformComp, PlayerCharacterComp>().each().begin();
 	camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
 
 	update_combat();
