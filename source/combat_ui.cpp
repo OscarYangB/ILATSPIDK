@@ -226,7 +226,7 @@ void ui_start_combat() {
 	for (auto [entity, character, movement] : view.each()) {
 		movement.direction = CharacterDirection::DOWN;
 	}
-	input_mode_stack.push(InputMode::COMBAT);
+	push_input_mode(InputMode::COMBAT);
 }
 
 constexpr double CARD_HOVER_WIDTH = 145.f;
@@ -547,7 +547,7 @@ void ui_update_combat() {
 void ui_end_combat() {
 	destroy_gamebar();
 	destroy_healthbars();
-	input_mode_stack.pop();
+	pop_input_mode(InputMode::COMBAT);
 }
 
 void ui_on_turn_start() {

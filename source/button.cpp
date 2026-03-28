@@ -5,8 +5,8 @@
 
 bool is_button_hovered(const ButtonComponent& button, const AnchoredTransformComponent& transform) {
 	Vector2 position = transform.render_position();
-	return mouse_x > position.x && mouse_x < position.x + transform.render_width() &&
-		   mouse_y > position.y && mouse_y < position.y + transform.render_height();
+	return get_mouse_x() > position.x && get_mouse_x() < position.x + transform.render_width() &&
+		   get_mouse_y() > position.y && get_mouse_y() < position.y + transform.render_height();
 }
 
 void update_button() {

@@ -24,3 +24,15 @@ struct DialogVisitor {
 struct DialogChoiceComponent {
 	u16 jump_index = 0;
 };
+
+constexpr double DIALOG_ANIMATION_RATE = 50.0;
+constexpr double DIALOG_ANIMATION_DELTA = 1.0 / DIALOG_ANIMATION_RATE;
+
+struct DialogSingleton {
+	entt::entity background = entt::null;
+	entt::entity dialog_text = entt::null;
+	const Dialog* dialog = nullptr;
+	DialogVisitor visitor {};
+	double dialog_animation_timer = DIALOG_ANIMATION_DELTA;
+	bool is_dialog_animating = false;
+};
