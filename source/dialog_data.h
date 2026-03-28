@@ -9,6 +9,8 @@ enum class Speaker {
 	NIELON,
 	KERRY,
 	TABLE,
+	NARRATOR,
+	INTERCOM,
 };
 
 void give_flower();
@@ -96,5 +98,23 @@ constexpr Dialog TABLE_DIALOG[] {
 /* 023 */	DialogChoice { {"Kerry: FIGHT ME!!"}, 0, nullptr },
 /* 024 */	DialogFunction { start_table_fight },
 /* 025 */	DialogJump { 0 },
+};
+
+constexpr Dialog TUTORIAL_DIALOG[] {
+/* 001 */	DialogLine { {"The wind. It's the first thing that Kerry ever hears. And it's peaceful in those first moments."}, Speaker::NARRATOR },
+/* 002 */	DialogLine { {"It's perfect. And it's happy. Until more is understood. This is very often the case. In this case, the room is dusty and Kerry is being scolded."}, Speaker::NARRATOR },
+/* 003 */	DialogLine { {"Wake up child, I don't have long. I'm really very busy."}, Speaker::INTERCOM },
+/* 004 */	DialogLine { {"But we're all busy aren't we?"}, Speaker::NARRATOR },
+/* 005 */	DialogLine { {"What do you mean?"}, Speaker::KERRY },
+/* 006 */	DialogLine { {"I mean you should hurry up and move to the next room."}, Speaker::INTERCOM },
+/* 007 */	DialogLine { {"I mean that, as many have observed, we're first busy being born, then we're busy eating, shitting, drinking. And while all that is going on, we're busy dying."}, Speaker::NARRATOR },
+/* 008 */	DialogLine { {"That's a sad way to look at it."}, Speaker::KERRY },
+/* 009 */	DialogLine { {"Who are you talking to?"}, Speaker::INTERCOM },
+/* 010 */	DialogLine { {"Ignore him. He's not very important. What's important is that humans were the only species to realize their busyness. To really analyze their situation deeply."}, Speaker::NARRATOR },
+/* 011 */	DialogLine { {"Am I human?"}, Speaker::KERRY },
+/* 012 */	DialogLine { {"No"}, Speaker::INTERCOM },
+/* 013 */	DialogLine { {"Yes. You will see."}, Speaker::NARRATOR },
+/* 014 */	DialogLine { {"For now, you should probably follow the instructions from the intercom. Use the WASD keys to move around."}, Speaker::NARRATOR },
+/* 015 */	DialogJump { 0 },
 };
 

@@ -9,149 +9,130 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc23-extensions"
 
-constexpr char atkinson_hyperlegible[] { 
-	#embed "..\assets\atkinson_hyperlegible.ttf"
-};
-
-constexpr char captain_orange[] { 
-	#embed "..\assets\captain_orange.png"
-};
-
-constexpr char kerry[] { 
-	#embed "..\assets\kerry.png"
-};
-
-constexpr char table[] { 
-	#embed "..\assets\table.png"
-};
-
-constexpr char test_background[] { 
-	#embed "..\assets\test_background.png"
-};
-
-constexpr char test_button[] { 
-	#embed "..\assets\test_button.png"
-};
-
 constexpr char card[] { 
-	#embed "..\assets\atlas\card.png"
-};
-
-constexpr char extra_small_font[] { 
-	#embed "..\assets\atlas\extra_small_font.png"
+	#embed "..\assets\art\card.png"
 };
 
 constexpr char gamebar[] { 
-	#embed "..\assets\atlas\GameBar.png"
+	#embed "..\assets\art\GameBar.png"
 };
 
 constexpr char grakeny[] { 
-	#embed "..\assets\atlas\Grakeny.png"
+	#embed "..\assets\art\Grakeny.png"
 };
 
 constexpr char healthbar[] { 
-	#embed "..\assets\atlas\healthbar.png"
+	#embed "..\assets\art\healthbar.png"
+};
+
+constexpr char kerry[] { 
+	#embed "..\assets\art\kerry.png"
+};
+
+constexpr char table[] { 
+	#embed "..\assets\art\table.png"
+};
+
+constexpr char test_background[] { 
+	#embed "..\assets\art\test_background.png"
+};
+
+constexpr char test_button[] { 
+	#embed "..\assets\art\test_button.png"
+};
+
+constexpr char atkinson_hyperlegible[] { 
+	#embed "..\assets\font\atkinson_hyperlegible.ttf"
+};
+
+constexpr char extra_small_font[] { 
+	#embed "..\assets\font\extra_small_font.png"
 };
 
 constexpr char large_font[] { 
-	#embed "..\assets\atlas\large_font.png"
+	#embed "..\assets\font\large_font.png"
 };
 
 constexpr char medium_font[] { 
-	#embed "..\assets\atlas\medium_font.png"
+	#embed "..\assets\font\medium_font.png"
 };
 
 constexpr char medium_large_font[] { 
-	#embed "..\assets\atlas\medium_large_font.png"
+	#embed "..\assets\font\medium_large_font.png"
 };
 
 constexpr char small_font[] { 
-	#embed "..\assets\atlas\small_font.png"
+	#embed "..\assets\font\small_font.png"
 };
 
 constexpr char small_medium_font[] { 
-	#embed "..\assets\atlas\small_medium_font.png"
-};
-
-constexpr char test_atlas[] { 
-	#embed "..\assets\atlas\test_atlas.png"
+	#embed "..\assets\font\small_medium_font.png"
 };
 
 constexpr char very_large_font[] { 
-	#embed "..\assets\atlas\very_large_font.png"
+	#embed "..\assets\font\very_large_font.png"
 };
 
 #pragma clang diagnostic pop
 
 enum class ImageFile {
-	CAPTAIN_ORANGE_IMAGE,
+	CARD_IMAGE,
+	GAMEBAR_IMAGE,
+	GRAKENY_IMAGE,
+	HEALTHBAR_IMAGE,
 	KERRY_IMAGE,
 	TABLE_IMAGE,
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
-	CARD_IMAGE,
 	EXTRA_SMALL_FONT_IMAGE,
-	GAMEBAR_IMAGE,
-	GRAKENY_IMAGE,
-	HEALTHBAR_IMAGE,
 	LARGE_FONT_IMAGE,
 	MEDIUM_FONT_IMAGE,
 	MEDIUM_LARGE_FONT_IMAGE,
 	SMALL_FONT_IMAGE,
 	SMALL_MEDIUM_FONT_IMAGE,
-	TEST_ATLAS_IMAGE,
 	VERY_LARGE_FONT_IMAGE,
 };
 
 constexpr const char* image_file_data[] {
-	captain_orange,
+	card,
+	gamebar,
+	grakeny,
+	healthbar,
 	kerry,
 	table,
 	test_background,
 	test_button,
-	card,
 	extra_small_font,
-	gamebar,
-	grakeny,
-	healthbar,
 	large_font,
 	medium_font,
 	medium_large_font,
 	small_font,
 	small_medium_font,
-	test_atlas,
 	very_large_font,
 };
 
 constexpr int image_file_sizes[] {
-	sizeof(captain_orange),
+	sizeof(card),
+	sizeof(gamebar),
+	sizeof(grakeny),
+	sizeof(healthbar),
 	sizeof(kerry),
 	sizeof(table),
 	sizeof(test_background),
 	sizeof(test_button),
-	sizeof(card),
 	sizeof(extra_small_font),
-	sizeof(gamebar),
-	sizeof(grakeny),
-	sizeof(healthbar),
 	sizeof(large_font),
 	sizeof(medium_font),
 	sizeof(medium_large_font),
 	sizeof(small_font),
 	sizeof(small_medium_font),
-	sizeof(test_atlas),
 	sizeof(very_large_font),
 };
 
-constexpr int NUMBER_OF_IMAGES = 17;
+constexpr int NUMBER_OF_IMAGES = 15;
 
 
 enum class Sprite {
-	CAPTAIN_ORANGE,
-	KERRY,
-	TABLE,
-	TEST_BACKGROUND,
-	TEST_BUTTON,
 	CARD_PSYCHIC_1,
 	CARD_PSYCHIC_2,
 	CARD_PSYCHIC_3,
@@ -185,7 +166,6 @@ enum class Sprite {
 	CARD_GROOVE_9,
 	CARD_GROOVE_10,
 	CARD_GROOVE_LVL_1,
-	EXTRA_SMALL_FONT,
 	GAMEBAR_START_1,
 	GAMEBAR_START_2,
 	GAMEBAR_START_3,
@@ -212,11 +192,6 @@ enum class Sprite {
 	HEALTHBAR_EVIL_1,
 	HEALTHBAR_NEUTRAL_1,
 	HEALTHBAR_DIVIDER_1,
-	LARGE_FONT,
-	MEDIUM_FONT,
-	MEDIUM_LARGE_FONT,
-	SMALL_FONT,
-	SMALL_MEDIUM_FONT,
 	KERRY_DOWN_CAPE_1,
 	KERRY_DOWN_CAPE_2,
 	KERRY_DOWN_CAPE_3,
@@ -312,16 +287,20 @@ enum class Sprite {
 	KERRY_UP_CAPE_4,
 	KERRY_UP_CAPE_5,
 	KERRY_UP_CAPE_6,
+	TABLE,
+	TEST_BACKGROUND,
+	TEST_BUTTON,
+	EXTRA_SMALL_FONT,
+	LARGE_FONT,
+	MEDIUM_FONT,
+	MEDIUM_LARGE_FONT,
+	SMALL_FONT,
+	SMALL_MEDIUM_FONT,
 	VERY_LARGE_FONT,
 	NONE,
 };
 
 constexpr SpriteAtlasTransform sprite_atlas_transform[] {
-	{0, 0, 1200, 4800, 24, 221, 1168, 4729},
-	{0, 0, 2000, 3000, 40, 211, 1978, 2967},
-	{0, 0, 300, 200, 56, 56, 257, 190},
-	{0, 0, 2339, 1654, 0, 0, 2339, 1654},
-	{0, 0, 400, 200, 0, 0, 400, 200},
 	{0, 0, 300, 400, 6, 9, 291, 395},
 	{300, 0, 300, 400, 167, 208, 300, 348},
 	{600, 0, 300, 400, 48, 116, 300, 345},
@@ -355,7 +334,6 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 2000, 300, 400, 5, 5, 287, 370},
 	{300, 2000, 300, 400, 10, 0, 296, 394},
 	{600, 2000, 300, 400, 229, 6, 294, 77},
-	{0, 0, 760, 12, 11, 2, 760, 10},
 	{0, 0, 300, 100, 39, 23, 254, 68},
 	{300, 0, 300, 100, 40, 24, 254, 69},
 	{600, 0, 300, 100, 40, 22, 254, 70},
@@ -382,11 +360,6 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{175, 21, 175, 21, 3, 3, 172, 18},
 	{350, 21, 175, 21, 3, 3, 172, 18},
 	{0, 42, 175, 21, 1, 2, 7, 20},
-	{0, 0, 4560, 72, 54, 10, 4540, 56},
-	{0, 0, 2280, 36, 28, 5, 2272, 28},
-	{0, 0, 3420, 54, 41, 8, 3406, 42},
-	{0, 0, 1520, 24, 20, 4, 1516, 20},
-	{0, 0, 1900, 30, 24, 4, 1894, 24},
 	{0, 0, 200, 300, 55, 211, 148, 267},
 	{200, 0, 200, 300, 57, 214, 155, 266},
 	{400, 0, 200, 300, 59, 219, 158, 267},
@@ -482,175 +455,182 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{400, 2700, 200, 300, 60, 200, 175, 261},
 	{600, 2700, 200, 300, 69, 205, 179, 260},
 	{800, 2700, 200, 300, 74, 204, 185, 259},
+	{0, 0, 300, 200, 56, 56, 257, 190},
+	{0, 0, 2339, 1654, 0, 0, 2339, 1654},
+	{0, 0, 400, 200, 0, 0, 400, 200},
+	{0, 0, 760, 12, 11, 2, 760, 10},
+	{0, 0, 4560, 72, 54, 10, 4540, 56},
+	{0, 0, 2280, 36, 28, 5, 2272, 28},
+	{0, 0, 3420, 54, 41, 8, 3406, 42},
+	{0, 0, 1520, 24, 20, 4, 1516, 20},
+	{0, 0, 1900, 30, 24, 4, 1894, 24},
 	{0, 0, 6840, 108, 80, 16, 6809, 84},
 };
 
 constexpr ImageFile sprite_to_image_file[] {
-	ImageFile::CAPTAIN_ORANGE_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::CARD_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GAMEBAR_IMAGE,
+	ImageFile::GRAKENY_IMAGE,
+	ImageFile::GRAKENY_IMAGE,
+	ImageFile::GRAKENY_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::HEALTHBAR_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
+	ImageFile::KERRY_IMAGE,
 	ImageFile::KERRY_IMAGE,
 	ImageFile::TABLE_IMAGE,
 	ImageFile::TEST_BACKGROUND_IMAGE,
 	ImageFile::TEST_BUTTON_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
-	ImageFile::CARD_IMAGE,
 	ImageFile::EXTRA_SMALL_FONT_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GAMEBAR_IMAGE,
-	ImageFile::GRAKENY_IMAGE,
-	ImageFile::GRAKENY_IMAGE,
-	ImageFile::GRAKENY_IMAGE,
-	ImageFile::HEALTHBAR_IMAGE,
-	ImageFile::HEALTHBAR_IMAGE,
-	ImageFile::HEALTHBAR_IMAGE,
-	ImageFile::HEALTHBAR_IMAGE,
-	ImageFile::HEALTHBAR_IMAGE,
-	ImageFile::HEALTHBAR_IMAGE,
-	ImageFile::HEALTHBAR_IMAGE,
 	ImageFile::LARGE_FONT_IMAGE,
 	ImageFile::MEDIUM_FONT_IMAGE,
 	ImageFile::MEDIUM_LARGE_FONT_IMAGE,
 	ImageFile::SMALL_FONT_IMAGE,
 	ImageFile::SMALL_MEDIUM_FONT_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
-	ImageFile::TEST_ATLAS_IMAGE,
 	ImageFile::VERY_LARGE_FONT_IMAGE,
 };
 

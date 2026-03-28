@@ -20,6 +20,7 @@ static float render_scale() {
 	return camera_scale * window_scale();
 }
 
+#ifndef NDEBUG
 struct DebugLine {
 	Vector2 start;
 	Vector2 end;
@@ -27,7 +28,6 @@ struct DebugLine {
 };
 std::vector<DebugLine> debug_lines {};
 void debug_draw(const Vector2& start, const Vector2& end) {
-#ifndef NDEBUG
 	debug_lines.push_back({start, end, 0.3});
 #endif
 }

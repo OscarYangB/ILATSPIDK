@@ -4,8 +4,8 @@ aseprite_path = "C:/Program Files/Aseprite/Aseprite.exe"
 print("name:", end=" ")
 name = input()
 subprocess.run([aseprite_path,
-                "--sheet", "C:/Projects/ILATSPIDK/assets/atlas/%s.png"%name,
-                "--data", "C:/Projects/ILATSPIDK/assets/atlas/%s.json"%name,
+                "--sheet", "C:/Projects/ILATSPIDK/assets/art/%s.png"%name,
+                "--data", "C:/Projects/ILATSPIDK/assets/art/%s.json"%name,
                 "--sheet-pack",
                 "--split-layers",
                 "--all-layers",

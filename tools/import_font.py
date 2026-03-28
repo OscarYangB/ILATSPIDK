@@ -1,6 +1,6 @@
 from PIL import Image, ImageFont, ImageDraw
 
-font_path = "C:/Projects/ILATSPIDK/assets/atkinson_hyperlegible.ttf"
+font_path = "C:/Projects/ILATSPIDK/assets/font/atkinson_hyperlegible.ttf"
 english_start = 32
 number_of_english_characters = 95
 last_english_character = english_start + number_of_english_characters - 1
@@ -28,7 +28,7 @@ def create_font(name : str, size : int):
         text = chr(english_start + i);
         width_map.append(draw.textlength(text, font=font))
         draw.text((i * width + 3, 0), text, font=font, fill="white") # Add a little spacing of 3 from the left
-    output_path = f"C:/Projects/ILATSPIDK/assets/atlas/{name}_font.png"
+    output_path = f"C:/Projects/ILATSPIDK/assets/font/{name}_font.png"
     image.save(output_path)
 
     global file_text

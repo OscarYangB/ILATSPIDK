@@ -8,7 +8,7 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #pragma clang diagnostic ignored "-Wc23-extensions"
 
 constexpr char success[] { 
-	#embed "..\assets\success.wav"
+	#embed "..\assets\audio\success.wav"
 };
 
 #pragma clang diagnostic pop

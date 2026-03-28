@@ -9,7 +9,7 @@
 
 entt::entity spawn_player() {
 	const entt::entity entity = ecs.create();
-	ecs.emplace<SpriteComp>(entity, SpriteComp{.sprites = {Sprite::KERRY, Sprite::KERRY, Sprite::KERRY, Sprite::KERRY, Sprite::KERRY}});
+	ecs.emplace<SpriteComp>(entity, SpriteComp{.sprites = {Sprite::NONE, Sprite::NONE, Sprite::NONE, Sprite::NONE, Sprite::NONE}});
 	ecs.emplace<TransformComp>(entity);
 	ecs.emplace<PlayerMovementComp>(entity, PlayerMovementComp{.speed = 200.f});
 	ecs.emplace<BoxColliderComp>(entity, KERRY_COLLIDER);
