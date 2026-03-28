@@ -6,11 +6,11 @@
 
 constexpr double PUNCTUATION_PAUSE = 0.18;
 
-constexpr float WIDTH = 800.f;
-constexpr float HEIGHT = 400.f;
-constexpr float X_MARGIN = 50.f;
-constexpr float Y_MARGIN = 50.f;
-constexpr float CHOICE_BUTTON_HEIGHT = 100.f;
+constexpr u16 WIDTH = 800;
+constexpr u16 HEIGHT = 400;
+constexpr u16 X_MARGIN = 50;
+constexpr u16 Y_MARGIN = 50;
+constexpr u16 CHOICE_BUTTON_HEIGHT = 100;
 
 void start_dialog(const Dialog& new_dialog) {
 	push_input_mode(InputMode::DIALOG);
@@ -20,20 +20,15 @@ void start_dialog(const Dialog& new_dialog) {
 	dialog.dialog = &new_dialog;
 
 	dialog.background = ecs.create();
-	auto& background_transform = ecs.emplace<UITransformComp>(dialog.background);
-	background_transform.x_anchor = XAnchor::CENTER; background_transform.y_anchor = YAnchor::BOTTOM;
-	background_transform.width = WIDTH; background_transform.height = HEIGHT;
-	auto& nine = ecs.emplace<NineSliceComp>(dialog.background);
-	nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
-	auto& sprite = ecs.emplace<SpriteComp>(dialog.background);
-	sprite.sprites = {Sprite::TEST_BUTTON};
+	auto& background_transform = ecs.emplace<UITransformComp>(dialog.background, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+																								 .width = WIDTH, .height = HEIGHT});
+	ecs.emplace<NineSliceComp>(dialog.background, NineSliceComp{.x = 40, .y = 30, .w = 320, .h = 150});
+	ecs.emplace<SpriteComp>(dialog.background, SpriteComp{.sprites = {Sprite::TEST_BUTTON}});
 
 	dialog.dialog_text = ecs.create();
-	auto& dialog_transform = ecs.emplace<UITransformComp>(dialog.dialog_text);
-	dialog_transform.x_anchor = XAnchor::CENTER; dialog_transform.y_anchor = YAnchor::BOTTOM;
-	dialog_transform.width = WIDTH - X_MARGIN; dialog_transform.height = HEIGHT - Y_MARGIN;
-	auto& text_component = ecs.emplace<TextComp>(dialog.dialog_text);
-	dialog_transform.sort_order = 1;
+	ecs.emplace<UITransformComp>(dialog.dialog_text, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+																	 .width = WIDTH - X_MARGIN, .height = HEIGHT - Y_MARGIN, .sort_order = 1});
+	ecs.emplace<TextComp>(dialog.dialog_text);
 	background_transform.add_child(dialog.background, dialog.dialog_text);
 
 	progress_dialog();
@@ -139,16 +134,13 @@ void make_choice_button(const Text& choice_text, u16 jump_index, u8 choice_index
 	DialogSingleton& dialog = get_dialog();
 
 	auto entity = ecs.create();
-	auto& transform = ecs.emplace<UITransformComp>(entity);
-	transform.x_anchor = XAnchor::CENTER; transform.y_anchor = YAnchor::BOTTOM; transform.width = WIDTH; transform.height = CHOICE_BUTTON_HEIGHT;
-	transform.relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_index};
-	auto& background_transform = ecs.get<UITransformComp>(dialog.background); background_transform.add_child(dialog.background, entity);
-	auto& text_component = ecs.emplace<TextComp>(entity);
-	text_component.text = choice_text;
-	auto& button_component = ecs.emplace<ButtonComp>(entity);
-	button_component.on_click = choice_made;
-	auto& choice_component = ecs.emplace<DialogChoiceComp>(entity);
-	choice_component.jump_index = jump_index;
+	ecs.emplace<UITransformComp>(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+														 .relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_index},
+														 .width = WIDTH, .height = CHOICE_BUTTON_HEIGHT});
+	ecs.get<UITransformComp>(dialog.background).add_child(dialog.background, entity);
+	ecs.emplace<TextComp>(entity, TextComp{.text = choice_text});
+	ecs.emplace<ButtonComp>(entity, ButtonComp{.on_click = choice_made});
+	ecs.emplace<DialogChoiceComp>(entity, DialogChoiceComp{.jump_index = jump_index});
 }
 
 void DialogVisitor::operator()(const DialogLine& line) {

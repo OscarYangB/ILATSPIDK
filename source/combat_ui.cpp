@@ -18,11 +18,9 @@ void create_healthbars() {
 		auto& character_component = ecs.get<CharacterComp>(character_entity);
 
 		auto entity = ecs.create();
-		auto& transform = ecs.emplace<TransformComp>(entity);
-		transform.position = {10.f, -50.f};
+		auto& transform = ecs.emplace<TransformComp>(entity, TransformComp{.position = {10.f, -50.f}});
 		character_transform.add_child(character_entity, entity);
-		auto& sprite = ecs.emplace<SpriteComp>(entity);
-		sprite.sprites = { Sprite::HEALTHBAR_OUTLINE_1, Sprite::HEALTHBAR_DYNAMIC_1, Sprite::HEALTHBAR_GOOD_1};
+		auto& sprite = ecs.emplace<SpriteComp>(entity, SpriteComp{.sprites = { Sprite::HEALTHBAR_OUTLINE_1, Sprite::HEALTHBAR_DYNAMIC_1, Sprite::HEALTHBAR_GOOD_1}});
 		switch (character_component.data->type) {
 		case CharacterType::GOOD: sprite.sprites.at(2) = Sprite::HEALTHBAR_GOOD_1; break;
 		case CharacterType::EVIL: sprite.sprites.at(2) = Sprite::HEALTHBAR_EVIL_1; break;
@@ -39,11 +37,9 @@ void create_healthbars() {
 			float x_position = (float)i * health_unit_width;
 			if (HEALTHBAR_WIDTH - x_position < 10.f) break;
 			entt::entity divider = ecs.create();
-			auto& divider_transform = ecs.emplace<TransformComp>(divider);
+			ecs.emplace<TransformComp>(divider, TransformComp{.position = {x_position, 0.f}});
 			transform.add_child(entity, divider);
-			divider_transform.position.x = x_position;
-			auto& divider_sprite = ecs.emplace<SpriteComp>(divider);
-			divider_sprite.sprites = {Sprite::HEALTHBAR_DIVIDER_1};
+			ecs.emplace<SpriteComp>(divider, SpriteComp{.sprites = {Sprite::HEALTHBAR_DIVIDER_1}});
 		}
 	}
 }
@@ -73,22 +69,17 @@ void refresh_health_bar(const CharacterComp& character, bool is_heal) {
 }
 
 void create_gamebar() {
-	for (int i = 0; i < BARS_PER_TURN; i++) {
+	for (u8 i = 0; i < BARS_PER_TURN; i++) {
 		auto entity = ecs.create();
 
-		auto& sprite_component = ecs.emplace<SpriteComp>(entity);
 		Sprite sprite = i == 0 ? Sprite::GAMEBAR_END_1 : Sprite::GAMEBAR_START_1;
-		sprite_component.sprites = {sprite, sprite};
+		auto& sprite_component = ecs.emplace<SpriteComp>(entity, SpriteComp{.sprites = {sprite, sprite}});
 		sprite_component.tints[0] = {0, 0, 0, 255};
 
-		auto& transform = ecs.emplace<UITransformComp>(entity);
-		transform.x_anchor = XAnchor::CENTER;
-		transform.y_anchor = YAnchor::TOP;
 		float width = sprite_component.visible_bounding_box().width();
-		transform.relative_position = { (1 - i) * width, 0.f};
+		ecs.emplace<UITransformComp>(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::TOP, .relative_position = { (1 - i) * width, 0.f}});
 
-		auto& gamebar = ecs.emplace<GamebarComp>(entity);
-		gamebar.index = i;
+		ecs.emplace<GamebarComp>(entity, GamebarComp{.index = i});
 	}
 }
 
@@ -167,17 +158,14 @@ void update_gamebar() {
 			if (get_combat().get_discrete_bar_progress() != 0) {
 				if (gamebar.index == get_combat().bar_index) {
 					entt::entity fx_entity = ecs.create();
-					auto& fx_sprite = ecs.emplace<SpriteComp>(fx_entity);
-					fx_sprite.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1};
+					auto& fx_sprite = ecs.emplace<SpriteComp>(fx_entity, SpriteComp{.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1}});
 					fx_sprite.tints[0] = {255, 255, 255, 200};
-					auto& fx_transform = ecs.emplace<UITransformComp>(fx_entity);
-					fx_transform = transform;
+					auto& fx_transform = ecs.emplace<UITransformComp>(fx_entity, transform);
 					fx_transform.relative_position.x += sprite.visible_bounding_box().width() * (1.f - get_combat().get_discrete_bar_progress());
 					fx_transform.sort_order = 1;
-					auto& fx_animation = ecs.emplace<CycleAnimationComp>(fx_entity);
-					fx_animation.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4};
-					fx_animation.frequency = 12.f;
-					fx_animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
+					ecs.emplace<CycleAnimComp>(fx_entity, CycleAnimComp{
+							.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4},
+							.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
 				}
 			}
 		}
@@ -201,15 +189,12 @@ void ui_on_bar_end() {
 	}
 
 	entt::entity entity = ecs.create();
-	auto& sprite = ecs.emplace<SpriteComp>(entity);
-	sprite.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1};
+	auto& sprite = ecs.emplace<SpriteComp>(entity, SpriteComp{.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1}});
 	sprite.tints[0] = {255, 255, 255, 200};
-	auto& transform = ecs.emplace<UITransformComp>(entity);
-	transform = *gamebar_transform;
-	auto& animation = ecs.emplace<CycleAnimationComp>(entity);
-	animation.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4};
-	animation.frequency = 12.f;
-	animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
+	ecs.emplace<UITransformComp>(entity, *gamebar_transform);
+	ecs.emplace<CycleAnimComp>(entity, CycleAnimComp{
+			.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4},
+			.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
 
 	// TEST
 	CharacterComp& character = ecs.get<CharacterComp>(get_combat().characters.at(0));
@@ -229,9 +214,9 @@ void ui_start_combat() {
 	push_input_mode(InputMode::COMBAT);
 }
 
-constexpr double CARD_HOVER_WIDTH = 145.f;
-constexpr double CARD_HOVER_HEIGHT = 200.f;
-constexpr double CARD_HOVER_EXPANDED_HEIGHT = 250.f;
+constexpr u16 CARD_HOVER_WIDTH = 145;
+constexpr u16 CARD_HOVER_HEIGHT = 200;
+constexpr u16 CARD_HOVER_EXPANDED_HEIGHT = 250;
 
 constexpr u16 CARD_SPRITE_WIDTH = 150;
 constexpr u16 CARD_SPRITE_HEIGHT = 200;
@@ -348,23 +333,15 @@ void refresh_hand_buttons() {
 	ecs.destroy(view.begin(), view.end());
 
 	CharacterComp* character = get_combat().get_active_character();
-	for (int i = 0; i < character->hand.size(); i++) {
+	for (u8 i = 0; i < character->hand.size(); i++) {
 		entt::entity entity = ecs.create();
 
-		auto& transform = ecs.emplace<UITransformComp>(entity);
-		transform.x_anchor = XAnchor::CENTER;
-		transform.y_anchor = YAnchor::BOTTOM;
-		transform.relative_position = {card_x_offset(character->hand.size(), i), 0.f};
-		transform.width = CARD_HOVER_WIDTH;
-		transform.height = CARD_HOVER_HEIGHT;
+		ecs.emplace<UITransformComp>(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+															 .relative_position = {card_x_offset(character->hand.size(), i), 0.f},
+															 .width = CARD_HOVER_WIDTH, .height = CARD_HOVER_HEIGHT});
 
-		auto& button = ecs.emplace<ButtonComp>(entity);
-		button.on_hover = on_card_hover;
-		button.on_click = on_card_click;
-		button.on_unhover = on_card_unhover;
-
-		auto& hand_button = ecs.emplace<HandButtonComp>(entity);
-		hand_button.index = i;
+		ecs.emplace<ButtonComp>(entity, ButtonComp{.on_hover = on_card_hover, .on_click = on_card_click, .on_unhover = on_card_unhover});
+		ecs.emplace<HandButtonComp>(entity, HandButtonComp{.index = i});
 	}
 }
 
@@ -390,8 +367,8 @@ void ui_play_queued_draw_animations() {
 
 		entt::entity fx_entity = ecs.create();
 		ecs.emplace<UITransformComp>(fx_entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
-																					  .relative_position = {card_x_offset(character->hand.size(), card.index) + 400.f, -100.f},
-																					  .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1});
+																.relative_position = {card_x_offset(character->hand.size(), card.index) + 400.f, -100.f},
+																.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1});
 		auto& sprite = ecs.emplace<SpriteComp>(fx_entity, SpriteComp{.sprites = {Sprite::NONE}});
 
 		play_animation(DURATION, delay, &UITransformComp::relative_position, fx_entity, [card_entity](Animation& animation, Vector2 starting_value) {
@@ -404,7 +381,7 @@ void ui_play_queued_draw_animations() {
 			return smooth_curve(target, animation, starting_value);
 		});
 
-		auto& animation = ecs.emplace<CycleAnimationComp>(fx_entity);
+		auto& animation = ecs.emplace<CycleAnimComp>(fx_entity);
 		switch (type) {
 		case CardType::PSYCHIC: animation.sprites = {Sprite::CARD_PSYCHIC_2, Sprite::CARD_PSYCHIC_3, Sprite::CARD_PSYCHIC_4, Sprite::CARD_PSYCHIC_5, Sprite::CARD_PSYCHIC_6,Sprite::CARD_PSYCHIC_7, Sprite::CARD_PSYCHIC_8, Sprite::CARD_PSYCHIC_9, Sprite::CARD_PSYCHIC_10 }; break;
 		case CardType::MAGIC: animation.sprites = {Sprite::CARD_MAGIC_2, Sprite::CARD_MAGIC_3, Sprite::CARD_MAGIC_4, Sprite::CARD_MAGIC_5, Sprite::CARD_MAGIC_6,Sprite::CARD_MAGIC_7, Sprite::CARD_MAGIC_8, Sprite::CARD_MAGIC_9, Sprite::CARD_MAGIC_10 }; break;

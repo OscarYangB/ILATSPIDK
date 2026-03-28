@@ -33,22 +33,15 @@ void start() {
 
 	{ // TABLE
 		const entt::entity entity = ecs.create();
-		auto& sprite = ecs.emplace<SpriteComp>(entity);
-		sprite.sprites = {Sprite::TABLE};
-		auto& transform = ecs.emplace<TransformComp>(entity);
-		transform.position = {0.f, 0.f};
-		auto& collider = ecs.emplace<BoxColliderComp>(entity);
-		collider = TABLE_COLLIDER;
-		auto& interaction = ecs.emplace<InteractionComp>(entity);
-		interaction.box = sprite.bounding_box();
-		interaction.on_interact = [](){ start_dialog(TABLE_DIALOG[0]); };
+		auto& sprite = ecs.emplace<SpriteComp>(entity, SpriteComp{.sprites = {Sprite::TABLE}});
+		ecs.emplace<TransformComp>(entity, TransformComp{.position = {0.f, 0.f}});
+		ecs.emplace<BoxColliderComp>(entity, TABLE_COLLIDER);;
+		ecs.emplace<InteractionComp>(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG[0]); }});
 	}
 	{ // Background
 		const entt::entity background = ecs.create();
-		auto& sprite = ecs.emplace<SpriteComp>(background);
-		sprite.sprites = {Sprite::TEST_BACKGROUND};
-		auto& transform = ecs.emplace<TransformComp>(background);
-		transform.position = Vector2{-1000.0f, 700.0f};
+		ecs.emplace<SpriteComp>(background, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
+		ecs.emplace<TransformComp>(background, TransformComp{.position = Vector2{-1000.0f, 700.0f}});
 	}
 
 	init_audio();

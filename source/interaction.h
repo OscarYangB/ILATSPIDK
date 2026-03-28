@@ -3,8 +3,8 @@
 #include "vector2.h"
 
 struct InteractionComp {
-	void (*on_interact)() = nullptr;
 	Box box{};
+	void (*on_interact)() = nullptr;
 };
 
 void update_interact();
