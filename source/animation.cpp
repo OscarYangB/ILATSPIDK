@@ -13,9 +13,18 @@ std::vector<Animation> animations {};
 static u64 id_counter = 0;
 static bool pause_id_increment = false;
 
+void increment_id() {
+	if (id_counter == std::numeric_limits<typeof(id_counter)>::max()) {
+		id_counter = 0;
+		return;
+	}
+
+	id_counter++;
+}
+
 u32 register_animation(Animation animation) {
 	if (!pause_id_increment) {
-		id_counter++;
+		increment_id();
 	}
 
 	animation.id = id_counter;
@@ -39,7 +48,7 @@ bool animation_playing(u64 id) {
 u32 start_animation_group() {
 	assert(!pause_id_increment);
 
-	id_counter++;
+	increment_id();
 	pause_id_increment = true;
 	return id_counter;
 }

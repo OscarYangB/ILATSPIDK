@@ -72,21 +72,21 @@ struct SpriteComponent {
 	Box visible_bounding_box();
 };
 
-enum class VerticalAnchor {
+enum class YAnchor {
 	TOP,
 	BOTTOM,
 	CENTER,
 };
 
-enum class HorizontalAnchor {
+enum class XAnchor {
 	LEFT,
 	RIGHT,
 	CENTER,
 };
 
-struct AnchoredTransformComponent : HierarchyComponent<AnchoredTransformComponent> {
-	HorizontalAnchor x_anchor{};
-	VerticalAnchor y_anchor{};
+struct UITransformComponent : HierarchyComponent<UITransformComponent> {
+	XAnchor x_anchor{};
+	YAnchor y_anchor{};
 	Vector2 relative_position{};
 	u16 width{};
 	u16 height{};
@@ -113,8 +113,8 @@ struct TextComponent {
 	u8 size = 50;
 	u8 mask = 0; // How many characters to display? 0 means all
 
-	HorizontalAnchor x_align = HorizontalAnchor::LEFT;
-	VerticalAnchor y_align = VerticalAnchor::TOP;
+	XAnchor x_align = XAnchor::LEFT;
+	YAnchor y_align = YAnchor::TOP;
 };
 
 extern Vector2 camera_position;

@@ -81,9 +81,9 @@ void create_gamebar() {
 		sprite_component.sprites = {sprite, sprite};
 		sprite_component.tints[0] = {0, 0, 0, 255};
 
-		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
-		transform.x_anchor = HorizontalAnchor::CENTER;
-		transform.y_anchor = VerticalAnchor::TOP;
+		auto& transform = ecs.emplace<UITransformComponent>(entity);
+		transform.x_anchor = XAnchor::CENTER;
+		transform.y_anchor = YAnchor::TOP;
 		float width = sprite_component.visible_bounding_box().width();
 		transform.relative_position = { (1 - i) * width, 0.f};
 
@@ -141,7 +141,7 @@ constexpr double VIBRATIONS_PER_BAR = 4;
 constexpr double SECONDS_PER_VIBRATION = SECONDS_PER_BAR / VIBRATIONS_PER_BAR;
 
 void update_gamebar() {
-	auto view = ecs.view<GamebarComponent, SpriteComponent, AnchoredTransformComponent>();
+	auto view = ecs.view<GamebarComponent, SpriteComponent, UITransformComponent>();
 	for (auto [entity, gamebar, sprite, transform] : view.each()) {
 		Box box = sprite.visible_bounding_box();
 
@@ -170,7 +170,7 @@ void update_gamebar() {
 					auto& fx_sprite = ecs.emplace<SpriteComponent>(fx_entity);
 					fx_sprite.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1};
 					fx_sprite.tints[0] = {255, 255, 255, 200};
-					auto& fx_transform = ecs.emplace<AnchoredTransformComponent>(fx_entity);
+					auto& fx_transform = ecs.emplace<UITransformComponent>(fx_entity);
 					fx_transform = transform;
 					fx_transform.relative_position.x += sprite.visible_bounding_box().width() * (1.f - get_combat().get_discrete_bar_progress());
 					fx_transform.sort_order = 1;
@@ -189,8 +189,8 @@ void ui_on_bar_end() {
 		cycle_gamebar_animation(i);
 	}
 
-	AnchoredTransformComponent* gamebar_transform{};
-	auto view = ecs.view<GamebarComponent, AnchoredTransformComponent>();
+	UITransformComponent* gamebar_transform{};
+	auto view = ecs.view<GamebarComponent, UITransformComponent>();
 	for (auto [entity, gamebar, transform] : view.each()) {
 		if (gamebar.index == get_combat().bar_index) {
 			gamebar_transform = &transform;
@@ -204,7 +204,7 @@ void ui_on_bar_end() {
 	auto& sprite = ecs.emplace<SpriteComponent>(entity);
 	sprite.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1};
 	sprite.tints[0] = {255, 255, 255, 200};
-	auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
+	auto& transform = ecs.emplace<UITransformComponent>(entity);
 	transform = *gamebar_transform;
 	auto& animation = ecs.emplace<CycleAnimationComponent>(entity);
 	animation.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4};
@@ -251,7 +251,7 @@ void on_card_hover(entt::entity hovered_entity) {
 
 	entt::entity card_entity = entt::null;
 	HandCardComponent* hovered_card = nullptr;
-	auto view = ecs.view<HandCardComponent, AnchoredTransformComponent>();
+	auto view = ecs.view<HandCardComponent, UITransformComponent>();
 	for (auto [entity, card, transform] : view.each()) {
 		if (card.index == index) {
 			card_entity = entity;
@@ -260,14 +260,14 @@ void on_card_hover(entt::entity hovered_entity) {
 	}
 	assert(hovered_card != nullptr);
 
-	ecs.get<AnchoredTransformComponent>(hovered_entity).height = CARD_HOVER_EXPANDED_HEIGHT;
+	ecs.get<UITransformComponent>(hovered_entity).height = CARD_HOVER_EXPANDED_HEIGHT;
 
 	stop_animation(hovered_card->animation_id);
 	hovered_card->animation_id = start_animation_group();
-	play_animation(0.04, 0.0, &AnchoredTransformComponent::scale, card_entity, [](Animation& animation, float starting_value) {
+	play_animation(0.04, 0.0, &UITransformComponent::scale, card_entity, [](Animation& animation, float starting_value) {
 		return smooth_curve(2.f, animation, starting_value);
 	});
-	play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, card_entity, [index, hand_size](Animation& animation, Vector2 starting_value) {
+	play_animation(0.04, 0.0, &UITransformComponent::relative_position, card_entity, [index, hand_size](Animation& animation, Vector2 starting_value) {
 		float x_target = card_x_offset(hand_size, index);
 		return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve<float>(CARD_SPRITE_SHOWN_OFFSET, animation, starting_value.y)};
 	});
@@ -283,13 +283,13 @@ void on_card_hover(entt::entity hovered_entity) {
 
 			card.animation_id = start_animation_group();
 			float distance_weight = distance_from_hovered / 25.f;
-			play_animation(0.06, 0.0, &AnchoredTransformComponent::scale, entity, [distance_weight](Animation& animation, float starting_value) {
+			play_animation(0.06, 0.0, &UITransformComponent::scale, entity, [distance_weight](Animation& animation, float starting_value) {
 				return smooth_curve(1.f - distance_weight * 1.f, animation, starting_value);
 			});
 			float x_offset = current_index > index ? 70.f : -70.f;
 			float x_offset_coeff = current_index > index ? -60.f : 60.f;
 			x_offset += x_offset_coeff * (distance_from_hovered / 2.5f);
-			play_animation(0.10, 0.0, &AnchoredTransformComponent::relative_position, entity, [current_index, x_offset, distance_from_hovered, hand_size](Animation& animation, Vector2 starting_value) {
+			play_animation(0.10, 0.0, &UITransformComponent::relative_position, entity, [current_index, x_offset, distance_from_hovered, hand_size](Animation& animation, Vector2 starting_value) {
 				float x_target = card_x_offset(hand_size, current_index) + x_offset;
 				float y_target = CARD_SPRITE_SHOWN_OFFSET + 2.0f - 12.f * distance_from_hovered;
 				return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve(y_target, animation, starting_value.y)};
@@ -302,22 +302,22 @@ void on_card_hover(entt::entity hovered_entity) {
 void on_card_unhover(entt::entity entity) {
 	u8 hand_size = get_combat().get_active_character()->hand.size();
 
-	for (auto [entity, card, transform] : ecs.view<HandCardComponent, AnchoredTransformComponent>().each()) {
+	for (auto [entity, card, transform] : ecs.view<HandCardComponent, UITransformComponent>().each()) {
 		u8 index = card.index;
 		stop_animation(card.animation_id);
 
 		card.animation_id = start_animation_group();
-		play_animation(0.04, 0.0, &AnchoredTransformComponent::scale, entity, [](Animation& animation, float starting_value) {
+		play_animation(0.04, 0.0, &UITransformComponent::scale, entity, [](Animation& animation, float starting_value) {
 			return smooth_curve(1.f, animation, starting_value);
 		});
-		play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, entity, [hand_size, index](Animation& animation, Vector2 starting_value) {
+		play_animation(0.04, 0.0, &UITransformComponent::relative_position, entity, [hand_size, index](Animation& animation, Vector2 starting_value) {
 			float x_target = card_x_offset(hand_size, index);
 			return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve<float>(CARD_SPRITE_HIDDEN_OFFSET, animation, starting_value.y)};
 		});
 		end_animation_group();
 	}
 
-	ecs.get<AnchoredTransformComponent>(entity).height = CARD_HOVER_HEIGHT;
+	ecs.get<UITransformComponent>(entity).height = CARD_HOVER_HEIGHT;
 }
 
 void on_card_click(entt::entity entity) {
@@ -328,7 +328,7 @@ void on_card_click(entt::entity entity) {
 	u8 index = ecs.get<HandButtonComponent>(entity).index;
 
 	HandCardComponent* hovered_card = nullptr;
-	auto view = ecs.view<HandCardComponent, AnchoredTransformComponent>();
+	auto view = ecs.view<HandCardComponent, UITransformComponent>();
 	for (auto [entity, card, transform] : view.each()) {
 		if (card.index == index) {
 			hovered_card = &card;
@@ -351,9 +351,9 @@ void refresh_hand_buttons() {
 	for (int i = 0; i < character->hand.size(); i++) {
 		entt::entity entity = ecs.create();
 
-		auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
-		transform.x_anchor = HorizontalAnchor::CENTER;
-		transform.y_anchor = VerticalAnchor::BOTTOM;
+		auto& transform = ecs.emplace<UITransformComponent>(entity);
+		transform.x_anchor = XAnchor::CENTER;
+		transform.y_anchor = YAnchor::BOTTOM;
 		transform.relative_position = {card_x_offset(character->hand.size(), i), 0.f};
 		transform.width = CARD_HOVER_WIDTH;
 		transform.height = CARD_HOVER_HEIGHT;
@@ -389,18 +389,18 @@ void ui_play_queued_draw_animations() {
 		double delay = 0.02 * counter;
 
 		entt::entity fx_entity = ecs.create();
-		ecs.emplace<AnchoredTransformComponent>(fx_entity, AnchoredTransformComponent{.x_anchor = HorizontalAnchor::CENTER, .y_anchor = VerticalAnchor::BOTTOM,
+		ecs.emplace<UITransformComponent>(fx_entity, UITransformComponent{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
 																					  .relative_position = {card_x_offset(character->hand.size(), card.index) + 400.f, -100.f},
 																					  .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1});
 		auto& sprite = ecs.emplace<SpriteComponent>(fx_entity, SpriteComponent{.sprites = {Sprite::NONE}});
 
-		play_animation(DURATION, delay, &AnchoredTransformComponent::relative_position, fx_entity, [card_entity](Animation& animation, Vector2 starting_value) {
-			Vector2 target = ecs.get<AnchoredTransformComponent>(card_entity).relative_position;
+		play_animation(DURATION, delay, &UITransformComponent::relative_position, fx_entity, [card_entity](Animation& animation, Vector2 starting_value) {
+			Vector2 target = ecs.get<UITransformComponent>(card_entity).relative_position;
 			return Vector2{smooth_curve(target.x, animation, starting_value.x), smooth_curve(target.y, animation, starting_value.y)};
 		});
 
-		play_animation(DURATION, delay, &AnchoredTransformComponent::scale, fx_entity, [card_entity](Animation& animation, float starting_value) {
-			float target = ecs.get<AnchoredTransformComponent>(card_entity).scale;
+		play_animation(DURATION, delay, &UITransformComponent::scale, fx_entity, [card_entity](Animation& animation, float starting_value) {
+			float target = ecs.get<UITransformComponent>(card_entity).scale;
 			return smooth_curve(target, animation, starting_value);
 		});
 
@@ -426,7 +426,7 @@ void ui_play_queued_draw_animations() {
 void position_hand_visuals(bool from_current_position) {
 	entt::entity character = get_combat().get_active_character_entity();
 	CharacterComponent* character_component = get_combat().get_active_character();
-	for (auto [entity, card, transform, sprite] : ecs.view<HandCardComponent, AnchoredTransformComponent, SpriteComponent>().each()) {
+	for (auto [entity, card, transform, sprite] : ecs.view<HandCardComponent, UITransformComponent, SpriteComponent>().each()) {
 		if (card.owning_character != character) {
 			sprite.visible = false;
 			continue;
@@ -437,7 +437,7 @@ void position_hand_visuals(bool from_current_position) {
 		Vector2 start_position = from_current_position ? transform.relative_position : Vector2{x_position, CARD_SPRITE_HIDDEN_OFFSET + 100.f};
 		Vector2 new_position = {x_position, CARD_SPRITE_HIDDEN_OFFSET};
 
-		play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, entity, [new_position, start_position](Animation& animation, Vector2 starting_value) {
+		play_animation(0.04, 0.0, &UITransformComponent::relative_position, entity, [new_position, start_position](Animation& animation, Vector2 starting_value) {
 			return fast_start_curve(new_position, animation, start_position);
 		});
 	}
@@ -447,19 +447,20 @@ void ui_add_hand_visual(const CharacterComponent& character, u8 index) {
 	Card card = character.hand.at(index);
 
 	entt::entity entity = ecs.create();
-	auto& transform = ecs.emplace<AnchoredTransformComponent>(entity, AnchoredTransformComponent{.x_anchor = HorizontalAnchor::CENTER, .y_anchor = VerticalAnchor::BOTTOM,
-																								 .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT });
+	auto& transform = ecs.emplace<UITransformComponent>(entity, UITransformComponent{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+																					 .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT });
 	ecs.emplace<SpriteComponent>(entity); // To access visibility for children
 	ecs.emplace<HandCardComponent>(entity, HandCardComponent{.index = index, .owning_character = character.entity, .queue_draw_animation = true});
+
 	{ // Sprite Children
 		entt::entity art = ecs.create();
-		ecs.emplace<AnchoredTransformComponent>(art, AnchoredTransformComponent{.x_anchor = HorizontalAnchor::CENTER,
-																				.relative_position = {0.f, 20.f}, .width = 136, .height = 96,});
+		ecs.emplace<UITransformComponent>(art, UITransformComponent{.x_anchor = XAnchor::CENTER,
+																	.relative_position = {0.f, 20.f}, .width = 136, .height = 96,});
 		transform.add_child(entity, art);
 		ecs.emplace<SpriteComponent>(art, SpriteComponent{.sprites = {Sprite::TEST_BACKGROUND}});
 
 		entt::entity frame = ecs.create();
-		ecs.emplace<AnchoredTransformComponent>(frame, AnchoredTransformComponent{.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT});
+		ecs.emplace<UITransformComponent>(frame, UITransformComponent{.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT});
 		transform.add_child(entity, frame);
 		auto& sprite = ecs.emplace<SpriteComponent>(frame);
 		switch (card->card_type) {
@@ -469,21 +470,21 @@ void ui_add_hand_visual(const CharacterComponent& character, u8 index) {
 		}
 
 		entt::entity name = ecs.create();
-		ecs.emplace<AnchoredTransformComponent>(name, AnchoredTransformComponent{.relative_position = {0.f, 10.f},
-																				 .width = CARD_SPRITE_WIDTH, .height = 200});
+		ecs.emplace<UITransformComponent>(name, UITransformComponent{.relative_position = {0.f, 10.f},
+																	 .width = CARD_SPRITE_WIDTH, .height = 200});
 		transform.add_child(entity, name);
-		ecs.emplace<TextComponent>(name, TextComponent{.text = card->name, .colour = WHITE, .size = 24, .x_align = HorizontalAnchor::CENTER});
+		ecs.emplace<TextComponent>(name, TextComponent{.text = card->name, .colour = WHITE, .size = 24, .x_align = XAnchor::CENTER});
 
 		entt::entity description = ecs.create();
 		constexpr float DESCRIPTION_MARGIN = 10.f;
-		ecs.emplace<AnchoredTransformComponent>(description, AnchoredTransformComponent{.relative_position = {DESCRIPTION_MARGIN, 115.f},
-																						.width = CARD_SPRITE_WIDTH - 2 * (u16)DESCRIPTION_MARGIN, .height = 50});
+		ecs.emplace<UITransformComponent>(description, UITransformComponent{.relative_position = {DESCRIPTION_MARGIN, 115.f},
+																			.width = CARD_SPRITE_WIDTH - 2 * (u16)DESCRIPTION_MARGIN, .height = 50});
 		transform.add_child(entity, description);
 		ecs.emplace<TextComponent>(description, TextComponent{.text = card->description, .colour = WHITE, .size = 16});
 
 		entt::entity cost = ecs.create();
-		ecs.emplace<AnchoredTransformComponent>(cost, AnchoredTransformComponent{.relative_position = {123.5, 7.f}, .width = CARD_SPRITE_WIDTH,
-																				 .height = 200});
+		ecs.emplace<UITransformComponent>(cost, UITransformComponent{.relative_position = {123.5, 7.f}, .width = CARD_SPRITE_WIDTH,
+																	 .height = 200});
 		transform.add_child(entity, cost);
 		ecs.emplace<TextComponent>(cost, TextComponent{.text {number_to_string(card->cost)}, .colour = BLACK, .size = 32});
 	}

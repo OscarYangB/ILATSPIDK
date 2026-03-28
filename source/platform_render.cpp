@@ -151,7 +151,7 @@ u8 character_to_index(char character) {
 
 constexpr u8 MAX_TEXT_LENGTH = 255;
 
-void render_text(std::string_view text, float x, float y, float w, float h, float size, u8 mask, u8 r, u8 g, u8 b, HorizontalAnchor x_align, VerticalAnchor y_align) {
+void render_text(std::string_view text, float x, float y, float w, float h, float size, u8 mask, u8 r, u8 g, u8 b, XAnchor x_align, YAnchor y_align) {
 	if (text.empty()) {
 		return;
 	}
@@ -220,14 +220,14 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 		float x_align_offset = 0.f;
 		float y_align_offset = 0.f;
 		switch(x_align) {
-			case HorizontalAnchor::LEFT: break;
-			case HorizontalAnchor::CENTER: x_align_offset += (w - line_widths[line_indices[i]]) / 2.0f; break;
-			case HorizontalAnchor::RIGHT: x_align_offset += w - line_widths[line_indices[i]]; break;
+			case XAnchor::LEFT: break;
+			case XAnchor::CENTER: x_align_offset += (w - line_widths[line_indices[i]]) / 2.0f; break;
+			case XAnchor::RIGHT: x_align_offset += w - line_widths[line_indices[i]]; break;
 		}
 		switch(y_align) {
-			case VerticalAnchor::TOP: break;
-			case VerticalAnchor::CENTER: y_align_offset += (h - total_height) / 2.0f; break;
-			case VerticalAnchor::BOTTOM: y_align_offset += h - total_height; break;
+			case YAnchor::TOP: break;
+			case YAnchor::CENTER: y_align_offset += (h - total_height) / 2.0f; break;
+			case YAnchor::BOTTOM: y_align_offset += h - total_height; break;
 		}
 		x_positions[i] += x_align_offset;
 		y_positions[i] += y_align_offset;

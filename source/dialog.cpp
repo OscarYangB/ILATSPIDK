@@ -20,8 +20,8 @@ void start_dialog(const Dialog& new_dialog) {
 	dialog.dialog = &new_dialog;
 
 	dialog.background = ecs.create();
-	auto& background_transform = ecs.emplace<AnchoredTransformComponent>(dialog.background);
-	background_transform.x_anchor = HorizontalAnchor::CENTER; background_transform.y_anchor = VerticalAnchor::BOTTOM;
+	auto& background_transform = ecs.emplace<UITransformComponent>(dialog.background);
+	background_transform.x_anchor = XAnchor::CENTER; background_transform.y_anchor = YAnchor::BOTTOM;
 	background_transform.width = WIDTH; background_transform.height = HEIGHT;
 	auto& nine = ecs.emplace<NineSliceComponent>(dialog.background);
 	nine.x = 40; nine.y = 30; nine.w = 320; nine.h = 150;
@@ -29,8 +29,8 @@ void start_dialog(const Dialog& new_dialog) {
 	sprite.sprites = {Sprite::TEST_BUTTON};
 
 	dialog.dialog_text = ecs.create();
-	auto& dialog_transform = ecs.emplace<AnchoredTransformComponent>(dialog.dialog_text);
-	dialog_transform.x_anchor = HorizontalAnchor::CENTER; dialog_transform.y_anchor = VerticalAnchor::BOTTOM;
+	auto& dialog_transform = ecs.emplace<UITransformComponent>(dialog.dialog_text);
+	dialog_transform.x_anchor = XAnchor::CENTER; dialog_transform.y_anchor = YAnchor::BOTTOM;
 	dialog_transform.width = WIDTH - X_MARGIN; dialog_transform.height = HEIGHT - Y_MARGIN;
 	auto& text_component = ecs.emplace<TextComponent>(dialog.dialog_text);
 	dialog_transform.sort_order = 1;
@@ -139,10 +139,10 @@ void make_choice_button(const Text& choice_text, u16 jump_index, u8 choice_index
 	DialogSingleton& dialog = get_dialog();
 
 	auto entity = ecs.create();
-	auto& transform = ecs.emplace<AnchoredTransformComponent>(entity);
-	transform.x_anchor = HorizontalAnchor::CENTER; transform.y_anchor = VerticalAnchor::BOTTOM; transform.width = WIDTH; transform.height = CHOICE_BUTTON_HEIGHT;
+	auto& transform = ecs.emplace<UITransformComponent>(entity);
+	transform.x_anchor = XAnchor::CENTER; transform.y_anchor = YAnchor::BOTTOM; transform.width = WIDTH; transform.height = CHOICE_BUTTON_HEIGHT;
 	transform.relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_index};
-	auto& background_transform = ecs.get<AnchoredTransformComponent>(dialog.background); background_transform.add_child(dialog.background, entity);
+	auto& background_transform = ecs.get<UITransformComponent>(dialog.background); background_transform.add_child(dialog.background, entity);
 	auto& text_component = ecs.emplace<TextComponent>(entity);
 	text_component.text = choice_text;
 	auto& button_component = ecs.emplace<ButtonComponent>(entity);

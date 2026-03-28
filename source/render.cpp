@@ -45,7 +45,7 @@ void draw_debug_lines() {
 
 void render_fps_counter() {
 #ifndef NDEBUG
-	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 50, 0, 255, 0, 0, HorizontalAnchor::LEFT, VerticalAnchor::TOP);
+	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 50, 0, 255, 0, 0, XAnchor::LEFT, YAnchor::TOP);
 #endif
 }
 
@@ -53,9 +53,9 @@ void sort_sprites() {
 	// true -> second is above
 	// false -> first is above
 
-	ecs.sort<AnchoredTransformComponent>([](entt::entity first, entt::entity second) {
-		AnchoredTransformComponent& first_transform = ecs.get<AnchoredTransformComponent>(first);
-		AnchoredTransformComponent& second_transform = ecs.get<AnchoredTransformComponent>(second);
+	ecs.sort<UITransformComponent>([](entt::entity first, entt::entity second) {
+		UITransformComponent& first_transform = ecs.get<UITransformComponent>(first);
+		UITransformComponent& second_transform = ecs.get<UITransformComponent>(second);
 		return first_transform.sort_order < second_transform.sort_order;
 	});
 
@@ -130,7 +130,7 @@ void render_transform(entt::entity entity) {
 }
 
 void render_anchored_transform(entt::entity entity) {
-	AnchoredTransformComponent& transform = ecs.get<AnchoredTransformComponent>(entity);
+	UITransformComponent& transform = ecs.get<UITransformComponent>(entity);
 	Vector2 position = transform.render_position();
 	float render_w = transform.render_width();
 	float render_h = transform.render_height();
@@ -193,7 +193,7 @@ void render_sprites() {
 		render_transform(entity);
 	}
 
-	auto anchored_transforms = ecs.view<AnchoredTransformComponent>();
+	auto anchored_transforms = ecs.view<UITransformComponent>();
 	for (auto [entity, transform] : anchored_transforms.each()) {
 		if (transform.parent != entt::null) continue;
 		render_anchored_transform(entity);
@@ -236,7 +236,7 @@ Vector2 world_to_pixel(const Vector2& in) {
 				   (-in.y + camera_position.y) * render_scale() + window_height() / 2.0f};
 }
 
-Vector2 AnchoredTransformComponent::render_position() const {
+Vector2 UITransformComponent::render_position() const {
 	Vector2 parent_position;
 	float canvas_width;
 	float canvas_height;
@@ -245,7 +245,7 @@ Vector2 AnchoredTransformComponent::render_position() const {
 		canvas_width = window_width();
 		canvas_height = window_height();
 	} else {
-		auto& parent_transform = ecs.get<AnchoredTransformComponent>(parent);
+		auto& parent_transform = ecs.get<UITransformComponent>(parent);
 		parent_position = parent_transform.render_position();
 		canvas_width = parent_transform.render_width();
 		canvas_height = parent_transform.render_height();
@@ -258,25 +258,25 @@ Vector2 AnchoredTransformComponent::render_position() const {
 	Vector2 anchor_offset{};
 
 	switch(y_anchor) {
-		case VerticalAnchor::TOP: break;
-		case VerticalAnchor::CENTER: anchor_offset.y += (canvas_height - scaled_height) / 2.0f; break;
-		case VerticalAnchor::BOTTOM: anchor_offset.y += canvas_height - scaled_height; break;
+		case YAnchor::TOP: break;
+		case YAnchor::CENTER: anchor_offset.y += (canvas_height - scaled_height) / 2.0f; break;
+		case YAnchor::BOTTOM: anchor_offset.y += canvas_height - scaled_height; break;
 	}
 
 	switch(x_anchor) {
-		case HorizontalAnchor::LEFT: break;
-		case HorizontalAnchor::CENTER: anchor_offset.x += (canvas_width - scaled_width) / 2.0f; break;
-		case HorizontalAnchor::RIGHT: anchor_offset.x += canvas_width - scaled_width; break;
+		case XAnchor::LEFT: break;
+		case XAnchor::CENTER: anchor_offset.x += (canvas_width - scaled_width) / 2.0f; break;
+		case XAnchor::RIGHT: anchor_offset.x += canvas_width - scaled_width; break;
 	}
 
 	return position_offset + anchor_offset;
 }
 
-float AnchoredTransformComponent::render_width() const {
+float UITransformComponent::render_width() const {
 	return width * window_scale() * get_recursive_scale();
 }
 
-float AnchoredTransformComponent::render_height() const {
+float UITransformComponent::render_height() const {
 	return height * window_scale() * get_recursive_scale();
 }
 
@@ -343,16 +343,16 @@ Box SpriteComponent::visible_bounding_box() {
 	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
 }
 
-float AnchoredTransformComponent::get_recursive_scale() const {
+float UITransformComponent::get_recursive_scale() const {
 	return get_parent_scale() * scale;
 }
 
-float AnchoredTransformComponent::get_parent_scale() const {
+float UITransformComponent::get_parent_scale() const {
 	float result = 1.f;
-	const AnchoredTransformComponent* transform = this;
+	const UITransformComponent* transform = this;
 	while (true) {
 		if (transform->parent == entt::null) break;
-		transform = &ecs.get<AnchoredTransformComponent>(transform->parent);
+		transform = &ecs.get<UITransformComponent>(transform->parent);
 		result *= transform->scale;
 	}
 	return result;
