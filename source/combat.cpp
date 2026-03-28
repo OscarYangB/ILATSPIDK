@@ -92,7 +92,7 @@ void start_combat() {
 	Characters characters{};
 	auto view = ecs.view<CharacterDataComp>();
 	for (auto [entity, data] : view.each()) { // Currently based on order in which characters were added to ecs
-		auto& new_character = ecs.emplace<CharacterComp>(entity);
+		auto& new_character = add_component(entity, CharacterComp{});
 		new_character.entity = entity;
 		new_character.init_from_data(data);
 		characters.push_back(entity);

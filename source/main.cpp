@@ -33,15 +33,15 @@ void start() {
 
 	{ // TABLE
 		const entt::entity entity = ecs.create();
-		auto& sprite = ecs.emplace<SpriteComp>(entity, SpriteComp{.sprites = {Sprite::TABLE}});
-		ecs.emplace<TransformComp>(entity, TransformComp{.position = {0.f, 0.f}});
-		ecs.emplace<BoxColliderComp>(entity, TABLE_COLLIDER);;
-		ecs.emplace<InteractionComp>(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG[0]); }});
+		auto& sprite = add_component(entity, SpriteComp{.sprites = {Sprite::TABLE}});
+		add_component(entity, TransformComp{.position = {0.f, 0.f}});
+		add_component(entity, BoxColliderComp{TABLE_COLLIDER});
+		add_component(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG[0]); }});
 	}
 	{ // Background
 		const entt::entity background = ecs.create();
-		ecs.emplace<SpriteComp>(background, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
-		ecs.emplace<TransformComp>(background, TransformComp{.position = Vector2{-1000.0f, 700.0f}});
+		add_component(background, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
+		add_component(background, TransformComp{.position = Vector2{-1000.0f, 700.0f}});
 	}
 
 	init_audio();

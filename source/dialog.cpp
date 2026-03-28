@@ -20,15 +20,15 @@ void start_dialog(const Dialog& new_dialog) {
 	dialog.dialog = &new_dialog;
 
 	dialog.background = ecs.create();
-	auto& background_transform = ecs.emplace<UITransformComp>(dialog.background, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+	auto& background_transform = add_component(dialog.background, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
 																								 .width = WIDTH, .height = HEIGHT});
-	ecs.emplace<NineSliceComp>(dialog.background, NineSliceComp{.x = 40, .y = 30, .w = 320, .h = 150});
-	ecs.emplace<SpriteComp>(dialog.background, SpriteComp{.sprites = {Sprite::TEST_BUTTON}});
+	add_component(dialog.background, NineSliceComp{.x = 40, .y = 30, .w = 320, .h = 150});
+	add_component(dialog.background, SpriteComp{.sprites = {Sprite::TEST_BUTTON}});
 
 	dialog.dialog_text = ecs.create();
-	ecs.emplace<UITransformComp>(dialog.dialog_text, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+	add_component(dialog.dialog_text, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
 																	 .width = WIDTH - X_MARGIN, .height = HEIGHT - Y_MARGIN, .sort_order = 1});
-	ecs.emplace<TextComp>(dialog.dialog_text);
+	add_component(dialog.dialog_text, TextComp{});
 	background_transform.add_child(dialog.background, dialog.dialog_text);
 
 	progress_dialog();
@@ -134,13 +134,13 @@ void make_choice_button(const Text& choice_text, u16 jump_index, u8 choice_index
 	DialogSingleton& dialog = get_dialog();
 
 	auto entity = ecs.create();
-	ecs.emplace<UITransformComp>(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+	add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
 														 .relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_index},
 														 .width = WIDTH, .height = CHOICE_BUTTON_HEIGHT});
 	ecs.get<UITransformComp>(dialog.background).add_child(dialog.background, entity);
-	ecs.emplace<TextComp>(entity, TextComp{.text = choice_text});
-	ecs.emplace<ButtonComp>(entity, ButtonComp{.on_click = choice_made});
-	ecs.emplace<DialogChoiceComp>(entity, DialogChoiceComp{.jump_index = jump_index});
+	add_component(entity, TextComp{.text = choice_text});
+	add_component(entity, ButtonComp{.on_click = choice_made});
+	add_component(entity, DialogChoiceComp{.jump_index = jump_index});
 }
 
 void DialogVisitor::operator()(const DialogLine& line) {
