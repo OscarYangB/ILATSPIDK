@@ -5,8 +5,6 @@
 #include <random>
 #include "card_data.h"
 
-std::optional<Combat> combat = std::nullopt;
-
 void CharacterComponent::init_from_data(const CharacterDataComponent& new_data) {
 	data = &new_data;
 	health = data->starting_health;
@@ -33,16 +31,19 @@ void CharacterComponent::damage(float amount) {
 	refresh_health_bar(*this, false);
 }
 
-void CharacterComponent::draw() {
-	if (deck.empty()) {
-		return;
+void CharacterComponent::draw(u8 amount) {
+	for (int i = 0; i < amount; i++) {
+		if (deck.empty()) {
+			break;
+		}
+
+		Card card = deck.back();
+		deck.pop_back();
+		hand.push_back(card);
+		ui_add_hand_visual(*this, hand.size() - 1);
 	}
 
-	Card card = deck.back();
-	deck.pop_back();
-	hand.push_back(card);
-
-	ui_add_hand_visual(*this, hand.size() - 1);
+	ui_play_queued_draw_animations();
 }
 
 void CharacterComponent::play_card(u8 hand_index, const Characters& targets) {
@@ -75,12 +76,16 @@ void CharacterComponent::on_turn_start() {
 	draw();
 }
 
+bool is_in_combat() {
+	return ecs.ctx().contains<CombatSingleton>();
+}
+
 void update_combat() {
-	if (!combat.has_value()) {
+	if (!is_in_combat()) {
 		return;
 	}
 
-	combat.value().update();
+	get_combat().update();
 }
 
 void start_combat() {
@@ -93,23 +98,27 @@ void start_combat() {
 		characters.push_back(entity);
 	}
 
-	combat = {characters, 0};
+	auto& combat = ecs.ctx().emplace<CombatSingleton>(characters);
 	ui_start_combat();
 
 	for (auto [entity, character] : ecs.view<CharacterComponent>().each()) {
-		for (int i = 0; i < 5; i++) character.draw();
+		character.draw(5);
 	}
 
-	combat.value().get_active_character()->on_turn_start();
+	get_combat().get_active_character()->on_turn_start();
 	ui_on_turn_start();
 }
 
 void end_combat() {
 	ecs.clear<CharacterComponent>();
-	combat.reset();
+	ecs.ctx().erase<CombatSingleton>();
 }
 
-void Combat::update() {
+CombatSingleton& get_combat() {
+	return ecs.ctx().get<CombatSingleton>();
+}
+
+void CombatSingleton::update() {
 	timer += delta_time;
 
 	if (timer >= SECONDS_PER_BAR) { // Bar ends
@@ -135,19 +144,19 @@ void Combat::update() {
 	ui_update_combat();
 }
 
-CharacterComponent* Combat::get_active_character() {
+CharacterComponent* CombatSingleton::get_active_character() {
 	return &ecs.get<CharacterComponent>(get_active_character_entity());
 }
 
-entt::entity Combat::get_active_character_entity() {
+entt::entity CombatSingleton::get_active_character_entity() {
 	return characters.at(turn_index);
 }
 
-float Combat::get_bar_progress() {
+float CombatSingleton::get_bar_progress() {
 	return timer / SECONDS_PER_BAR;
 }
 
-float Combat::get_discrete_bar_progress() {
+float CombatSingleton::get_discrete_bar_progress() {
 	return std::floorf(get_bar_progress() * 4.f) / 4.f;
 }
 

@@ -12,6 +12,7 @@ void ui_on_turn_start();
 
 void ui_add_hand_visual(const CharacterComponent& character, u8 index);
 void ui_destroy_hand_visual(const CharacterComponent& character, u8 index);
+void ui_play_queued_draw_animations();
 
 void refresh_health_bar(const CharacterComponent& character, bool is_heal);
 

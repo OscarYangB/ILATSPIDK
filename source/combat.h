@@ -83,7 +83,7 @@ struct CharacterComponent {
 	inline bool is_alive() { return health > 0.f; }
 	void heal(float amount);
 	void damage(float amount);
-	void draw();
+	void draw(u8 amount = 1);
 	void play_card(u8 hand_index, const Characters& targets);
 	void on_bar_end();
 	void on_turn_start();
@@ -96,7 +96,7 @@ constexpr double SECONDS_PER_BEAT = 1.0 / BEATS_PER_SECOND;
 constexpr double SECONDS_PER_BAR = SECONDS_PER_BEAT * BEATS_PER_BAR;
 constexpr u8 BARS_PER_TURN = 4;
 
-struct Combat {
+struct CombatSingleton {
 	Characters characters{};
 	u8 turn_index = 0;
 	double timer = 0.f;
@@ -109,8 +109,7 @@ struct Combat {
 	float get_discrete_bar_progress();
 };
 
-extern std::optional<Combat> combat;
-
 void update_combat();
 void start_combat();
 void end_combat();
+CombatSingleton& get_combat();

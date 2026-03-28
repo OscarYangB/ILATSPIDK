@@ -13,7 +13,7 @@ constexpr u8 HEALTHBAR_WIDTH = get_sprite_dimensions(Sprite::HEALTHBAR_OUTLINE_1
 constexpr u8 HEALTHBAR_HEIGHT = get_sprite_dimensions(Sprite::HEALTHBAR_OUTLINE_1).h;
 
 void create_healthbars() {
-	for (entt::entity character_entity : combat->characters) {
+	for (entt::entity character_entity : get_combat().characters) {
 		auto& character_transform = ecs.get<TransformComponent>(character_entity);
 		auto& character_component = ecs.get<CharacterComponent>(character_entity);
 
@@ -145,13 +145,13 @@ void update_gamebar() {
 	for (auto [entity, gamebar, sprite, transform] : view.each()) {
 		Box box = sprite.visible_bounding_box();
 
-		if (combat.value().bar_index > gamebar.index) {  // Bar is already used
+		if (get_combat().bar_index > gamebar.index) {  // Bar is already used
 			sprite.tints[1] = {255, 255, 255, 0};
 			sprite.tints[0] = {0, 0, 0, 50};
-		} else if (combat.value().bar_index == gamebar.index) {  // Current bar
+		} else if (get_combat().bar_index == gamebar.index) {  // Current bar
 			sprite.tints[1] = {255, 255, 255, 255};
 			sprite.tints[0] = {0, 0, 0, 255};
-			box.right_bottom.x -= box.width() * combat.value().get_discrete_bar_progress();
+			box.right_bottom.x -= box.width() * get_combat().get_discrete_bar_progress();
 		} else { // Bar hasn't been used
 			sprite.tints[1] = {255, 255, 255, 255};
 			sprite.tints[0] = {0, 0, 0, 255};
@@ -162,17 +162,17 @@ void update_gamebar() {
 		gamebar.vibrate_timer += delta_time;
 		if (gamebar.vibrate_timer > SECONDS_PER_VIBRATION) {
 			gamebar.vibrate_timer -= SECONDS_PER_VIBRATION;
-			cycle_gamebar_animation(combat.value().bar_index);
+			cycle_gamebar_animation(get_combat().bar_index);
 
-			if (combat.value().get_discrete_bar_progress() != 0) {
-				if (gamebar.index == combat.value().bar_index) {
+			if (get_combat().get_discrete_bar_progress() != 0) {
+				if (gamebar.index == get_combat().bar_index) {
 					entt::entity fx_entity = ecs.create();
 					auto& fx_sprite = ecs.emplace<SpriteComponent>(fx_entity);
 					fx_sprite.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1};
 					fx_sprite.tints[0] = {255, 255, 255, 200};
 					auto& fx_transform = ecs.emplace<AnchoredTransformComponent>(fx_entity);
 					fx_transform = transform;
-					fx_transform.relative_position.x += sprite.visible_bounding_box().width() * (1.f - combat.value().get_discrete_bar_progress());
+					fx_transform.relative_position.x += sprite.visible_bounding_box().width() * (1.f - get_combat().get_discrete_bar_progress());
 					fx_transform.sort_order = 1;
 					auto& fx_animation = ecs.emplace<CycleAnimationComponent>(fx_entity);
 					fx_animation.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4};
@@ -192,7 +192,7 @@ void ui_on_bar_end() {
 	AnchoredTransformComponent* gamebar_transform{};
 	auto view = ecs.view<GamebarComponent, AnchoredTransformComponent>();
 	for (auto [entity, gamebar, transform] : view.each()) {
-		if (gamebar.index == combat.value().bar_index) {
+		if (gamebar.index == get_combat().bar_index) {
 			gamebar_transform = &transform;
 		}
 	}
@@ -212,7 +212,7 @@ void ui_on_bar_end() {
 	animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
 
 	// TEST
-	CharacterComponent& character = ecs.get<CharacterComponent>(combat->characters.at(0));
+	CharacterComponent& character = ecs.get<CharacterComponent>(get_combat().characters.at(0));
 	character.damage(40.f);
 	refresh_health_bar(character, false);
 	// TEST
@@ -247,7 +247,7 @@ float card_x_offset(u8 hand_size, u8 index) {
 void on_card_hover(entt::entity hovered_entity) {
 	auto& hovered_button = ecs.get<HandButtonComponent>(hovered_entity);
 	u8 index = hovered_button.index;
-	u8 hand_size = combat->get_active_character()->hand.size();
+	u8 hand_size = get_combat().get_active_character()->hand.size();
 
 	entt::entity card_entity = entt::null;
 	HandCardComponent* hovered_card = nullptr;
@@ -300,7 +300,7 @@ void on_card_hover(entt::entity hovered_entity) {
 }
 
 void on_card_unhover(entt::entity entity) {
-	u8 hand_size = combat->get_active_character()->hand.size();
+	u8 hand_size = get_combat().get_active_character()->hand.size();
 
 	for (auto [entity, card, transform] : ecs.view<HandCardComponent, AnchoredTransformComponent>().each()) {
 		u8 index = card.index;
@@ -315,13 +315,13 @@ void on_card_unhover(entt::entity entity) {
 			return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve<float>(CARD_SPRITE_HIDDEN_OFFSET, animation, starting_value.y)};
 		});
 		end_animation_group();
-
-		transform.height = CARD_HOVER_HEIGHT;
 	}
+
+	ecs.get<AnchoredTransformComponent>(entity).height = CARD_HOVER_HEIGHT;
 }
 
 void on_card_click(entt::entity entity) {
-	if (combat.value().get_active_character()->played_card.has_value()) { // Can't play if a card is queued
+	if (get_combat().get_active_character()->played_card.has_value()) { // Can't play if a card is queued
 		return;
 	}
 
@@ -347,7 +347,7 @@ void refresh_hand_buttons() {
 	auto view = ecs.view<HandButtonComponent>();
 	ecs.destroy(view.begin(), view.end());
 
-	CharacterComponent* character = combat.value().get_active_character();
+	CharacterComponent* character = get_combat().get_active_character();
 	for (int i = 0; i < character->hand.size(); i++) {
 		entt::entity entity = ecs.create();
 
@@ -368,12 +368,13 @@ void refresh_hand_buttons() {
 	}
 }
 
-void play_queued_draw_animations() {
-	entt::entity character_entity = combat.value().get_active_character_entity();
-	CharacterComponent* character = combat.value().get_active_character();
-	u8 counter = 0;
+void ui_play_queued_draw_animations() {
+	entt::entity character_entity = get_combat().get_active_character_entity();
+	CharacterComponent* character = get_combat().get_active_character();
+	auto view = ecs.view<HandCardComponent>();
+	u8 counter = view.size() - 1;
 
-	for (auto [card_entity, card] : ecs.view<HandCardComponent>().each()) {
+	for (auto [card_entity, card] : view.each()) {
 		if (card.owning_character != character_entity) {
 			continue;
 		}
@@ -417,14 +418,14 @@ void play_queued_draw_animations() {
 			return animation.is_finished();
 		});
 
-		counter++;
+		counter--;
 		card.queue_draw_animation = false;
 	}
 }
 
 void position_hand_visuals(bool from_current_position) {
-	entt::entity character = combat.value().get_active_character_entity();
-	CharacterComponent* character_component = combat.value().get_active_character();
+	entt::entity character = get_combat().get_active_character_entity();
+	CharacterComponent* character_component = get_combat().get_active_character();
 	for (auto [entity, card, transform, sprite] : ecs.view<HandCardComponent, AnchoredTransformComponent, SpriteComponent>().each()) {
 		if (card.owning_character != character) {
 			sprite.visible = false;
@@ -436,8 +437,8 @@ void position_hand_visuals(bool from_current_position) {
 		Vector2 start_position = from_current_position ? transform.relative_position : Vector2{x_position, CARD_SPRITE_HIDDEN_OFFSET + 100.f};
 		Vector2 new_position = {x_position, CARD_SPRITE_HIDDEN_OFFSET};
 
-		play_animation(0.05, 0.0, &AnchoredTransformComponent::relative_position, entity, [new_position, start_position](Animation& animation, Vector2 starting_value) {
-			return smooth_curve(new_position, animation, start_position);
+		play_animation(0.04, 0.0, &AnchoredTransformComponent::relative_position, entity, [new_position, start_position](Animation& animation, Vector2 starting_value) {
+			return fast_start_curve(new_position, animation, start_position);
 		});
 	}
 }
@@ -487,9 +488,8 @@ void ui_add_hand_visual(const CharacterComponent& character, u8 index) {
 		ecs.emplace<TextComponent>(cost, TextComponent{.text {number_to_string(card->cost)}, .colour = BLACK, .size = 32});
 	}
 
-	if (character.entity == combat->get_active_character_entity()) {
+	if (character.entity == get_combat().get_active_character_entity()) {
 		refresh_hand_buttons();
-		play_queued_draw_animations();
 		position_hand_visuals(true);
 	}
 }
@@ -511,9 +511,8 @@ void ui_destroy_hand_visual(const CharacterComponent& character, u8 index) {
 		}
 	}
 
-	if (character.entity == combat->get_active_character_entity()) {
+	if (character.entity == get_combat().get_active_character_entity()) {
 		refresh_hand_buttons();
-		play_queued_draw_animations();
 		position_hand_visuals(true);
 	}
 }
@@ -532,7 +531,7 @@ void update_drag() {
 		// TODO check if dragged far enough and with UI
 
 		// TODO targetting
-		combat.value().get_active_character()->play_card(dragged_card->index, {});
+		get_combat().get_active_character()->play_card(dragged_card->index, {});
 		dragged_card->is_dragged = false;
 
 		// TODO remove card from hand with animation
@@ -554,11 +553,11 @@ void ui_end_combat() {
 void ui_on_turn_start() {
 	for (auto [entity, card] : ecs.view<HandCardComponent>().each()) card.is_dragged = false;
 	refresh_hand_buttons();
-	play_queued_draw_animations();
+	ui_play_queued_draw_animations();
 	position_hand_visuals(false);
 }
 
 Card HandCardComponent::get_card() {
 	// Assumes the active character
-	return combat.value().get_active_character()->hand.at(index);
+	return get_combat().get_active_character()->hand.at(index);
 }
