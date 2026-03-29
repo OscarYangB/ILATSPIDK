@@ -20,7 +20,7 @@ void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 void CharacterComp::heal(float amount) {
 	health += amount;
 	health = std::clamp(health, 0.f, max_health);
-	refresh_health_bar(*this, true);
+	UI::refresh_health_bar(*this, true);
 }
 
 void CharacterComp::damage(float amount) {
@@ -28,7 +28,7 @@ void CharacterComp::damage(float amount) {
 	shield -= damage_to_shield;
 	health -= amount - damage_to_shield;
 	health = std::clamp(health, 0.f, max_health);
-	refresh_health_bar(*this, false);
+	UI::refresh_health_bar(*this, false);
 }
 
 void CharacterComp::draw(u8 amount) {
@@ -40,10 +40,10 @@ void CharacterComp::draw(u8 amount) {
 		Card card = deck.back();
 		deck.pop_back();
 		hand.push_back(card);
-		ui_add_hand_visual(*this, hand.size() - 1);
+		UI::add_hand_visual(*this, hand.size() - 1);
 	}
 
-	ui_play_queued_draw_animations();
+	UI::play_queued_draw_animations();
 }
 
 void CharacterComp::play_card(u8 hand_index, const Characters& targets) {
@@ -56,7 +56,7 @@ void CharacterComp::play_card(u8 hand_index, const Characters& targets) {
 	played_card.value().targets = targets;
 	card->play(*this, targets);
 
-	ui_destroy_hand_visual(*this, hand_index);
+	UI::destroy_hand_visual(*this, hand_index);
 }
 
 void CharacterComp::on_bar_end() {
@@ -99,14 +99,14 @@ void start_combat() {
 	}
 
 	auto& combat = ecs.ctx().emplace<CombatSingleton>(characters);
-	ui_start_combat();
+	UI::start_combat();
 
 	for (auto [entity, character] : ecs.view<CharacterComp>().each()) {
 		character.draw(5);
 	}
 
 	get_combat().get_active_character()->on_turn_start();
-	ui_on_turn_start();
+	UI::on_turn_start();
 }
 
 void end_combat() {
@@ -135,13 +135,13 @@ void CombatSingleton::update() {
 			}
 
 			get_active_character()->on_turn_start();
-			ui_on_turn_start();
+			UI::on_turn_start();
 		}
 
-		ui_on_bar_end();
+		UI::on_bar_end();
 	}
 
-	ui_update_combat();
+	UI::update_combat();
 }
 
 CharacterComp* CombatSingleton::get_active_character() {

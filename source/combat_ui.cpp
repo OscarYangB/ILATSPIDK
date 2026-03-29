@@ -49,7 +49,7 @@ void destroy_healthbars() {
 	ecs.destroy(view.begin(), view.end());
 }
 
-void refresh_health_bar(const CharacterComp& character, bool is_heal) {
+void UI::refresh_health_bar(const CharacterComp& character, bool is_heal) {
 	float health = character.health / character.max_health;
 
 	for (auto [entity, transform, sprite] : ecs.view<HealthbarComp, TransformComp, SpriteComp>().each()) {
@@ -162,7 +162,7 @@ void update_gamebar() {
 	}
 }
 
-void ui_on_bar_end() {
+void UI::on_bar_end() {
 	for (int i = 0; i < BARS_PER_TURN; i++) {
 		cycle_gamebar_animation(i);
 	}
@@ -186,7 +186,7 @@ void ui_on_bar_end() {
 	// TEST
 }
 
-void ui_start_combat() {
+void UI::start_combat() {
 	create_gamebar();
 	create_healthbars();
 
@@ -309,7 +309,7 @@ void refresh_hand_buttons() {
 	}
 }
 
-void ui_play_queued_draw_animations() {
+void UI::play_queued_draw_animations() {
 	entt::entity character_entity = get_combat().get_active_character_entity();
 	CharacterComp* character = get_combat().get_active_character();
 	auto view = ecs.view<HandCardComp>();
@@ -384,7 +384,7 @@ void position_hand_visuals(bool from_current_position) {
 	}
 }
 
-void ui_add_hand_visual(const CharacterComp& character, u8 index) {
+void UI::add_hand_visual(const CharacterComp& character, u8 index) {
 	Card card = character.hand.at(index);
 
 	entt::entity entity = ecs.create();
@@ -433,7 +433,7 @@ void ui_add_hand_visual(const CharacterComp& character, u8 index) {
 	}
 }
 
-void ui_destroy_hand_visual(const CharacterComp& character, u8 index) {
+void UI::destroy_hand_visual(const CharacterComp& character, u8 index) {
 	auto view = ecs.view<HandCardComp>();
 
 	for (auto [entity, card] : view.each()) {
@@ -478,21 +478,21 @@ void update_drag() {
 	}
 }
 
-void ui_update_combat() {
+void UI::update_combat() {
 	update_gamebar();
 	update_drag();
 }
 
-void ui_end_combat() {
+void UI::end_combat() {
 	destroy_gamebar();
 	destroy_healthbars();
 	pop_input_mode(InputMode::COMBAT);
 }
 
-void ui_on_turn_start() {
+void UI::on_turn_start() {
 	for (auto [entity, card] : ecs.view<HandCardComp>().each()) card.is_dragged = false;
 	refresh_hand_buttons();
-	ui_play_queued_draw_animations();
+	UI::play_queued_draw_animations();
 	position_hand_visuals(false);
 }
 

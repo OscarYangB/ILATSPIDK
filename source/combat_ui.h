@@ -4,17 +4,19 @@
 #include "combat.h"
 #include "entt/entt.hpp"
 
-void ui_start_combat();
-void ui_update_combat();
-void ui_end_combat();
-void ui_on_bar_end();
-void ui_on_turn_start();
+namespace UI {
+	void start_combat();
+	void update_combat();
+	void end_combat();
+	void on_bar_end();
+	void on_turn_start();
 
-void ui_add_hand_visual(const CharacterComp& character, u8 index);
-void ui_destroy_hand_visual(const CharacterComp& character, u8 index);
-void ui_play_queued_draw_animations();
+	void add_hand_visual(const CharacterComp& character, u8 index);
+	void destroy_hand_visual(const CharacterComp& character, u8 index);
+	void play_queued_draw_animations();
 
-void refresh_health_bar(const CharacterComp& character, bool is_heal);
+	void refresh_health_bar(const CharacterComp& character, bool is_heal);
+}
 
 struct HandButtonComp {
 	u8 index{};

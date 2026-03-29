@@ -36,7 +36,7 @@ constexpr CardData card_data[] {
 
 			 },
 			 .activate = [](CharacterComp& character, const Characters& targets) {
-
+				character.draw(2);
 			 }},
 	{.name= {"Heal"}, .description = {"Heal an ally"}, .play_text = {"is healing an ally!"},
 			 .cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::MAGIC,
