@@ -13,3 +13,15 @@ decltype(auto) add_component(entt::entity entity, T&& component) {
 		return ecs.emplace<T>(entity, std::forward<T>(component));
 	}
 }
+
+template<typename ComponentType, typename FunctionType>
+std::tuple<entt::entity, ComponentType&> find_component(FunctionType&& function) {
+	auto view = ecs.view<ComponentType>();
+	for (auto [entity, component] : view.each()) {
+		if (function(component)) {
+			return {entity, component};
+		}
+	}
+
+	throw std::runtime_error("Entity not found");
+}

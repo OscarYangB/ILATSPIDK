@@ -26,7 +26,6 @@ struct HandCardComp {
 
 	u32 animation_id{};
 	bool queue_draw_animation = false;
-	bool is_active = false;
 	bool is_dragged = false;
 
 	Card get_card();

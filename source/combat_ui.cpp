@@ -53,7 +53,7 @@ void refresh_health_bar(const CharacterComp& character, bool is_heal) {
 	float health = character.health / character.max_health;
 
 	for (auto [entity, transform, sprite] : ecs.view<HealthbarComp, TransformComp, SpriteComp>().each()) {
-		if (&ecs.get<CharacterComp>(transform.parent) == &character) {
+		if (transform.parent == character.entity) {
 			sprite.masks[2] = {{0.f, 0.f}, {HEALTHBAR_WIDTH * health, HEALTHBAR_HEIGHT}};
 			sprite.sprites[1] = is_heal ? Sprite::HEALTHBAR_HEAL_1 : Sprite::HEALTHBAR_DYNAMIC_1;
 
@@ -89,19 +89,11 @@ void destroy_gamebar() {
 }
 
 void cycle_gamebar_animation(u8 index) {
-	auto view = ecs.view<GamebarComp, SpriteComp>();
-	SpriteComp* sprite{};
-	for (auto [entity, gamebar, current_sprite] : view.each()) {
-		if (gamebar.index == index) {
-			sprite = &current_sprite;
-			break;
-		}
-	}
-	if (!sprite) {
-		return;
-	}
+	auto [entity, gamebar] = find_component<GamebarComp>([index](auto& gamebar){ return gamebar.index == index; });
+	auto& sprite = ecs.get<SpriteComp>(entity);
+
 	Sprite next_sprite;
-	switch (sprite->sprites.at(0)) {
+	switch (sprite.sprites.at(0)) {
 		case Sprite::GAMEBAR_START_1:
 			next_sprite = Sprite::GAMEBAR_START_2;
 			break;
@@ -124,8 +116,8 @@ void cycle_gamebar_animation(u8 index) {
 			break;
 	}
 
-	sprite->sprites.at(0) = next_sprite;
-	sprite->sprites.at(1) = next_sprite;
+	sprite.sprites.at(0) = next_sprite;
+	sprite.sprites.at(1) = next_sprite;
 }
 
 constexpr double VIBRATIONS_PER_BAR = 4;
@@ -155,18 +147,16 @@ void update_gamebar() {
 			gamebar.vibrate_timer -= SECONDS_PER_VIBRATION;
 			cycle_gamebar_animation(get_combat().bar_index);
 
-			if (get_combat().get_discrete_bar_progress() != 0) {
-				if (gamebar.index == get_combat().bar_index) {
-					entt::entity fx_entity = ecs.create();
-					auto& fx_sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1}});
-					fx_sprite.tints[0] = {255, 255, 255, 200};
-					auto& fx_transform = add_component(fx_entity, UITransformComp{transform});
-					fx_transform.relative_position.x += sprite.visible_bounding_box().width() * (1.f - get_combat().get_discrete_bar_progress());
-					fx_transform.sort_order = 1;
-					add_component(fx_entity, CycleAnimComp{
-							.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4},
-							.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
-				}
+			if (get_combat().get_discrete_bar_progress() != 0 && gamebar.index == get_combat().bar_index) {
+				entt::entity fx_entity = ecs.create();
+				auto& fx_sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1}});
+				fx_sprite.tints[0] = {255, 255, 255, 200};
+				auto& fx_transform = add_component(fx_entity, UITransformComp{transform});
+				fx_transform.relative_position.x += sprite.visible_bounding_box().width() * (1.f - get_combat().get_discrete_bar_progress());
+				fx_transform.sort_order = 1;
+				add_component(fx_entity, CycleAnimComp{
+						.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4},
+						.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
 			}
 		}
 	}
@@ -177,21 +167,14 @@ void ui_on_bar_end() {
 		cycle_gamebar_animation(i);
 	}
 
-	UITransformComp* gamebar_transform{};
-	auto view = ecs.view<GamebarComp, UITransformComp>();
-	for (auto [entity, gamebar, transform] : view.each()) {
-		if (gamebar.index == get_combat().bar_index) {
-			gamebar_transform = &transform;
-		}
-	}
-	if (gamebar_transform == nullptr) {
-		return;
-	}
+	u8 bar_index = get_combat().bar_index;
+	auto [gamebar_entity, gamebar] = find_component<GamebarComp>([bar_index](auto& gamebar){ return gamebar.index == bar_index; });
+	auto& gamebar_transform = ecs.get<UITransformComp>(gamebar_entity);
 
 	entt::entity entity = ecs.create();
 	auto& sprite = add_component(entity, SpriteComp{.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1}});
 	sprite.tints[0] = {255, 255, 255, 200};
-	add_component(entity, UITransformComp{*gamebar_transform});
+	add_component(entity, UITransformComp{gamebar_transform});
 	add_component(entity, CycleAnimComp{
 			.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4},
 			.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
@@ -211,6 +194,7 @@ void ui_start_combat() {
 	for (auto [entity, character, movement] : view.each()) {
 		movement.direction = CharacterDirection::DOWN;
 	}
+
 	push_input_mode(InputMode::COMBAT);
 }
 
@@ -234,21 +218,12 @@ void on_card_hover(entt::entity hovered_entity) {
 	u8 index = hovered_button.index;
 	u8 hand_size = get_combat().get_active_character()->hand.size();
 
-	entt::entity card_entity = entt::null;
-	HandCardComp* hovered_card = nullptr;
 	auto view = ecs.view<HandCardComp, UITransformComp>();
-	for (auto [entity, card, transform] : view.each()) {
-		if (card.index == index) {
-			card_entity = entity;
-			hovered_card = &card;
-		}
-	}
-	assert(hovered_card != nullptr);
-
+	auto [card_entity, hovered_card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
 	ecs.get<UITransformComp>(hovered_entity).height = CARD_HOVER_EXPANDED_HEIGHT;
 
-	stop_animation(hovered_card->animation_id);
-	hovered_card->animation_id = start_animation_group();
+	stop_animation(hovered_card.animation_id);
+	hovered_card.animation_id = start_animation_group();
 	play_animation(0.04, 0.0, &UITransformComp::scale, card_entity, [](Animation& animation, float starting_value) {
 		return smooth_curve(2.f, animation, starting_value);
 	});
@@ -312,16 +287,8 @@ void on_card_click(entt::entity entity) {
 
 	u8 index = ecs.get<HandButtonComp>(entity).index;
 
-	HandCardComp* hovered_card = nullptr;
-	auto view = ecs.view<HandCardComp, UITransformComp>();
-	for (auto [entity, card, transform] : view.each()) {
-		if (card.index == index) {
-			hovered_card = &card;
-		}
-	}
-	assert(hovered_card != nullptr);
-
-	hovered_card->is_dragged = true;
+	auto [card_entity, card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
+	card.is_dragged = true;
 }
 
 // 1. HandCardComp and unpositioned visuals are created/destroyed whenever hand state changes: ui_add_hand_visual() ui_destroy_hand_visual()
@@ -335,11 +302,8 @@ void refresh_hand_buttons() {
 	CharacterComp* character = get_combat().get_active_character();
 	for (u8 i = 0; i < character->hand.size(); i++) {
 		entt::entity entity = ecs.create();
-
-		add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
-															 .relative_position = {card_x_offset(character->hand.size(), i), 0.f},
-															 .width = CARD_HOVER_WIDTH, .height = CARD_HOVER_HEIGHT});
-
+		add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM, .relative_position = {card_x_offset(character->hand.size(), i), 0.f},
+											  .width = CARD_HOVER_WIDTH, .height = CARD_HOVER_HEIGHT});
 		add_component(entity, ButtonComp{.on_hover = on_card_hover, .on_click = on_card_click, .on_unhover = on_card_unhover});
 		add_component(entity, HandButtonComp{.index = i});
 	}
@@ -367,8 +331,8 @@ void ui_play_queued_draw_animations() {
 
 		entt::entity fx_entity = ecs.create();
 		add_component(fx_entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
-																.relative_position = {card_x_offset(character->hand.size(), card.index) + 400.f, -100.f},
-																.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1});
+												 .relative_position = {card_x_offset(character->hand.size(), card.index) + 400.f, -100.f},
+												 .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1});
 		auto& sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::NONE}});
 
 		play_animation(DURATION, delay, &UITransformComp::relative_position, fx_entity, [card_entity](Animation& animation, Vector2 starting_value) {
