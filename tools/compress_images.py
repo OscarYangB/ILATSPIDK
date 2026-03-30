@@ -1,5 +1,5 @@
 import subprocess
-import os
+from cpp_utils import get_files_of_type
 
 oxipng_path = "C:/oxipng/oxipng.exe"
 
@@ -16,12 +16,6 @@ oxipng_path = "C:/oxipng/oxipng.exe"
 # 5% new and exciting patterns emergse -> 99% reduction
 # 1% blocky pixel art -> 99% reduction
 
-for (root, dirs, files) in os.walk("..\\assets"):
-    for file in files:
-        split = file.split('.', 1)
-        extension = split[1]
-        full_path = os.path.join(root, file);
-
-        if extension == "png":
-            subprocess.run([oxipng_path, full_path, "--alpha", "-o", "max", "-z"], shell=True)
-            print(full_path)
+for (name, path) in get_files_of_type("png"):
+    subprocess.run([oxipng_path, path, "--alpha", "-o", "max", "-z"], shell=True)
+    print(path)

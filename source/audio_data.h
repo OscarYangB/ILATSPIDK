@@ -7,15 +7,11 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc23-extensions"
 
-constexpr char success[] { 
+constexpr char success[] {
 	#embed "..\assets\audio\success.wav"
 };
 
 #pragma clang diagnostic pop
-
-enum class AudioAsset {
-	SUCCESS_AUDIO,
-};
 
 constexpr const char* audio_data[] {
 	success,
@@ -25,6 +21,9 @@ constexpr int audio_sizes[] {
 	sizeof(success),
 };
 
-constexpr int NUMBER_OF_SOUNDS = 1;
+enum class AudioFile {
+	SUCCESS_AUDIO
+};
 
+constexpr int NUMBER_OF_SOUNDS = 1;
 

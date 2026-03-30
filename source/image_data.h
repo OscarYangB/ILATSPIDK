@@ -9,89 +9,67 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc23-extensions"
 
-constexpr char card[] { 
+constexpr char card[] {
 	#embed "..\assets\art\card.png"
 };
 
-constexpr char gamebar[] { 
+constexpr char gamebar[] {
 	#embed "..\assets\art\GameBar.png"
 };
 
-constexpr char grakeny[] { 
+constexpr char grakeny[] {
 	#embed "..\assets\art\Grakeny.png"
 };
 
-constexpr char healthbar[] { 
+constexpr char healthbar[] {
 	#embed "..\assets\art\healthbar.png"
 };
 
-constexpr char kerry[] { 
+constexpr char kerry[] {
 	#embed "..\assets\art\kerry.png"
 };
 
-constexpr char table[] { 
+constexpr char table[] {
 	#embed "..\assets\art\table.png"
 };
 
-constexpr char test_background[] { 
+constexpr char test_background[] {
 	#embed "..\assets\art\test_background.png"
 };
 
-constexpr char test_button[] { 
+constexpr char test_button[] {
 	#embed "..\assets\art\test_button.png"
 };
 
-constexpr char atkinson_hyperlegible[] { 
-	#embed "..\assets\font\atkinson_hyperlegible.ttf"
-};
-
-constexpr char extra_small_font[] { 
+constexpr char extra_small_font[] {
 	#embed "..\assets\font\extra_small_font.png"
 };
 
-constexpr char large_font[] { 
+constexpr char large_font[] {
 	#embed "..\assets\font\large_font.png"
 };
 
-constexpr char medium_font[] { 
+constexpr char medium_font[] {
 	#embed "..\assets\font\medium_font.png"
 };
 
-constexpr char medium_large_font[] { 
+constexpr char medium_large_font[] {
 	#embed "..\assets\font\medium_large_font.png"
 };
 
-constexpr char small_font[] { 
+constexpr char small_font[] {
 	#embed "..\assets\font\small_font.png"
 };
 
-constexpr char small_medium_font[] { 
+constexpr char small_medium_font[] {
 	#embed "..\assets\font\small_medium_font.png"
 };
 
-constexpr char very_large_font[] { 
+constexpr char very_large_font[] {
 	#embed "..\assets\font\very_large_font.png"
 };
 
 #pragma clang diagnostic pop
-
-enum class ImageFile {
-	CARD_IMAGE,
-	GAMEBAR_IMAGE,
-	GRAKENY_IMAGE,
-	HEALTHBAR_IMAGE,
-	KERRY_IMAGE,
-	TABLE_IMAGE,
-	TEST_BACKGROUND_IMAGE,
-	TEST_BUTTON_IMAGE,
-	EXTRA_SMALL_FONT_IMAGE,
-	LARGE_FONT_IMAGE,
-	MEDIUM_FONT_IMAGE,
-	MEDIUM_LARGE_FONT_IMAGE,
-	SMALL_FONT_IMAGE,
-	SMALL_MEDIUM_FONT_IMAGE,
-	VERY_LARGE_FONT_IMAGE,
-};
 
 constexpr const char* image_file_data[] {
 	card,
@@ -129,8 +107,23 @@ constexpr int image_file_sizes[] {
 	sizeof(very_large_font),
 };
 
-constexpr int NUMBER_OF_IMAGES = 15;
-
+enum class ImageFile {
+	CARD_IMAGE,
+	GAMEBAR_IMAGE,
+	GRAKENY_IMAGE,
+	HEALTHBAR_IMAGE,
+	KERRY_IMAGE,
+	TABLE_IMAGE,
+	TEST_BACKGROUND_IMAGE,
+	TEST_BUTTON_IMAGE,
+	EXTRA_SMALL_FONT_IMAGE,
+	LARGE_FONT_IMAGE,
+	MEDIUM_FONT_IMAGE,
+	MEDIUM_LARGE_FONT_IMAGE,
+	SMALL_FONT_IMAGE,
+	SMALL_MEDIUM_FONT_IMAGE,
+	VERY_LARGE_FONT_IMAGE
+};
 
 enum class Sprite {
 	CARD_PSYCHIC_1,
@@ -297,7 +290,7 @@ enum class Sprite {
 	SMALL_FONT,
 	SMALL_MEDIUM_FONT,
 	VERY_LARGE_FONT,
-	NONE,
+	NONE
 };
 
 constexpr SpriteAtlasTransform sprite_atlas_transform[] {
@@ -464,7 +457,7 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 0, 3420, 54, 41, 8, 3406, 42},
 	{0, 0, 1520, 24, 20, 4, 1516, 20},
 	{0, 0, 1900, 30, 24, 4, 1894, 24},
-	{0, 0, 6840, 108, 80, 16, 6809, 84},
+	{0, 0, 6840, 108, 80, 16, 6809, 84}
 };
 
 constexpr ImageFile sprite_to_image_file[] {
@@ -631,6 +624,8 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::MEDIUM_LARGE_FONT_IMAGE,
 	ImageFile::SMALL_FONT_IMAGE,
 	ImageFile::SMALL_MEDIUM_FONT_IMAGE,
-	ImageFile::VERY_LARGE_FONT_IMAGE,
+	ImageFile::VERY_LARGE_FONT_IMAGE
 };
+
+constexpr int NUMBER_OF_IMAGES = 15;
 

@@ -19,16 +19,19 @@ while True:
 
     if command == "compress" or command == "c":
         run_tool("compress_images.py")
+        run_tool("import_images.py")
     elif command == "export" or command == "e":
         run_tool("export_aseprite.py")
-        run_tool("import_assets.py")
+        run_tool("import_images.py")
     elif command == "image" or command == "i":
-        run_tool("import_assets.py")
+        run_tool("import_images.py")
+    elif command == "audio" or command == "a":
+        run_tool("import_audio.py")
     elif command == "dialog" or command == "d":
         run_tool("import_dialog.py")
     elif command == "font" or command == "f":
         run_tool("import_font.py")
-        run_tool("import_assets.py")
+        run_tool("import_images.py")
     elif command == "build" or command == "b":
         os.chdir("./build")
         subprocess.call(os.path.abspath("build.bat"), shell=True)
@@ -59,6 +62,7 @@ while True:
         print("(c)ompress")
         print("(e)xport")
         print("(i)mage")
+        print("(a)udio")
         print("(d)ialog")
         print("(f)ont")
         print("(b)uild")
