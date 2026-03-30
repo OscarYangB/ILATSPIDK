@@ -40,7 +40,6 @@ void destroy_window() {
     SDL_Quit();
 }
 
-// Should probably be async
 void load_sprite(int index) {
 	if (loaded_sprites[index] != nullptr) {
 		return; // Sprite already loaded
@@ -91,36 +90,13 @@ void render_sprite(ImageFile image_file, float from_x, float from_y, float from_
 	SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
 }
 
-void render_nine_slice(ImageFile image_file, u32 atlas_x, u32 atlas_y, u32 atlas_w, u32 atlas_h, float x, float y, float w, float h,
+void render_nine_slice(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h,
 					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale) {
 	SDL_Texture* texture = get_sprite(image_file);
 	if (texture == nullptr) return;
-
-	float last_segment_width = (float)atlas_w - slice_x - slice_w;
-	float last_segment_height = (float)atlas_h - slice_y - slice_h;
-
-	float x_from_locations[4] = {(float)atlas_x, slice_x, slice_w, last_segment_width};
-	float x_to_locations[4] = {x, slice_x * window_scale,
-							   w - last_segment_width * window_scale - slice_x * window_scale, last_segment_width * window_scale};
-	float y_from_locations[4] = {(float)atlas_y, slice_y, slice_h, last_segment_height};
-	float y_to_locations[4] = {y, slice_y * window_scale,
-							   h - last_segment_height * window_scale - slice_y * window_scale, last_segment_height * window_scale};
-
-	float x_from_location = 0.f;
-	float x_to_location = 0.f;
-	for (int i = 0; i < 3; i++) {
-		x_from_location += x_from_locations[i];
-		x_to_location += x_to_locations[i];
-		float y_from_location = 0.f;
-		float y_to_location = 0.f;
-		for (int j = 0; j < 3; j++) {
-			y_from_location += y_from_locations[j];
-			y_to_location += y_to_locations[j];
-			SDL_FRect from_rect = {x_from_location, y_from_location, x_from_locations[i+1], y_from_locations[j+1]};
-			SDL_FRect to_rect = {x_to_location, y_to_location, x_to_locations[i+1], y_to_locations[j+1]};
-			SDL_RenderTexture(renderer, texture, &from_rect, &to_rect);
-		}
-	}
+	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
+	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
+	SDL_RenderTexture9Grid(renderer, texture, &from_rect, slice_x, slice_w, slice_h, slice_y, window_scale, &to_rect);
 }
 
 int window_width() {
@@ -241,7 +217,7 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 		float from_x = index * from_width;
 		SDL_FRect to{x_positions[i], y_positions[i], render_width, size};
 		SDL_FRect from{from_x, 0.f, from_width, from_height};
-		SDL_RenderTexture(renderer, texture, &from, &to); // Investigate performace impact here
+		SDL_RenderTexture(renderer, texture, &from, &to);
 	}
 }
 
