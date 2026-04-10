@@ -45,15 +45,15 @@ void CharacterComp::draw(u8 amount) {
 	UI::play_queued_draw_animations();
 }
 
-void CharacterComp::play_card(u8 hand_index, const Characters& targets) {
+void CharacterComp::play_card(u8 hand_index, entt::entity target) {
 	Card card = hand.at(hand_index);
 	hand.erase(hand.begin() + hand_index);
 
 	played_card.emplace();
 	played_card.value().card = card;
 	played_card.value().bars_until_activate = card.data->cost;
-	played_card.value().targets = targets;
-	card.data->play(*this, targets);
+	played_card.value().target = target;
+	card.data->play(*this, target);
 
 	UI::destroy_hand_visual(*this, hand_index);
 }
@@ -66,7 +66,7 @@ void CharacterComp::on_bar_end() {
 	played_card.value().bars_until_activate--;
 
 	if (played_card.value().bars_until_activate <= 0) {
-		played_card.value().card.data->activate(*this, played_card.value().targets);
+		played_card.value().card.data->activate(*this, played_card.value().target);
 		played_card.reset();
 	}
 }
@@ -88,7 +88,7 @@ void update_combat() {
 }
 
 void start_combat() {
-	Characters characters{};
+	FixedList<entt::entity, 20> characters{};
 	auto view = ecs.view<CharacterDataComp>();
 	for (auto [entity, data] : view.each()) { // Currently based on order in which characters were added to ecs
 		auto& new_character = add_component(entity, CharacterComp{});

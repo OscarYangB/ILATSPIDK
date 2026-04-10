@@ -14,46 +14,49 @@ enum class CardID {
 
 constexpr CardData card_data[] {
 	{.name = {"Fireball"}, .description = {"Shoot ball of fire."}, .play_text = {"is shooting a fireball!"},
-			.cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::MAGIC,
-			.play = [](CharacterComp& character, const Characters& targets) {
-				std::cout << "Fireball played" << "\n";
-			},
-			.activate = [](CharacterComp& character, const Characters& targets) {
-				std::cout << "Fireball activated" << "\n";
-			}},
+	 .cost = 3, .minigame_level = 0, .valid_target_bitmask = EVIL, .ai_target_bitmask = GOOD, .card_type = CardType::MAGIC,
+	 .play = [](CharacterComp& character, entt::entity target) {
+		 std::cout << "Fireball played" << "\n";
+	 },
+	 .activate = [](CharacterComp& character, entt::entity target) {
+		 std::cout << "Fireball activated" << "\n";
+	 }},
+
 	{.name= {"Saturn"}, .description = {"The power of Saturn. This text is very long and will create a line break."}, .play_text = {"is evoking the power of Saturn!"},
-			 .cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::PSYCHIC,
-			 .play = [](CharacterComp& character, const Characters& targets) {
+	 .cost = 3, .minigame_level = 0, .valid_target_bitmask = 0, .ai_target_bitmask = GOOD, .card_type = CardType::PSYCHIC,
+	 .play = [](CharacterComp& character, entt::entity target) {
 
-			 },
-			 .activate = [](CharacterComp& character, const Characters& targets) {
+	 },
+	 .activate = [](CharacterComp& character, entt::entity target) {
 
-			 }},
+	 }},
 
 	{.name= {"Mind Read"}, .description = {"Read the mind of an enemy"}, .play_text = {"is reading the mind of an enemy."},
-			 .cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::PSYCHIC,
-			 .play = [](CharacterComp& character, const Characters& targets) {
+	 .cost = 3, .minigame_level = 0, .valid_target_bitmask = GOOD, .ai_target_bitmask = GOOD, .card_type = CardType::PSYCHIC,
+	 .play = [](CharacterComp& character, entt::entity target) {
 
-			 },
-			 .activate = [](CharacterComp& character, const Characters& targets) {
-				character.draw(2);
-			 }},
+	 },
+	 .activate = [](CharacterComp& character, entt::entity target) {
+		 character.draw(2);
+	 }},
+
 	{.name= {"Heal"}, .description = {"Heal an ally"}, .play_text = {"is healing an ally!"},
-			 .cost = 3, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::MAGIC,
-			 .play = [](CharacterComp& character, const Characters& targets) {
+	 .cost = 3, .minigame_level = 0, .valid_target_bitmask = GOOD | EVIL, .ai_target_bitmask = EVIL, .card_type = CardType::MAGIC,
+	 .play = [](CharacterComp& character, entt::entity target) {
 
-			 },
-			 .activate = [](CharacterComp& character, const Characters& targets) {
+	 },
+	 .activate = [](CharacterComp& character, entt::entity target) {
 
-			 }},
+	 }},
+
 	{.name= {"Grenade"}, .description = {"Explode an area"}, .play_text = {"is throwing a grenade!"},
-			 .cost = 2, .minigame_level = 0, .enemy_target_bitmask = GOOD, .number_of_targets = 1, .card_type = CardType::GROOVE,
-			 .play = [](CharacterComp& character, const Characters& targets) {
+	 .cost = 2, .minigame_level = 0, .valid_target_bitmask = EVIL, .ai_target_bitmask = GOOD, .card_type = CardType::GROOVE,
+	 .play = [](CharacterComp& character, entt::entity target) {
 
-			 },
-			 .activate = [](CharacterComp& character, const Characters& targets) {
+	 },
+	 .activate = [](CharacterComp& character, entt::entity target) {
 
-			 }},
+	 }},
 };
 
 constexpr CardData test = {.name = {"awdawd"}, .description = {"asdasd"}};

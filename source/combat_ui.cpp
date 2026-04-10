@@ -583,7 +583,15 @@ void update_drag() {
 	get_combat().ui.target_position.reset();
 	float closest_distance{};
 	auto view = ecs.view<CharacterComp, BoxColliderComp, TransformComp>();
-	for (auto [entity, character, collider, transform] : view.each()) {
+	for (auto [entity, character, collider, transform] : view.each()) { // TODO highlight valid targets
+		auto valid_target_bitmask = dragged_card.get_card().data->valid_target_bitmask;
+		if (valid_target_bitmask == 0) {
+			if (entity != get_combat().get_active_character_entity()) {
+				continue;
+			}
+		} else if ((character.data->type & valid_target_bitmask) != character.data->type) {
+			continue;
+		}
 		Vector2 character_screen_position = world_to_pixel(transform.position + collider.box.center());
 		float distance_to_mouse = Vector2::distance(character_screen_position, {get_pixel_mouse_x(), get_pixel_mouse_y()});
 		if (!get_combat().ui.target_position.has_value() || distance_to_mouse < closest_distance) {
@@ -598,7 +606,7 @@ void update_drag() {
 
 		// TODO check if dragged far enough and with UI
 
-		get_combat().get_active_character()->play_card(dragged_card.index, {closest_character});
+		get_combat().get_active_character()->play_card(dragged_card.index, closest_character);
 		get_combat().ui.dragged_card = entt::null;
 
 		// TODO remove card from hand with animation

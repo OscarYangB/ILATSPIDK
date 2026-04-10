@@ -6,11 +6,10 @@
 #include <optional>
 #include "text.h"
 #include <entt/entt.hpp>
-#include "fixed_list.h"
 #include "combat_ui.h"
+#include "fixed_list.h"
 
 struct CharacterComp;
-using Characters = FixedList<entt::entity, 20>;
 
 enum class CardType {
 	PSYCHIC,
@@ -24,12 +23,12 @@ struct CardData {
 	Text play_text{};
 	u8 cost{};
 	u8 minigame_level{}; // 0 means none
-	u8 enemy_target_bitmask{};
-	u8 number_of_targets{};
+	u8 valid_target_bitmask{};
+	u8 ai_target_bitmask{};
 	CardType card_type;
 
-	void (*play)(CharacterComp& character, const Characters& targets);
-	void (*activate)(CharacterComp& character, const Characters& targets);
+	void (*play)(CharacterComp& character, entt::entity target);
+	void (*activate)(CharacterComp& character, entt::entity target);
 };
 
 struct Card {
@@ -39,7 +38,7 @@ struct Card {
 struct PlayedCard {
 	u8 bars_until_activate{};
 	Card card{};
-	Characters targets = {};
+	entt::entity target{};
 };
 
 enum CharacterType : u8 {
@@ -87,7 +86,7 @@ struct CharacterComp {
 	void heal(float amount);
 	void damage(float amount);
 	void draw(u8 amount = 1);
-	void play_card(u8 hand_index, const Characters& targets);
+	void play_card(u8 hand_index, entt::entity target);
 	void on_bar_end();
 	void on_turn_start();
 };
@@ -100,7 +99,7 @@ constexpr double SECONDS_PER_BAR = SECONDS_PER_BEAT * BEATS_PER_BAR;
 constexpr u8 BARS_PER_TURN = 4;
 
 struct CombatSingleton {
-	Characters characters{};
+	FixedList<entt::entity, 20> characters{};
 	u8 turn_index = 0;
 	double timer = 0.f;
 	u8 bar_index = 0;
