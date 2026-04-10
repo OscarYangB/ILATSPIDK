@@ -1,7 +1,6 @@
 #include "combat.h"
 #include <algorithm>
 #include "game.h"
-#include "combat_ui.h"
 #include <random>
 #include "card_data.h"
 
@@ -52,9 +51,9 @@ void CharacterComp::play_card(u8 hand_index, const Characters& targets) {
 
 	played_card.emplace();
 	played_card.value().card = card;
-	played_card.value().bars_until_activate = card->cost;
+	played_card.value().bars_until_activate = card.data->cost;
 	played_card.value().targets = targets;
-	card->play(*this, targets);
+	card.data->play(*this, targets);
 
 	UI::destroy_hand_visual(*this, hand_index);
 }
@@ -67,7 +66,7 @@ void CharacterComp::on_bar_end() {
 	played_card.value().bars_until_activate--;
 
 	if (played_card.value().bars_until_activate <= 0) {
-		played_card.value().card->activate(*this, played_card.value().targets);
+		played_card.value().card.data->activate(*this, played_card.value().targets);
 		played_card.reset();
 	}
 }
@@ -162,6 +161,6 @@ float CombatSingleton::get_discrete_bar_progress() {
 
 std::vector<Card> make_cards(std::vector<CardID> ids) {
 	std::vector<Card> result = {};
-	for (CardID id : ids) result.push_back(&card_data[static_cast<u8>(id)]);
+	for (CardID id : ids) result.push_back(Card{&card_data[static_cast<u8>(id)]});
 	return result;
 }

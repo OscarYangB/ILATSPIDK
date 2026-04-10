@@ -7,6 +7,7 @@
 #include "text.h"
 #include <entt/entt.hpp>
 #include "fixed_list.h"
+#include "combat_ui.h"
 
 struct CharacterComp;
 using Characters = FixedList<entt::entity, 20>;
@@ -31,11 +32,13 @@ struct CardData {
 	void (*activate)(CharacterComp& character, const Characters& targets);
 };
 
-using Card = const CardData*;
+struct Card {
+	const CardData* data = nullptr;
+};
 
 struct PlayedCard {
 	u8 bars_until_activate{};
-	Card card = nullptr;
+	Card card{};
 	Characters targets = {};
 };
 
@@ -101,6 +104,7 @@ struct CombatSingleton {
 	u8 turn_index = 0;
 	double timer = 0.f;
 	u8 bar_index = 0;
+	CombatUI ui{};
 
 	void update();
 	float get_bar_progress();

@@ -1,8 +1,11 @@
 #pragma once
 
 #include "definitions.h"
-#include "combat.h"
 #include "entt/entt.hpp"
+#include "vector2.h"
+
+struct CharacterComp;
+struct Card;
 
 namespace UI {
 	void start_combat();
@@ -18,6 +21,11 @@ namespace UI {
 	void refresh_health_bar(const CharacterComp& character, bool is_heal);
 }
 
+struct CombatUI {
+	entt::entity dragged_card = entt::null;
+	std::optional<Vector2> target_position{};
+};
+
 struct HandButtonComp {
 	u8 index{};
 };
@@ -28,7 +36,6 @@ struct HandCardComp {
 
 	u32 animation_id{};
 	bool queue_draw_animation = false;
-	bool is_dragged = false;
 
 	Card get_card();
 };
@@ -43,3 +50,5 @@ struct HealthbarComp {};
 struct ArrowComp {
 	u8 index;
 };
+
+struct CardPreviewComp{};
