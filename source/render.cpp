@@ -8,11 +8,13 @@
 Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.0f; // Gameplay code can write to this
 
-static float window_scale() {
-	if ((float)window_width() / (float)window_height() < 1920.0f / 1080.f) {
-		return (float)window_width() / 1920.0f; // Zoom out if aspect ratio is narrower than expected
+float window_scale() {
+	float width = window_width();
+	float height = window_height();
+	if (width / height < SCREEN_SPACE_WIDTH / SCREEN_SPACE_HEIGHT) {
+		return width / SCREEN_SPACE_WIDTH; // Zoom out if aspect ratio is narrower than expected
 	} else {
-		return window_height() / 1080.0f;
+		return height / SCREEN_SPACE_HEIGHT;
 	}
 }
 

@@ -5,8 +5,8 @@
 
 bool is_button_hovered(const ButtonComp& button, const UITransformComp& transform) {
 	Vector2 position = transform.render_position();
-	return get_mouse_x() > position.x && get_mouse_x() < position.x + transform.render_width() &&
-		   get_mouse_y() > position.y && get_mouse_y() < position.y + transform.render_height();
+	return get_pixel_mouse_x() > position.x && get_pixel_mouse_x() < position.x + transform.render_width() &&
+		   get_pixel_mouse_y() > position.y && get_pixel_mouse_y() < position.y + transform.render_height();
 }
 
 void update_button() {

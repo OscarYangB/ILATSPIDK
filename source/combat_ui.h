@@ -39,3 +39,7 @@ struct GamebarComp {
 };
 
 struct HealthbarComp {};
+
+struct ArrowComp {
+	u8 index;
+};

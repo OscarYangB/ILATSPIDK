@@ -8,6 +8,44 @@
 #include "animation.h"
 #include "image_utils.h"
 #include "movement_controller.h"
+#include "animation.h"
+
+static constexpr float DOT_DISTANCE = 60.f;
+static constexpr float ARROWS_PER_UNIT = 1.f / DOT_DISTANCE;
+constexpr u8 NUMBER_OF_ARROW_DOTS = (SCREEN_SPACE_HEIGHT + SCREEN_SPACE_WIDTH) / DOT_DISTANCE;
+constexpr u16 ARROW_DOT_WIDTH = get_sprite_dimensions(Sprite::ARROW_DOT_1).w;
+constexpr u16 ARROW_DOT_HEIGHT = get_sprite_dimensions(Sprite::ARROW_DOT_1).h;
+
+void create_arrow() {
+	for (u8 i = 0; i < NUMBER_OF_ARROW_DOTS; i++) {
+		entt::entity entity = ecs.create();
+		add_component(entity, UITransformComp{.sort_order = 10});
+		add_component(entity, SpriteComp{.sprites = {Sprite::NONE}});
+		add_component(entity, ArrowComp{.index = i});
+		auto sprites = i == 0 ? decltype(CycleAnimComp::sprites){Sprite::ARROW_ARROW_1, Sprite::ARROW_ARROW_2, Sprite::ARROW_ARROW_3, Sprite::ARROW_ARROW_4} :
+								decltype(CycleAnimComp::sprites){Sprite::ARROW_DOT_1, Sprite::ARROW_DOT_2, Sprite::ARROW_DOT_3, Sprite::ARROW_DOT_4};
+		add_component(entity, CycleAnimComp{.sprites = sprites, .frequency = 4.f, .index = static_cast<u8>(i % sprites.current_size)});
+	}
+}
+
+float curved_interpolate(float a, float b, float t) {
+	return a + (b - a) * sqrt(t);
+}
+
+void update_arrow() {
+	for (auto [entity, transform, arrow] : ecs.view<UITransformComp, ArrowComp>().each()) {
+		static constexpr float x_start = SCREEN_SPACE_WIDTH / 2.f;
+		float x_end = get_mouse_x() - ARROW_DOT_WIDTH / 2.f;
+		float y_distance = abs(SCREEN_SPACE_HEIGHT - get_mouse_y());
+		float x_distance = abs(x_start - x_end);
+		float distance = std::hypot(x_distance, y_distance);
+		float number_of_dots_on_screen = distance / DOT_DISTANCE;
+		float interpolation = 1.f - static_cast<float>(arrow.index) / number_of_dots_on_screen;
+		//float x_offset = arrow.index == 0 ? 0.f : (x_end - x_start) * 0.05f * (y_distance / SCREEN_SPACE_HEIGHT);
+		transform.relative_position = {curved_interpolate(x_start, x_end, interpolation),
+									   get_mouse_y() + arrow.index * y_distance / number_of_dots_on_screen};
+	}
+}
 
 constexpr u8 HEALTHBAR_WIDTH = get_sprite_dimensions(Sprite::HEALTHBAR_OUTLINE_1).w;
 constexpr u8 HEALTHBAR_HEIGHT = get_sprite_dimensions(Sprite::HEALTHBAR_OUTLINE_1).h;
@@ -196,6 +234,10 @@ void UI::start_combat() {
 	}
 
 	push_input_mode(InputMode::COMBAT);
+
+	// TEST
+		create_arrow();
+	//
 }
 
 constexpr u16 CARD_HOVER_WIDTH = 145;
@@ -481,6 +523,10 @@ void update_drag() {
 void UI::update_combat() {
 	update_gamebar();
 	update_drag();
+
+	// TEST
+		update_arrow();
+	//
 }
 
 void UI::end_combat() {

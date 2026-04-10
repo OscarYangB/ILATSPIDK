@@ -2,6 +2,7 @@
 #include <queue>
 #include <SDL3/SDL.h>
 #include "platform_render.h"
+#include "render.h"
 
 static Input inputs[NUMBER_OF_INPUT_TYPES] {};
 static std::queue<InputEvent> input_events {};
@@ -10,12 +11,20 @@ static float mouse_x {0.0f};
 static float mouse_y {0.0f};
 static std::vector<InputMode> input_mode_stack = {InputMode::EXPLORE};
 
-float get_mouse_x() {
+float get_pixel_mouse_x() {
 	return mouse_x;
 }
 
-float get_mouse_y() {
+float get_pixel_mouse_y() {
 	return mouse_y;
+}
+
+float get_mouse_x() {
+	return mouse_x / window_scale();
+}
+
+float get_mouse_y() {
+	return mouse_y / window_scale();
 }
 
 void push_input_mode(InputMode mode) {

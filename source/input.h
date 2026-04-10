@@ -41,6 +41,8 @@ enum class InputMode {
 void update_input();
 void handle_input_event(SDL_KeyboardEvent event);
 
+float get_pixel_mouse_x();
+float get_pixel_mouse_y();
 float get_mouse_x();
 float get_mouse_y();
 bool input_held(InputType input_type);
