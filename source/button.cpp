@@ -20,14 +20,14 @@ void update_button() {
 	}
 
 	for (auto [entity, button, transform] : buttons.each()) {
-		if (is_button_hovered(button, transform) && !button.is_hovered) {
+		if (is_button_hovered(button, transform) && !button.is_hovered && button.is_enabled) {
 			button.is_hovered = true;
 			if (button.on_hover) button.on_hover(entity);
 		}
 	}
 
 	for (auto [entity, button, transform] : buttons.each()) {
-		if (is_button_hovered(button, transform) && input_down_this_frame(InputType::MOUSE_CLICK)) {
+		if (is_button_hovered(button, transform) && input_down_this_frame(InputType::MOUSE_CLICK) && button.is_enabled) {
 			handle_input(InputType::MOUSE_CLICK);
 			if (button.on_click) button.on_click(entity);
 		}

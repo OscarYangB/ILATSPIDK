@@ -358,10 +358,6 @@ void on_card_hover(entt::entity hovered_entity) {
 			end_animation_group();
 		}
 	}
-
-	get_combat().ui.dragged_card = entt::null;
-	destroy_arrow();
-	destroy_card_preview(); // TODO play a cool animation here
 }
 
 void on_card_unhover(entt::entity entity) {
@@ -404,6 +400,14 @@ void on_card_click(entt::entity entity) {
 
 	auto [card_entity, card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
 	get_combat().ui.dragged_card = card_entity;
+
+	auto view = ecs.view<HandButtonComp, ButtonComp>();
+	for (auto [entity, hand_button, button] : view.each()) {
+		if (hand_button.index != index) {
+			button.is_enabled = false;
+		}
+	}
+
 	// TODO play a vfx arrow pointing up animation
 }
 
@@ -494,9 +498,19 @@ void position_hand_visuals(bool from_current_position) {
 		Vector2 start_position = from_current_position ? transform.relative_position : Vector2{x_position, CARD_SPRITE_HIDDEN_OFFSET + 100.f};
 		Vector2 new_position = {x_position, CARD_SPRITE_HIDDEN_OFFSET};
 
+		stop_animation(card.animation_id);
+		card.animation_id = start_animation_group();
 		play_animation(0.04, 0.0, &UITransformComp::relative_position, entity, [new_position, start_position](Animation& animation, Vector2 starting_value) {
 			return fast_start_curve(new_position, animation, start_position);
 		});
+		if (from_current_position) {
+			play_animation(0.04, 0.0, &UITransformComp::scale, entity, [](Animation& animation, float starting_value) {
+				return smooth_curve(1.f, animation, starting_value);
+			});
+		} else {
+			transform.scale = 1.f;
+		}
+		end_animation_group();
 	}
 }
 
@@ -539,13 +553,33 @@ void UI::destroy_hand_visual(const CharacterComp& character, u8 index) {
 	}
 }
 
+void stop_drag() {
+	get_combat().ui.dragged_card = entt::null;
+	get_combat().ui.dragged_above_hand = false;
+	destroy_arrow();
+	destroy_card_preview();
+
+	auto view = ecs.view<HandButtonComp, ButtonComp>();
+	for (auto [entity, hand_button, button] : view.each()) {
+		button.is_enabled = true;
+	}
+}
+
 void update_drag() {
 	if (get_combat().ui.dragged_card == entt::null) {
 		return;
 	}
 
+	if (get_pixel_mouse_y() < SCREEN_SPACE_HEIGHT - CARD_HOVER_EXPANDED_HEIGHT) {
+		get_combat().ui.dragged_above_hand = true;
+	} else if (get_pixel_mouse_y() > SCREEN_SPACE_HEIGHT - CARD_HOVER_HEIGHT && get_combat().ui.dragged_above_hand) {
+		stop_drag();
+		return;
+	}
+
 	HandCardComp dragged_card = ecs.get<HandCardComp>(get_combat().ui.dragged_card);
 
+	entt::entity closest_character = entt::null;
 	get_combat().ui.target_position.reset();
 	float closest_distance{};
 	auto view = ecs.view<CharacterComp, BoxColliderComp, TransformComp>();
@@ -553,6 +587,7 @@ void update_drag() {
 		Vector2 character_screen_position = world_to_pixel(transform.position + collider.box.center());
 		float distance_to_mouse = Vector2::distance(character_screen_position, {get_pixel_mouse_x(), get_pixel_mouse_y()});
 		if (!get_combat().ui.target_position.has_value() || distance_to_mouse < closest_distance) {
+			closest_character = entity;
 			get_combat().ui.target_position.emplace(character_screen_position);
 			closest_distance = distance_to_mouse;
 		}
@@ -563,8 +598,7 @@ void update_drag() {
 
 		// TODO check if dragged far enough and with UI
 
-		// TODO targetting
-		get_combat().get_active_character()->play_card(dragged_card.index, {});
+		get_combat().get_active_character()->play_card(dragged_card.index, {closest_character});
 		get_combat().ui.dragged_card = entt::null;
 
 		// TODO remove card from hand with animation
@@ -588,7 +622,7 @@ void UI::end_combat() {
 }
 
 void UI::on_turn_start() {
-	get_combat().ui.dragged_card = entt::null;
+	stop_drag();
 	refresh_hand_buttons();
 	UI::play_queued_draw_animations();
 	position_hand_visuals(false);
