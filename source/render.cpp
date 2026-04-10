@@ -137,9 +137,22 @@ void render_anchored_transform(entt::entity entity) {
 	float render_w = transform.render_width();
 	float render_h = transform.render_height();
 
+	Colour recursive_tint{};
+	UITransformComp* parent_transform = &transform;
+	while (parent_transform->parent != entt::null) {
+		auto* parent_sprite = ecs.try_get<SpriteComp>(parent_transform->parent);
+		if (parent_sprite) {
+			recursive_tint *= parent_sprite->tint;
+		}
+		parent_transform = ecs.try_get<UITransformComp>(parent_transform->parent);
+		if (parent_transform == nullptr) break;
+	}
+
 	if (TextComp* text = ecs.try_get<TextComp>(entity); text) {
+		Colour text_colour = text->colour;
+		text_colour *= recursive_tint;
 		render_text(text->text.get(), position.x, position.y, render_w, render_h, text->size * window_scale() * transform.get_recursive_scale(), text->mask,
-					text->colour.r, text->colour.g, text->colour.b, text->x_align, text->y_align);
+					text_colour.r, text_colour.g, text_colour.b, text->x_align, text->y_align);
 	} else if (SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity); sprite_component) {
 		if (!sprite_component->visible) return;
 		NineSliceComp* nine_slice = ecs.try_get<NineSliceComp>(entity);
@@ -171,6 +184,7 @@ void render_anchored_transform(entt::entity entity) {
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
 			Colour tint = sprite_component->tints.at(i).has_value() ? sprite_component->tints.at(i).value() : Colour{};
+			tint *= recursive_tint;
 
 			if (nine_slice) {
 				render_nine_slice(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,
@@ -358,4 +372,11 @@ float UITransformComp::get_parent_scale() const {
 		result *= transform->scale;
 	}
 	return result;
+}
+
+void Colour::operator*=(const Colour& other) {
+	r = (r * other.r) / 255;
+	g = (g * other.g) / 255;
+	b = (b * other.b) / 255;
+	a = (a * other.a) / 255;
 }

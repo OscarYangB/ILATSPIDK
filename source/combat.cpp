@@ -143,6 +143,10 @@ void CombatSingleton::update() {
 	UI::update_combat();
 }
 
+u8 CombatSingleton::get_bars_available() {
+	return BARS_PER_TURN - bar_index;
+}
+
 CharacterComp* CombatSingleton::get_active_character() {
 	return &ecs.get<CharacterComp>(get_active_character_entity());
 }
@@ -163,4 +167,8 @@ std::vector<Card> make_cards(std::vector<CardID> ids) {
 	std::vector<Card> result = {};
 	for (CardID id : ids) result.push_back(Card{&card_data[static_cast<u8>(id)]});
 	return result;
+}
+
+bool Card::can_play() {
+	return data->cost <= get_combat().get_bars_available();
 }

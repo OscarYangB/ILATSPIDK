@@ -55,11 +55,10 @@
   - One for each type
 - [X] Health Bar
 - [X] Disable movement. Character face forward.
-- [ ] Play animation
-  - Arrow (always pointing up) renderer
-- [ ] Drag to target
+- [X] Play animation
+- [X] Drag to target
   - Highlights nearest target to mouse
-- [ ] Card can't be played indicator
+- [X] Card can't be played indicator
 - [ ] Hover and Queue Indicator
 - [ ] Teleport highlight unoccupied area
 - [ ] Mind read and playing AOE indicator

@@ -229,6 +229,14 @@ void UI::on_bar_end() {
 			.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4},
 			.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
 
+	auto view = ecs.view<HandCardComp, SpriteComp>();
+	for (auto [entity, card, sprite] : view.each()) {
+		if (card.owning_character != get_combat().get_active_character_entity()) {
+			continue;
+		}
+		sprite.tint = card.get_card().can_play() ? Colour{255, 255, 255, 255} : Colour{140, 140, 140, 255};
+	}
+
 	// TEST
 	CharacterComp& character = ecs.get<CharacterComp>(get_combat().characters.at(0));
 	character.damage(40.f);
@@ -399,6 +407,11 @@ void on_card_click(entt::entity entity) {
 	u8 index = ecs.get<HandButtonComp>(entity).index;
 
 	auto [card_entity, card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
+
+	if (!card.get_card().can_play()) {
+		return;
+	}
+
 	get_combat().ui.dragged_card = card_entity;
 
 	auto view = ecs.view<HandButtonComp, ButtonComp>();
@@ -579,6 +592,12 @@ void update_drag() {
 
 	HandCardComp dragged_card = ecs.get<HandCardComp>(get_combat().ui.dragged_card);
 
+	if (!dragged_card.get_card().can_play()) {
+		stop_drag();
+		position_hand_visuals(false);
+		return;
+	}
+
 	entt::entity closest_character = entt::null;
 	get_combat().ui.target_position.reset();
 	float closest_distance{};
@@ -596,7 +615,7 @@ void update_drag() {
 		float distance_to_mouse = Vector2::distance(character_screen_position, {get_pixel_mouse_x(), get_pixel_mouse_y()});
 		if (!get_combat().ui.target_position.has_value() || distance_to_mouse < closest_distance) {
 			closest_character = entity;
-			get_combat().ui.target_position.emplace(character_screen_position);
+			get_combat().ui.target_position.emplace(character_screen_position / window_scale());
 			closest_distance = distance_to_mouse;
 		}
 	}

@@ -56,6 +56,8 @@ struct Colour {
 	u8 g = 255;
 	u8 b = 255;
 	u8 a = 255;
+
+	void operator*=(const Colour& other);
 };
 
 constexpr Colour BLACK = {0, 0, 0, 255};
@@ -66,6 +68,7 @@ struct SpriteComp {
 	FixedList<Sprite, MAX_SPRITES> sprites{};
 	std::array<std::optional<Colour>, MAX_SPRITES> tints{};
 	std::array<std::optional<Box>, MAX_SPRITES> masks{};
+	Colour tint{};
 	bool visible = true;
 
 	Box bounding_box();

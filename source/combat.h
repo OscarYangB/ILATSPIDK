@@ -33,6 +33,8 @@ struct CardData {
 
 struct Card {
 	const CardData* data = nullptr;
+
+	bool can_play();
 };
 
 struct PlayedCard {
@@ -110,6 +112,7 @@ struct CombatSingleton {
 	CharacterComp* get_active_character();
 	entt::entity get_active_character_entity();
 	float get_discrete_bar_progress();
+	u8 get_bars_available();
 };
 
 void update_combat();
