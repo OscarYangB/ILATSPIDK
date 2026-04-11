@@ -11,6 +11,62 @@
 #include "animation.h"
 #include "physics.h"
 
+void create_queue_preview() {
+	entt::entity queue_preview = ecs.create();
+	auto& queue_transform = add_component(queue_preview, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::TOP, .sort_order = 1});
+	Sprite queue_sprite{};
+	add_component(queue_preview, SpriteComp{.sprites = {Sprite::NONE, Sprite::NONE}, .tint = {255, 255, 255, 140}});
+	add_component(queue_preview, QueueComp{});
+}
+
+void destroy_queue_preview() {
+	auto view = ecs.view<QueueComp>();
+	ecs.destroy(view.begin(), view.end());
+}
+
+void set_queue_preview_info(Card card, bool is_preview, UITransformComp& transform, SpriteComp& sprite) {
+	if (is_preview && !card.can_play()) {
+		sprite.sprites[0] = Sprite::NONE;
+		sprite.sprites[1] = Sprite::NONE;
+		return;
+	}
+	u8 remaining_bars = is_preview ? card.data->cost : get_combat().get_active_character()->played_card.value().bars_until_activate;
+	u8 gamebar_index = get_combat().bar_index + remaining_bars - 1;
+	auto [gamebar_entity, gamebar] = find_component<GamebarComp>([gamebar_index](auto& gamebar){ return gamebar.index == gamebar_index; });
+	Sprite new_sprite;
+	switch(card.data->cost) {
+	case 1: new_sprite = Sprite::QUEUE_1_1; break;
+	case 2: new_sprite = Sprite::QUEUE_2_1; break;
+	case 3: new_sprite = Sprite::QUEUE_3_1; break;
+	case 4: new_sprite = Sprite::QUEUE_4_1; break;
+	default: new_sprite = Sprite::NONE; break;
+	}
+	sprite.sprites[1] = Sprite::QUEUE_STAR_1;
+	sprite.sprites[0] = new_sprite;
+	transform.relative_position = ecs.get<UITransformComp>(gamebar_entity).relative_position;
+	sprite.tint.a = is_preview ? 140 : 255;
+}
+
+void update_queue_preview() {
+	auto [entity, transform, sprite] = *ecs.view<QueueComp, UITransformComp, SpriteComp>().each().begin();
+	Sprite new_sprite;
+	Vector2 new_position;
+	if (get_combat().get_active_character()->played_card.has_value()) {
+		set_queue_preview_info(get_combat().get_active_character()->played_card.value().card, false, transform, sprite);
+	} else if (get_combat().ui.dragged_card != entt::null) {
+		set_queue_preview_info(ecs.get<HandCardComp>(get_combat().ui.dragged_card).get_card(), true, transform, sprite);
+	} else if (get_combat().ui.hovered_card != entt::null) {
+		set_queue_preview_info(ecs.get<HandCardComp>(get_combat().ui.hovered_card).get_card(), true, transform, sprite);
+	} else if (sprite.tint.a == 255 && sprite.sprites[1] != Sprite::NONE) {
+		sprite.sprites[1] = Sprite::NONE;
+  		add_component(entity, CycleAnimComp{.sprites = {Sprite::QUEUE_STAR_2, Sprite::QUEUE_STAR_3, Sprite::NONE}, .frequency = 10.f,
+											.finish_behaviour = FinishBehaviour::DESTROY_COMPONENT});
+	} else {
+		sprite.sprites[0] = Sprite::NONE;
+		sprite.sprites[1] = Sprite::NONE;
+	}
+}
+
 static constexpr float DOT_DISTANCE = 60.f;
 static constexpr float ARROWS_PER_UNIT = 1.f / DOT_DISTANCE;
 constexpr u8 NUMBER_OF_ARROW_DOTS = (SCREEN_SPACE_HEIGHT + SCREEN_SPACE_WIDTH) / DOT_DISTANCE;
@@ -173,6 +229,16 @@ void cycle_gamebar_animation(u8 index) {
 constexpr double VIBRATIONS_PER_BAR = 4;
 constexpr double SECONDS_PER_VIBRATION = SECONDS_PER_BAR / VIBRATIONS_PER_BAR;
 
+void refresh_cards_can_play() {
+	auto view = ecs.view<HandCardComp, SpriteComp>();
+	for (auto [entity, card, sprite] : view.each()) {
+		if (card.owning_character != get_combat().get_active_character_entity()) {
+			continue;
+		}
+		sprite.tint = card.get_card().can_play() ? Colour{255, 255, 255, 255} : Colour{140, 140, 140, 255};
+	}
+}
+
 void update_gamebar() {
 	auto view = ecs.view<GamebarComp, SpriteComp, UITransformComp>();
 	for (auto [entity, gamebar, sprite, transform] : view.each()) {
@@ -213,6 +279,8 @@ void update_gamebar() {
 }
 
 void UI::on_bar_end() {
+	refresh_cards_can_play();
+
 	for (int i = 0; i < BARS_PER_TURN; i++) {
 		cycle_gamebar_animation(i);
 	}
@@ -228,14 +296,6 @@ void UI::on_bar_end() {
 	add_component(entity, CycleAnimComp{
 			.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4},
 			.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
-
-	auto view = ecs.view<HandCardComp, SpriteComp>();
-	for (auto [entity, card, sprite] : view.each()) {
-		if (card.owning_character != get_combat().get_active_character_entity()) {
-			continue;
-		}
-		sprite.tint = card.get_card().can_play() ? Colour{255, 255, 255, 255} : Colour{140, 140, 140, 255};
-	}
 
 	// TEST
 	CharacterComp& character = ecs.get<CharacterComp>(get_combat().characters.at(0));
@@ -254,6 +314,7 @@ void UI::start_combat() {
 	}
 
 	push_input_mode(InputMode::COMBAT);
+	create_queue_preview();
 }
 
 constexpr u16 CARD_HOVER_WIDTH = 145;
@@ -329,6 +390,7 @@ void on_card_hover(entt::entity hovered_entity) {
 
 	auto view = ecs.view<HandCardComp, UITransformComp>();
 	auto [card_entity, hovered_card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
+	get_combat().ui.hovered_card = card_entity;
 	ecs.get<UITransformComp>(hovered_entity).height = CARD_HOVER_EXPANDED_HEIGHT;
 
 	stop_animation(hovered_card.animation_id);
@@ -369,6 +431,7 @@ void on_card_hover(entt::entity hovered_entity) {
 }
 
 void on_card_unhover(entt::entity entity) {
+	get_combat().ui.hovered_card = entt::null;
 	float y_target = CARD_SPRITE_HIDDEN_OFFSET;
 
 	u8 index = ecs.get<HandButtonComp>(entity).index;
@@ -400,10 +463,6 @@ void on_card_unhover(entt::entity entity) {
 }
 
 void on_card_click(entt::entity entity) {
-	if (get_combat().get_active_character()->played_card.has_value()) { // Can't play if a card is queued
-		return;
-	}
-
 	u8 index = ecs.get<HandButtonComp>(entity).index;
 
 	auto [card_entity, card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
@@ -623,16 +682,15 @@ void update_drag() {
 	if (!input_held(InputType::MOUSE_CLICK)) {
 		Card card = dragged_card.get_card();
 
-		// TODO check if dragged far enough and with UI
-
 		get_combat().get_active_character()->play_card(dragged_card.index, closest_character);
 		get_combat().ui.dragged_card = entt::null;
 
-		// TODO remove card from hand with animation
 		refresh_hand_buttons();
 
 		destroy_arrow();
 		destroy_card_preview();
+
+		refresh_cards_can_play();
 	}
 }
 
@@ -640,12 +698,14 @@ void UI::update_combat() {
 	update_gamebar();
 	update_drag();
 	update_arrow();
+	update_queue_preview();
 }
 
 void UI::end_combat() {
 	destroy_gamebar();
 	destroy_healthbars();
 	pop_input_mode(InputMode::COMBAT);
+	destroy_queue_preview();
 }
 
 void UI::on_turn_start() {

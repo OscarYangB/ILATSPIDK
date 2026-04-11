@@ -22,6 +22,7 @@ namespace UI {
 }
 
 struct CombatUI {
+	entt::entity hovered_card = entt::null;
 	entt::entity dragged_card = entt::null;
 	std::optional<Vector2> target_position{};
 	bool dragged_above_hand = false;
@@ -53,3 +54,5 @@ struct ArrowComp {
 };
 
 struct CardPreviewComp{};
+
+struct QueueComp{};

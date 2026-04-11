@@ -170,5 +170,5 @@ std::vector<Card> make_cards(std::vector<CardID> ids) {
 }
 
 bool Card::can_play() {
-	return data->cost <= get_combat().get_bars_available();
+	return data->cost <= get_combat().get_bars_available() && !get_combat().get_active_character()->played_card.has_value();
 }

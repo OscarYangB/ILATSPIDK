@@ -33,6 +33,10 @@ constexpr char kerry[] {
 	#embed "..\assets\art\kerry.png"
 };
 
+constexpr char queue[] {
+	#embed "..\assets\art\Queue.png"
+};
+
 constexpr char table[] {
 	#embed "..\assets\art\table.png"
 };
@@ -82,6 +86,7 @@ constexpr const char* image_file_data[] {
 	grakeny,
 	healthbar,
 	kerry,
+	queue,
 	table,
 	test_background,
 	test_button,
@@ -101,6 +106,7 @@ constexpr int image_file_sizes[] {
 	sizeof(grakeny),
 	sizeof(healthbar),
 	sizeof(kerry),
+	sizeof(queue),
 	sizeof(table),
 	sizeof(test_background),
 	sizeof(test_button),
@@ -120,6 +126,7 @@ enum class ImageFile {
 	GRAKENY_IMAGE,
 	HEALTHBAR_IMAGE,
 	KERRY_IMAGE,
+	QUEUE_IMAGE,
 	TABLE_IMAGE,
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
@@ -295,6 +302,13 @@ enum class Sprite {
 	KERRY_UP_CAPE_4,
 	KERRY_UP_CAPE_5,
 	KERRY_UP_CAPE_6,
+	QUEUE_4_1,
+	QUEUE_3_1,
+	QUEUE_2_1,
+	QUEUE_1_1,
+	QUEUE_STAR_1,
+	QUEUE_STAR_2,
+	QUEUE_STAR_3,
 	TABLE,
 	TEST_BACKGROUND,
 	TEST_BUTTON,
@@ -471,6 +485,13 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{400, 2700, 200, 300, 60, 200, 175, 261},
 	{600, 2700, 200, 300, 69, 205, 179, 260},
 	{800, 2700, 200, 300, 74, 204, 185, 259},
+	{0, 0, 915, 81, 35, 17, 908, 75},
+	{915, 0, 915, 81, 34, 17, 691, 74},
+	{1830, 0, 915, 81, 34, 20, 470, 72},
+	{0, 81, 915, 81, 34, 22, 264, 69},
+	{915, 81, 915, 81, 27, 16, 86, 81},
+	{1830, 81, 915, 81, 24, 11, 89, 80},
+	{0, 162, 915, 81, 24, 8, 96, 80},
 	{0, 0, 300, 200, 56, 56, 257, 190},
 	{0, 0, 2339, 1654, 0, 0, 2339, 1654},
 	{0, 0, 400, 200, 0, 0, 400, 200},
@@ -646,6 +667,13 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::KERRY_IMAGE,
 	ImageFile::KERRY_IMAGE,
 	ImageFile::KERRY_IMAGE,
+	ImageFile::QUEUE_IMAGE,
+	ImageFile::QUEUE_IMAGE,
+	ImageFile::QUEUE_IMAGE,
+	ImageFile::QUEUE_IMAGE,
+	ImageFile::QUEUE_IMAGE,
+	ImageFile::QUEUE_IMAGE,
+	ImageFile::QUEUE_IMAGE,
 	ImageFile::TABLE_IMAGE,
 	ImageFile::TEST_BACKGROUND_IMAGE,
 	ImageFile::TEST_BUTTON_IMAGE,
@@ -658,5 +686,5 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::VERY_LARGE_FONT_IMAGE
 };
 
-constexpr int NUMBER_OF_IMAGES = 16;
+constexpr int NUMBER_OF_IMAGES = 17;
 

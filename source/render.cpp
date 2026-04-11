@@ -155,6 +155,7 @@ void render_anchored_transform(entt::entity entity) {
 					text_colour.r, text_colour.g, text_colour.b, text->x_align, text->y_align);
 	} else if (SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity); sprite_component) {
 		if (!sprite_component->visible) return;
+		recursive_tint *= sprite_component->tint;
 		NineSliceComp* nine_slice = ecs.try_get<NineSliceComp>(entity);
 
 		for (int i = 0; i < sprite_component->sprites.size(); i++) {
