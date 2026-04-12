@@ -103,12 +103,12 @@ static void update_dialog_animation() {
 	// Play sound from tone row based on chance
 
 	text_component.mask++;
-	if (text_component.mask >= text_component.text.get().length()) { // Won't work for localization
+	if (text_component.mask >= text_component.text.length()) { // Won't work for localization
 		text_component.mask = 0;
 		dialog.is_dialog_animating = false;
 		return;
 	}
-	char last_character = text_component.text.get()[text_component.mask - 1]; // Won't work for localization
+	char last_character = text_component.text[text_component.mask - 1]; // Won't work for localization
 	bool punctuation = last_character == '.' || last_character == '?' || last_character == '!';
 	dialog.dialog_animation_timer += punctuation ? PUNCTUATION_PAUSE : DIALOG_ANIMATION_DELTA;
 }
@@ -138,7 +138,7 @@ void make_choice_button(const Text& choice_text, u16 jump_index, u8 choice_index
 														 .relative_position = { X_MARGIN, -1.f - CHOICE_BUTTON_HEIGHT * choice_index},
 														 .width = WIDTH, .height = CHOICE_BUTTON_HEIGHT});
 	ecs.get<UITransformComp>(dialog.background).add_child(dialog.background, entity);
-	add_component(entity, TextComp{.text = choice_text});
+	add_component(entity, TextComp{.text{choice_text.get()}});
 	add_component(entity, ButtonComp{.on_click = choice_made});
 	add_component(entity, DialogChoiceComp{.jump_index = jump_index});
 }
@@ -147,7 +147,7 @@ void DialogVisitor::operator()(const DialogLine& line) {
 	DialogSingleton& dialog = get_dialog();
 
 	TextComp& text = ecs.get<TextComp>(dialog.dialog_text);
-	text.text = line.line;
+	text.text = line.line.get();
 	index++;
 
 	text.mask = 1;
@@ -158,7 +158,7 @@ void DialogVisitor::operator()(const DialogLine& line) {
 void DialogVisitor::operator()(const DialogChoice& choice) {
 	DialogSingleton& dialog = get_dialog();
 
-	ecs.get<TextComp>(dialog.dialog_text).text = Text{};
+	ecs.get<TextComp>(dialog.dialog_text).text = "";
 
 	const DialogChoice* current_choice = &choice;
 	u16 current_index = index + 1;

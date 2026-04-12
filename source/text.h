@@ -15,5 +15,3 @@ struct Text {
 
 	std::string_view get() const;
 };
-
-std::string_view number_to_string(int number);

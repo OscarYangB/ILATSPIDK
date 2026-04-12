@@ -4,7 +4,6 @@
 #include "vector2.h"
 #include "definitions.h"
 #include "entt/entt.hpp"
-#include "text.h"
 #include "game.h"
 #include "fixed_list.h"
 
@@ -111,7 +110,7 @@ struct NineSliceComp {
 };
 
 struct TextComp {
-	Text text{};
+	std::string text{};
 	Colour colour = BLACK;
 	float size = 50;
 	u8 mask = 0; // How many characters to display? 0 means all

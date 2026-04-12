@@ -63,6 +63,7 @@ struct StatusEffect {
 };
 
 struct CharacterDataComp {
+	Text name{};
 	float starting_health{};
 	float starting_shield = 0.f;
 	CharacterType type{};

@@ -151,7 +151,7 @@ void render_anchored_transform(entt::entity entity) {
 	if (TextComp* text = ecs.try_get<TextComp>(entity); text) {
 		Colour text_colour = text->colour;
 		text_colour *= recursive_tint;
-		render_text(text->text.get(), position.x, position.y, render_w, render_h, text->size * window_scale() * transform.get_recursive_scale(), text->mask,
+		render_text(text->text, position.x, position.y, render_w, render_h, text->size * window_scale() * transform.get_recursive_scale(), text->mask,
 					text_colour.r, text_colour.g, text_colour.b, text_colour.a, text->x_align, text->y_align, text->draw_background);
 	} else if (SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity); sprite_component) {
 		if (!sprite_component->visible) return;

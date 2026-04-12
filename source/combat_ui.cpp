@@ -32,7 +32,8 @@ void destroy_action_text() {
 void update_action_text() {
 	auto [entity, text] = *ecs.view<ActionText, TextComp>().each().begin();
 	if (get_combat().get_active_character()->played_card.has_value()) {
-		text.text = get_combat().get_active_character()->played_card.value().card.data->play_text;
+		text.text = std::string{get_combat().get_active_character()->data->name.get()} + " " +
+				   std::string{get_combat().get_active_character()->played_card.value().card.data->play_text.get()};
 	} else {
 		text.text = {};
 	}
@@ -380,19 +381,19 @@ void attach_card_visual(Card card, entt::entity parent) {
 	entt::entity name = ecs.create();
 	add_component(name, UITransformComp{.relative_position = {0.f, 10.f}, .width = CARD_SPRITE_WIDTH, .height = 200});
 	transform.add_child(parent, name);
-	add_component(name, TextComp{.text = card.data->name, .colour = WHITE, .size = 24, .x_align = XAnchor::CENTER});
+	add_component(name, TextComp{.text{card.data->name.get()}, .colour = WHITE, .size = 24, .x_align = XAnchor::CENTER});
 
 	entt::entity description = ecs.create();
 	constexpr float DESCRIPTION_MARGIN = 10.f;
 	add_component(description, UITransformComp{.relative_position = {DESCRIPTION_MARGIN, 115.f},
 											   .width = CARD_SPRITE_WIDTH - 2 * (u16)DESCRIPTION_MARGIN, .height = 50});
 	transform.add_child(parent, description);
-	add_component(description, TextComp{.text = card.data->description, .colour = WHITE, .size = 16});
+	add_component(description, TextComp{.text{card.data->description.get()}, .colour = WHITE, .size = 16});
 
 	entt::entity cost = ecs.create();
 	add_component(cost, UITransformComp{.relative_position = {123.5, 7.f}, .width = CARD_SPRITE_WIDTH, .height = 200});
 	transform.add_child(parent, cost);
-	add_component(cost, TextComp{.text {number_to_string(card.data->cost)}, .colour = BLACK, .size = 32});
+	add_component(cost, TextComp{.text = std::to_string(card.data->cost), .colour = BLACK, .size = 32});
 }
 
 void create_card_preview(Card card) {
