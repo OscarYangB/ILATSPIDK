@@ -229,7 +229,7 @@ void cycle_gamebar_animation(u8 index) {
 constexpr double VIBRATIONS_PER_BAR = 4;
 constexpr double SECONDS_PER_VIBRATION = SECONDS_PER_BAR / VIBRATIONS_PER_BAR;
 
-void refresh_cards_can_play() {
+void update_cards_can_play() {
 	auto view = ecs.view<HandCardComp, SpriteComp>();
 	for (auto [entity, card, sprite] : view.each()) {
 		if (card.owning_character != get_combat().get_active_character_entity()) {
@@ -279,8 +279,6 @@ void update_gamebar() {
 }
 
 void UI::on_bar_end() {
-	refresh_cards_can_play();
-
 	for (int i = 0; i < BARS_PER_TURN; i++) {
 		cycle_gamebar_animation(i);
 	}
@@ -606,16 +604,16 @@ void UI::destroy_hand_visual(const CharacterComp& character, u8 index) {
 	auto view = ecs.view<HandCardComp>();
 
 	for (auto [entity, card] : view.each()) {
-		if (card.owning_character == character.entity && card.index > index) {
-			card.index--;
-		}
-	}
-
-	for (auto [entity, card] : view.each()) {
 		auto& owning_character = ecs.get<CharacterComp>(card.owning_character);
 		if (card.owning_character == character.entity && card.index == index) {
 			ecs.destroy(entity);
 			break;
+		}
+	}
+
+	for (auto [entity, card] : view.each()) {
+		if (card.owning_character == character.entity && card.index > index) {
+			card.index--;
 		}
 	}
 
@@ -630,6 +628,7 @@ void stop_drag() {
 	get_combat().ui.dragged_above_hand = false;
 	destroy_arrow();
 	destroy_card_preview();
+	position_hand_visuals(false);
 
 	auto view = ecs.view<HandButtonComp, ButtonComp>();
 	for (auto [entity, hand_button, button] : view.each()) {
@@ -642,9 +641,9 @@ void update_drag() {
 		return;
 	}
 
-	if (get_pixel_mouse_y() < SCREEN_SPACE_HEIGHT - CARD_HOVER_EXPANDED_HEIGHT) {
+	if (get_mouse_y() < SCREEN_SPACE_HEIGHT - CARD_HOVER_EXPANDED_HEIGHT) {
 		get_combat().ui.dragged_above_hand = true;
-	} else if (get_pixel_mouse_y() > SCREEN_SPACE_HEIGHT - CARD_HOVER_HEIGHT && get_combat().ui.dragged_above_hand) {
+	} else if (get_mouse_y() > SCREEN_SPACE_HEIGHT - CARD_HOVER_HEIGHT && get_combat().ui.dragged_above_hand) {
 		stop_drag();
 		return;
 	}
@@ -653,7 +652,6 @@ void update_drag() {
 
 	if (!dragged_card.get_card().can_play()) {
 		stop_drag();
-		position_hand_visuals(false);
 		return;
 	}
 
@@ -689,8 +687,6 @@ void update_drag() {
 
 		destroy_arrow();
 		destroy_card_preview();
-
-		refresh_cards_can_play();
 	}
 }
 
@@ -699,6 +695,7 @@ void UI::update_combat() {
 	update_drag();
 	update_arrow();
 	update_queue_preview();
+	update_cards_can_play();
 }
 
 void UI::end_combat() {
@@ -709,6 +706,7 @@ void UI::end_combat() {
 }
 
 void UI::on_turn_start() {
+	get_combat().ui.hovered_card = entt::null;
 	stop_drag();
 	refresh_hand_buttons();
 	UI::play_queued_draw_animations();
