@@ -60,7 +60,7 @@
   - Highlights nearest target to mouse
 - [X] Card can't be played indicator
 - [X] Hover and Queue Indicator
-- [ ] Action text
+- [X] Action text
 - [ ] Greying out everything except valid targets
 - [ ] AOE indicators
   - [ ] Rectangle (teleport highlight unoccupied area)

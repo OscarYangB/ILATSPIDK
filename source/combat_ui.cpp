@@ -322,12 +322,6 @@ void UI::on_bar_end() {
 	add_component(entity, CycleAnimComp{
 			.sprites = {Sprite::GAMEBAR_BAR_EFFECT_1, Sprite::GAMEBAR_BAR_EFFECT_2, Sprite::GAMEBAR_BAR_EFFECT_3, Sprite::GAMEBAR_BAR_EFFECT_4},
 			.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
-
-	// TEST
-	CharacterComp& character = ecs.get<CharacterComp>(get_combat().characters.at(0));
-	character.damage(40.f);
-	refresh_health_bar(character, false);
-	// TEST
 }
 
 void UI::start_combat() {
@@ -381,19 +375,19 @@ void attach_card_visual(Card card, entt::entity parent) {
 	entt::entity name = ecs.create();
 	add_component(name, UITransformComp{.relative_position = {0.f, 10.f}, .width = CARD_SPRITE_WIDTH, .height = 200});
 	transform.add_child(parent, name);
-	add_component(name, TextComp{.text{card.data->name.get()}, .colour = WHITE, .size = 24, .x_align = XAnchor::CENTER});
+	add_component(name, TextComp{.text{card.data->name.get()}, .colour = Colour::white(), .size = 24, .x_align = XAnchor::CENTER});
 
 	entt::entity description = ecs.create();
 	constexpr float DESCRIPTION_MARGIN = 10.f;
 	add_component(description, UITransformComp{.relative_position = {DESCRIPTION_MARGIN, 115.f},
 											   .width = CARD_SPRITE_WIDTH - 2 * (u16)DESCRIPTION_MARGIN, .height = 50});
 	transform.add_child(parent, description);
-	add_component(description, TextComp{.text{card.data->description.get()}, .colour = WHITE, .size = 16});
+	add_component(description, TextComp{.text{card.data->description.get()}, .colour = Colour::white(), .size = 16});
 
 	entt::entity cost = ecs.create();
 	add_component(cost, UITransformComp{.relative_position = {123.5, 7.f}, .width = CARD_SPRITE_WIDTH, .height = 200});
 	transform.add_child(parent, cost);
-	add_component(cost, TextComp{.text = std::to_string(card.data->cost), .colour = BLACK, .size = 32});
+	add_component(cost, TextComp{.text = std::to_string(card.data->cost), .colour = Colour::black(), .size = 32});
 }
 
 void create_card_preview(Card card) {

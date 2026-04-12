@@ -57,10 +57,10 @@ struct Colour {
 	u8 a = 255;
 
 	void operator*=(const Colour& other);
-};
 
-constexpr Colour BLACK = {0, 0, 0, 255};
-constexpr Colour WHITE = {255, 255, 255, 255};
+	static constexpr Colour black() { return {0, 0, 0, 255}; };
+	static constexpr Colour white() { return {0, 0, 0, 255}; };
+};
 
 struct SpriteComp {
 	static constexpr u8 MAX_SPRITES = 10;
@@ -111,7 +111,7 @@ struct NineSliceComp {
 
 struct TextComp {
 	std::string text{};
-	Colour colour = BLACK;
+	Colour colour = Colour::black();
 	float size = 50;
 	u8 mask = 0; // How many characters to display? 0 means all
 	XAnchor x_align = XAnchor::LEFT;
