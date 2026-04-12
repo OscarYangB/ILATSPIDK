@@ -56,3 +56,5 @@ struct ArrowComp {
 struct CardPreviewComp{};
 
 struct QueueComp{};
+
+struct ActionText{};

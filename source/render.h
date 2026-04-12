@@ -113,11 +113,11 @@ struct NineSliceComp {
 struct TextComp {
 	Text text{};
 	Colour colour = BLACK;
-	u8 size = 50;
+	float size = 50;
 	u8 mask = 0; // How many characters to display? 0 means all
-
 	XAnchor x_align = XAnchor::LEFT;
 	YAnchor y_align = YAnchor::TOP;
+	bool draw_background = false;
 };
 
 extern Vector2 camera_position;

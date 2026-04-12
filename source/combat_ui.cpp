@@ -11,12 +11,39 @@
 #include "animation.h"
 #include "physics.h"
 
+void create_action_text() {
+	auto entity = ecs.create();
+	add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::TOP, .relative_position = {0.f, 100}, .width = 1000, .height = 500});
+	add_component(entity, TextComp{.colour = {255, 255, 255, 245}, .x_align = XAnchor::CENTER, .y_align = YAnchor::TOP, .draw_background = true});
+	add_component(entity, ActionText{});
+	play_animation(0.f, 0.f, &TextComp::colour, entity, [](Animation& animation, Colour starting_value){
+		return Colour{starting_value.r, starting_value.g, starting_value.b, sinusoid_curve(10, 0.5f, 0.f, animation, starting_value.a)};
+	});
+	play_animation(0.f, 0.f, &TextComp::size, entity, [](Animation& animation, float starting_value){
+		return sinusoid_curve(1, 0.5f, 0.f, animation, starting_value);
+	});
+}
+
+void destroy_action_text() {
+	auto view = ecs.view<ActionText>();
+	ecs.destroy(view.begin(), view.end());
+}
+
+void update_action_text() {
+	auto [entity, text] = *ecs.view<ActionText, TextComp>().each().begin();
+	if (get_combat().get_active_character()->played_card.has_value()) {
+		text.text = get_combat().get_active_character()->played_card.value().card.data->play_text;
+	} else {
+		text.text = {};
+	}
+}
+
 void create_queue_preview() {
-	entt::entity queue_preview = ecs.create();
-	auto& queue_transform = add_component(queue_preview, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::TOP, .sort_order = 1});
+	auto entity = ecs.create();
+	auto& queue_transform = add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::TOP, .sort_order = 1});
 	Sprite queue_sprite{};
-	add_component(queue_preview, SpriteComp{.sprites = {Sprite::NONE, Sprite::NONE}, .tint = {255, 255, 255, 140}});
-	add_component(queue_preview, QueueComp{});
+	add_component(entity, SpriteComp{.sprites = {Sprite::NONE, Sprite::NONE}, .tint = {255, 255, 255, 140}});
+	add_component(entity, QueueComp{});
 }
 
 void destroy_queue_preview() {
@@ -313,6 +340,7 @@ void UI::start_combat() {
 
 	push_input_mode(InputMode::COMBAT);
 	create_queue_preview();
+	create_action_text();
 }
 
 constexpr u16 CARD_HOVER_WIDTH = 145;
@@ -521,7 +549,7 @@ void UI::play_queued_draw_animations() {
 
 		entt::entity fx_entity = ecs.create();
 		add_component(fx_entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
-												 .relative_position = {card_x_offset(character->hand.size(), card.index) + 400.f, -100.f},
+												 .relative_position = {card_x_offset(character->hand.size(), card.index) + 200.f, -100.f},
 												 .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1});
 		auto& sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::NONE}});
 
@@ -696,6 +724,7 @@ void UI::update_combat() {
 	update_arrow();
 	update_queue_preview();
 	update_cards_can_play();
+	update_action_text();
 }
 
 void UI::end_combat() {
@@ -703,6 +732,7 @@ void UI::end_combat() {
 	destroy_healthbars();
 	pop_input_mode(InputMode::COMBAT);
 	destroy_queue_preview();
+	destroy_action_text();
 }
 
 void UI::on_turn_start() {

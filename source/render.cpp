@@ -47,7 +47,7 @@ void draw_debug_lines() {
 
 void render_fps_counter() {
 #ifndef NDEBUG
-	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 50, 0, 255, 0, 0, XAnchor::LEFT, YAnchor::TOP);
+	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 50, 0, 255, 0, 0, 255, XAnchor::LEFT, YAnchor::TOP, false);
 #endif
 }
 
@@ -152,7 +152,7 @@ void render_anchored_transform(entt::entity entity) {
 		Colour text_colour = text->colour;
 		text_colour *= recursive_tint;
 		render_text(text->text.get(), position.x, position.y, render_w, render_h, text->size * window_scale() * transform.get_recursive_scale(), text->mask,
-					text_colour.r, text_colour.g, text_colour.b, text->x_align, text->y_align);
+					text_colour.r, text_colour.g, text_colour.b, text_colour.a, text->x_align, text->y_align, text->draw_background);
 	} else if (SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity); sprite_component) {
 		if (!sprite_component->visible) return;
 		recursive_tint *= sprite_component->tint;

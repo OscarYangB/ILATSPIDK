@@ -69,7 +69,7 @@ void update_generic_animation() {
 
 double Animation::get_animation_time() const {
 	double time = (SDL_GetTicks() - time_started_ms) / 1000.0 - delay;
-	return std::clamp(time, 0.0, duration);
+	return std::clamp(time, 0.0, duration > 0.f ? duration : time);
 }
 
 double Animation::get_progress() const {

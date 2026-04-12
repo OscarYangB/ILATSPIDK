@@ -29,6 +29,7 @@ bool start_window() {
 
 	//enable_vsync();
     SDL_SetRenderLogicalPresentation(renderer, 1920, 1080, SDL_LOGICAL_PRESENTATION_DISABLED);
+	SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
 	init();
 
@@ -127,7 +128,7 @@ u8 character_to_index(char character) {
 
 constexpr u8 MAX_TEXT_LENGTH = 255;
 
-void render_text(std::string_view text, float x, float y, float w, float h, float size, u8 mask, u8 r, u8 g, u8 b, XAnchor x_align, YAnchor y_align) {
+void render_text(std::string_view text, float x, float y, float w, float h, float size, u8 mask, u8 r, u8 g, u8 b, u8 a, XAnchor x_align, YAnchor y_align, bool render_background) {
 	if (text.empty()) {
 		return;
 	}
@@ -209,8 +210,19 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 		y_positions[i] += y_align_offset;
 	}
 
+	if (render_background && !x_positions.empty()) {
+		auto [min_x, max_x] = std::ranges::minmax_element(x_positions.begin(), x_positions.begin() + length);
+		auto [min_y, max_y] = std::ranges::minmax_element(y_positions.begin(), y_positions.begin() + length);
+		static constexpr float LEFT_MARGIN = 10.f;
+		SDL_FRect rect = {*min_x - LEFT_MARGIN, *min_y, *max_x - *min_x + render_width + LEFT_MARGIN, *max_y - *min_y + size};
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, (125 * a) / 255);
+		SDL_RenderFillRect(renderer, &rect);
+		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+	}
+
 	SDL_Texture* texture = get_sprite(fonts[font_index].file);
 	SDL_SetTextureColorMod(texture, r, g, b);
+	SDL_SetTextureAlphaMod(texture, a);
 	for (int i = 0; i < length; i++) {
 		char character = *(first_character + i);
 		u8 index = character_to_index(character);
