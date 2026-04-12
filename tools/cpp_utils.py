@@ -28,15 +28,21 @@ class EmbedBuilder:
 
     def get_embed_text(self):
         result =  """static_assert(true); // There's a clang bug that gives a warning unless this fucking thing is here
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored \"-Wc23-extensions\"
+#ifdef FILE_EMBED
 
 """
-
         for path in self.paths:
             result += "constexpr char %s[] {\n\t#embed \"%s\"\n};\n\n"%(self.get_name_from_path(path), path)
-        result += "#pragma clang diagnostic pop"
+        result += "#pragma clang diagnostic pop\n"
+        result += "#endif\n"
+
+        result += "#ifndef FILE_EMBED\n"
+        for path in self.paths:
+            result += "constexpr char %s[] {};\n\n"%(self.get_name_from_path(path))
+        result += "#endif"
+
         return result
 
     def get_data_array_text(self):

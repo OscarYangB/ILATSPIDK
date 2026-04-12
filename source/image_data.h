@@ -5,9 +5,9 @@
 #include "image_structures.h"
 
 static_assert(true); // There's a clang bug that gives a warning unless this fucking thing is here
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc23-extensions"
+#ifdef FILE_EMBED
 
 constexpr char arrow[] {
 	#embed "..\assets\art\arrow.png"
@@ -78,6 +78,43 @@ constexpr char very_large_font[] {
 };
 
 #pragma clang diagnostic pop
+#endif
+#ifndef FILE_EMBED
+constexpr char arrow[] {};
+
+constexpr char card[] {};
+
+constexpr char gamebar[] {};
+
+constexpr char grakeny[] {};
+
+constexpr char healthbar[] {};
+
+constexpr char kerry[] {};
+
+constexpr char queue[] {};
+
+constexpr char table[] {};
+
+constexpr char test_background[] {};
+
+constexpr char test_button[] {};
+
+constexpr char extra_small_font[] {};
+
+constexpr char large_font[] {};
+
+constexpr char medium_font[] {};
+
+constexpr char medium_large_font[] {};
+
+constexpr char small_font[] {};
+
+constexpr char small_medium_font[] {};
+
+constexpr char very_large_font[] {};
+
+#endif
 
 constexpr const char* image_file_data[] {
 	arrow,

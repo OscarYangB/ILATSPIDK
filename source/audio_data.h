@@ -3,15 +3,20 @@
 #pragma once
 
 static_assert(true); // There's a clang bug that gives a warning unless this fucking thing is here
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc23-extensions"
+#ifdef FILE_EMBED
 
 constexpr char success[] {
 	#embed "..\assets\audio\success.wav"
 };
 
 #pragma clang diagnostic pop
+#endif
+#ifndef FILE_EMBED
+constexpr char success[] {};
+
+#endif
 
 constexpr const char* audio_data[] {
 	success,

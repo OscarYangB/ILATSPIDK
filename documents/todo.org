@@ -59,9 +59,14 @@
 - [X] Drag to target
   - Highlights nearest target to mouse
 - [X] Card can't be played indicator
-- [ ] Hover and Queue Indicator
-- [ ] Teleport highlight unoccupied area
-- [ ] Mind read and playing AOE indicator
+- [X] Hover and Queue Indicator
+- [ ] Action text
+- [ ] Greying out everything except valid targets
+- [ ] AOE indicators
+  - [ ] Rectangle (teleport highlight unoccupied area)
+  - [ ] Circle
+  - [ ] Cone
+
 * Combat
 [[../source/combat.h]]
 ** TODO Enemies
