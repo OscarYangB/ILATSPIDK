@@ -92,6 +92,11 @@ void render_transform(entt::entity entity) {
 
 	if (!sprite_component.visible) return;
 
+	Colour global_tint{};
+	if (ecs.ctx().contains<TintSingleton>() && !ecs.ctx().get<TintSingleton>().excluded_entities.contains(entity)) {
+		global_tint = ecs.ctx().get<TintSingleton>().tint;
+	}
+
 	for (int i = 0; i < sprite_component.sprites.size(); i++) {
 		if (sprite_component.sprites.at(i) == Sprite::NONE) {
 			continue;
@@ -120,6 +125,7 @@ void render_transform(entt::entity entity) {
 		if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
 		Colour tint = sprite_component.tints.at(i).has_value() ? sprite_component.tints.at(i).value() : Colour{};
+		tint *= global_tint;
 
 		render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
 	}

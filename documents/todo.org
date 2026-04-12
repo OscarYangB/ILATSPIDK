@@ -61,7 +61,11 @@
 - [X] Card can't be played indicator
 - [X] Hover and Queue Indicator
 - [X] Action text
-- [ ] Greying out everything except valid targets
+- [X] Greying out everything except valid targets
+- [ ] Turn indicator (left to right)
+  - [ ] Current turn
+  - [ ] Turn upcoming
+  - [ ] Turn passed
 - [ ] AOE indicators
   - [ ] Rectangle (teleport highlight unoccupied area)
   - [ ] Circle

@@ -404,6 +404,19 @@ void destroy_card_preview() {
 	ecs.destroy(view.begin(), view.end());
 }
 
+bool is_valid_target(entt::entity target_entity, const CharacterComp& target_character, const Card& card) {
+	auto valid_target_bitmask = card.data->valid_target_bitmask;
+	if (valid_target_bitmask == 0) {
+		if (target_entity != get_combat().get_active_character_entity()) {
+			return false;
+		}
+	} else if ((target_character.data->type & valid_target_bitmask) != target_character.data->type) {
+		return false;
+	}
+
+	return true;
+}
+
 void on_card_hover(entt::entity hovered_entity) {
 	auto& hovered_button = ecs.get<HandButtonComp>(hovered_entity);
 	u8 index = hovered_button.index;
@@ -461,6 +474,15 @@ void on_card_unhover(entt::entity entity) {
 		create_arrow();
 		create_card_preview(unhovered_card.get_card());
 		y_target = CARD_SPRITE_OFF_SCREEN_OFFSET;
+		auto& tint_singleton = ecs.ctx().emplace<TintSingleton>(Colour{150, 150, 150, 255});
+		for (auto [entity, character, transform] : ecs.view<CharacterComp, TransformComp>().each()) {
+			if (is_valid_target(entity, character, unhovered_card.get_card())) {
+				tint_singleton.excluded_entities.push_back(entity);
+				for (entt::entity child : transform.children) {
+					tint_singleton.excluded_entities.push_back(child);
+				}
+			}
+		}
 	}
 
 	u8 hand_size = get_combat().get_active_character()->hand.size();
@@ -657,6 +679,10 @@ void stop_drag() {
 	for (auto [entity, hand_button, button] : view.each()) {
 		button.is_enabled = true;
 	}
+
+	if (ecs.ctx().contains<TintSingleton>()) {
+		ecs.ctx().erase<TintSingleton>();
+	}
 }
 
 void update_drag() {
@@ -682,13 +708,8 @@ void update_drag() {
 	get_combat().ui.target_position.reset();
 	float closest_distance{};
 	auto view = ecs.view<CharacterComp, BoxColliderComp, TransformComp>();
-	for (auto [entity, character, collider, transform] : view.each()) { // TODO highlight valid targets
-		auto valid_target_bitmask = dragged_card.get_card().data->valid_target_bitmask;
-		if (valid_target_bitmask == 0) {
-			if (entity != get_combat().get_active_character_entity()) {
-				continue;
-			}
-		} else if ((character.data->type & valid_target_bitmask) != character.data->type) {
+	for (auto [entity, character, collider, transform] : view.each()) {
+		if (!is_valid_target(entity, character, dragged_card.get_card())) {
 			continue;
 		}
 		Vector2 character_screen_position = world_to_pixel(transform.position + collider.box.center());
@@ -704,12 +725,9 @@ void update_drag() {
 		Card card = dragged_card.get_card();
 
 		get_combat().get_active_character()->play_card(dragged_card.index, closest_character);
-		get_combat().ui.dragged_card = entt::null;
 
 		refresh_hand_buttons();
-
-		destroy_arrow();
-		destroy_card_preview();
+		stop_drag();
 	}
 }
 

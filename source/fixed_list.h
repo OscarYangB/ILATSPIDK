@@ -55,4 +55,14 @@ struct FixedList {
 	bool empty() {
 		return current_size == 0;
 	}
+
+	bool contains(const T& t) {
+		for (int i = 0; i < current_size; i++) {
+			if (t == at(i)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 };

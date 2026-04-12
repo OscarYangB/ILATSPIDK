@@ -59,7 +59,7 @@ struct Colour {
 	void operator*=(const Colour& other);
 
 	static constexpr Colour black() { return {0, 0, 0, 255}; };
-	static constexpr Colour white() { return {0, 0, 0, 255}; };
+	static constexpr Colour white() { return {255, 255, 255, 255}; };
 };
 
 struct SpriteComp {
@@ -117,6 +117,11 @@ struct TextComp {
 	XAnchor x_align = XAnchor::LEFT;
 	YAnchor y_align = YAnchor::TOP;
 	bool draw_background = false;
+};
+
+struct TintSingleton {
+	Colour tint{};
+	FixedList<entt::entity, 20> excluded_entities{};
 };
 
 extern Vector2 camera_position;
