@@ -27,8 +27,8 @@ struct CardData {
 	u8 ai_target_bitmask{};
 	CardType card_type;
 
-	void (*play)(CharacterComp& character, entt::entity target);
-	void (*activate)(CharacterComp& character, entt::entity target);
+	void (*play)(CharacterComp& character, CharacterComp& target);
+	void (*activate)(CharacterComp& character, CharacterComp& target);
 };
 
 struct Card {

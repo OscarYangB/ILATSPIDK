@@ -53,7 +53,7 @@ void CharacterComp::play_card(u8 hand_index, entt::entity target) {
 	played_card.value().card = card;
 	played_card.value().bars_until_activate = card.data->cost;
 	played_card.value().target = target;
-	card.data->play(*this, target);
+	card.data->play(*this, ecs.get<CharacterComp>(target));
 
 	UI::destroy_hand_visual(*this, hand_index);
 }
@@ -66,7 +66,7 @@ void CharacterComp::on_bar_end() {
 	played_card.value().bars_until_activate--;
 
 	if (played_card.value().bars_until_activate <= 0) {
-		played_card.value().card.data->activate(*this, played_card.value().target);
+		played_card.value().card.data->activate(*this, ecs.get<CharacterComp>(played_card.value().target));
 		played_card.reset();
 	}
 }
