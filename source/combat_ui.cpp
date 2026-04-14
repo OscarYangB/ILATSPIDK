@@ -393,7 +393,7 @@ void attach_card_visual(Card card, entt::entity parent) {
 void create_card_preview(Card card) {
 	entt::entity entity = ecs.create();
 	auto& transform = add_component(entity, UITransformComp{.x_anchor = XAnchor::LEFT, .y_anchor = YAnchor::BOTTOM,
-															.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .scale = 2.f });
+															.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1, .scale = 2.f });
 	add_component(entity, SpriteComp{}); // To access visibility for children
 	add_component(entity, CardPreviewComp{});
 	attach_card_visual(card, entity);
@@ -401,7 +401,7 @@ void create_card_preview(Card card) {
 
 void destroy_card_preview() {
 	auto view = ecs.view<CardPreviewComp>();
-	ecs.destroy(view.begin(), view.end()); // There's a crash here? Repro: drag JUST until the arrow appears, then drag back
+	ecs.destroy(view.begin(), view.end());
 }
 
 bool is_valid_target(entt::entity target_entity, const CharacterComp& target_character, const Card& card) {
@@ -464,6 +464,8 @@ void on_card_hover(entt::entity hovered_entity) {
 	}
 }
 
+void create_cancel_area();
+
 void on_card_unhover(entt::entity entity) {
 	get_combat().ui.hovered_card = entt::null;
 	float y_target = CARD_SPRITE_HIDDEN_OFFSET;
@@ -473,6 +475,7 @@ void on_card_unhover(entt::entity entity) {
 	if (card_entity == get_combat().ui.dragged_card) {
 		create_arrow();
 		create_card_preview(unhovered_card.get_card());
+		create_cancel_area();
 		y_target = CARD_SPRITE_OFF_SCREEN_OFFSET;
 		auto& tint_singleton = ecs.ctx().emplace<TintSingleton>(Colour{150, 150, 150, 255});
 		for (auto [entity, character, transform] : ecs.view<CharacterComp, TransformComp>().each()) {
@@ -668,9 +671,19 @@ void UI::destroy_hand_visual(const CharacterComp& character, u8 index) {
 	}
 }
 
+void remove_global_tint() {
+	if (ecs.ctx().contains<TintSingleton>()) {
+		ecs.ctx().erase<TintSingleton>();
+	}
+}
+
+void destroy_cancel_area() {
+	auto cancel_area = ecs.view<CancelAreaComp>();
+	ecs.destroy(cancel_area.begin(), cancel_area.end());
+}
+
 void stop_drag() {
 	get_combat().ui.dragged_card = entt::null;
-	get_combat().ui.dragged_above_hand = false;
 	destroy_arrow();
 	destroy_card_preview();
 	position_hand_visuals(false);
@@ -680,20 +693,12 @@ void stop_drag() {
 		button.is_enabled = true;
 	}
 
-	if (ecs.ctx().contains<TintSingleton>()) {
-		ecs.ctx().erase<TintSingleton>();
-	}
+	remove_global_tint();
+	destroy_cancel_area();
 }
 
 void update_drag() {
 	if (get_combat().ui.dragged_card == entt::null) {
-		return;
-	}
-
-	if (get_mouse_y() < SCREEN_SPACE_HEIGHT - CARD_HOVER_EXPANDED_HEIGHT) {
-		get_combat().ui.dragged_above_hand = true;
-	} else if (get_mouse_y() > SCREEN_SPACE_HEIGHT - CARD_HOVER_HEIGHT && get_combat().ui.dragged_above_hand) {
-		stop_drag();
 		return;
 	}
 
@@ -721,7 +726,7 @@ void update_drag() {
 		}
 	}
 
-	if (!input_held(InputType::MOUSE_CLICK)) {
+	if (!input_held(InputType::MOUSE_CLICK) && !ecs.view<CancelAreaComp>().empty()) {
 		Card card = dragged_card.get_card();
 
 		get_combat().get_active_character()->play_card(dragged_card.index, closest_character);
@@ -729,6 +734,26 @@ void update_drag() {
 		refresh_hand_buttons();
 		stop_drag();
 	}
+}
+
+void on_cancel_area_hovered(entt::entity entity) {
+	if (ecs.get<CancelAreaComp>(entity).enabled) {
+		stop_drag();
+	}
+}
+
+void on_cancel_area_unhovered(entt::entity entity) {
+	ecs.get<CancelAreaComp>(entity).enabled = true;
+}
+
+void create_cancel_area() {
+	auto entity = ecs.create();
+	add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM, .width = static_cast<u16>(SCREEN_SPACE_WIDTH), .height = 150});
+	add_component(entity, SpriteComp{.sprites = {Sprite::CANCELAREA_1}});
+	add_component(entity, NineSliceComp{.x = 7, .y = 7, .w = 310, .h = 30});
+	add_component(entity, ButtonComp{.on_hover = on_cancel_area_hovered, .on_unhover = on_cancel_area_unhovered, .is_hovered = true});
+	add_component(entity, CancelAreaComp{});
+	add_component(entity, TextComp{.text = "Cancel", .colour = Colour::white(), .x_align = XAnchor::CENTER, .y_align = YAnchor::CENTER});
 }
 
 void UI::update_combat() {
@@ -746,6 +771,11 @@ void UI::end_combat() {
 	pop_input_mode(InputMode::COMBAT);
 	destroy_queue_preview();
 	destroy_action_text();
+
+	destroy_arrow();
+	destroy_card_preview();
+	remove_global_tint();
+	destroy_cancel_area();
 }
 
 void UI::on_turn_start() {

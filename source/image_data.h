@@ -13,6 +13,10 @@ constexpr char arrow[] {
 	#embed "..\assets\art\arrow.png"
 };
 
+constexpr char cancelarea[] {
+	#embed "..\assets\art\CancelArea.png"
+};
+
 constexpr char card[] {
 	#embed "..\assets\art\card.png"
 };
@@ -82,6 +86,8 @@ constexpr char very_large_font[] {
 #ifndef FILE_EMBED
 constexpr char arrow[] {};
 
+constexpr char cancelarea[] {};
+
 constexpr char card[] {};
 
 constexpr char gamebar[] {};
@@ -118,6 +124,7 @@ constexpr char very_large_font[] {};
 
 constexpr const char* image_file_data[] {
 	arrow,
+	cancelarea,
 	card,
 	gamebar,
 	grakeny,
@@ -138,6 +145,7 @@ constexpr const char* image_file_data[] {
 
 constexpr int image_file_sizes[] {
 	sizeof(arrow),
+	sizeof(cancelarea),
 	sizeof(card),
 	sizeof(gamebar),
 	sizeof(grakeny),
@@ -158,6 +166,7 @@ constexpr int image_file_sizes[] {
 
 enum class ImageFile {
 	ARROW_IMAGE,
+	CANCELAREA_IMAGE,
 	CARD_IMAGE,
 	GAMEBAR_IMAGE,
 	GRAKENY_IMAGE,
@@ -185,6 +194,7 @@ enum class Sprite {
 	ARROW_ARROW_2,
 	ARROW_ARROW_3,
 	ARROW_ARROW_4,
+	CANCELAREA_1,
 	CARD_PSYCHIC_1,
 	CARD_PSYCHIC_2,
 	CARD_PSYCHIC_3,
@@ -368,6 +378,7 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{200, 100, 100, 100, 8, 21, 92, 73},
 	{0, 200, 100, 100, 8, 20, 91, 73},
 	{100, 200, 100, 100, 7, 18, 92, 75},
+	{0, 0, 320, 38, 1, 1, 320, 38},
 	{0, 0, 300, 400, 6, 9, 291, 395},
 	{300, 0, 300, 400, 167, 208, 300, 348},
 	{600, 0, 300, 400, 48, 116, 300, 345},
@@ -550,6 +561,7 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::ARROW_IMAGE,
 	ImageFile::ARROW_IMAGE,
 	ImageFile::ARROW_IMAGE,
+	ImageFile::CANCELAREA_IMAGE,
 	ImageFile::CARD_IMAGE,
 	ImageFile::CARD_IMAGE,
 	ImageFile::CARD_IMAGE,
@@ -723,5 +735,5 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::VERY_LARGE_FONT_IMAGE
 };
 
-constexpr int NUMBER_OF_IMAGES = 17;
+constexpr int NUMBER_OF_IMAGES = 18;
 
