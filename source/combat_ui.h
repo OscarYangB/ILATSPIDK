@@ -25,6 +25,7 @@ struct CombatUI {
 	entt::entity hovered_card = entt::null;
 	entt::entity dragged_card = entt::null;
 	std::optional<Vector2> target_position{};
+	double vibrate_timer = 0.0;
 };
 
 struct HandButtonComp {
@@ -43,7 +44,6 @@ struct HandCardComp {
 
 struct GamebarComp {
 	u8 index{};
-	double vibrate_timer{};
 };
 
 struct HealthbarComp {};
@@ -54,7 +54,9 @@ struct ArrowComp {
 
 struct CardPreviewComp{};
 
-struct QueueComp{};
+struct QueueComp {
+	bool animation_flag = 0;
+};
 
 struct ActionText{};
 

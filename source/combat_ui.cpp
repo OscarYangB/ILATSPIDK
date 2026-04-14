@@ -52,7 +52,7 @@ void destroy_queue_preview() {
 	ecs.destroy(view.begin(), view.end());
 }
 
-void set_queue_preview_info(Card card, bool is_preview, UITransformComp& transform, SpriteComp& sprite) {
+void set_queue_preview_info(Card card, bool is_preview, UITransformComp& transform, SpriteComp& sprite, bool animation_flag) {
 	if (is_preview && !card.can_play()) {
 		sprite.sprites[0] = Sprite::NONE;
 		sprite.sprites[1] = Sprite::NONE;
@@ -63,31 +63,31 @@ void set_queue_preview_info(Card card, bool is_preview, UITransformComp& transfo
 	auto [gamebar_entity, gamebar] = find_component<GamebarComp>([gamebar_index](auto& gamebar){ return gamebar.index == gamebar_index; });
 	Sprite new_sprite;
 	switch(card.data->cost) {
-	case 1: new_sprite = Sprite::QUEUE_1_1; break;
-	case 2: new_sprite = Sprite::QUEUE_2_1; break;
-	case 3: new_sprite = Sprite::QUEUE_3_1; break;
-	case 4: new_sprite = Sprite::QUEUE_4_1; break;
+	case 1: new_sprite = animation_flag ? Sprite::QUEUE_1_1 : Sprite::QUEUE_1_2; break;
+	case 2: new_sprite = animation_flag ? Sprite::QUEUE_2_1 : Sprite::QUEUE_2_2; break;
+	case 3: new_sprite = animation_flag ? Sprite::QUEUE_3_1 : Sprite::QUEUE_3_2; break;
+	case 4: new_sprite = animation_flag ? Sprite::QUEUE_4_1 : Sprite::QUEUE_4_2; break;
 	default: new_sprite = Sprite::NONE; break;
 	}
-	sprite.sprites[1] = Sprite::QUEUE_STAR_1;
+	sprite.sprites[1] = animation_flag ? Sprite::QUEUE_STAR_1 : Sprite::QUEUE_STAR_2;
 	sprite.sprites[0] = new_sprite;
 	transform.relative_position = ecs.get<UITransformComp>(gamebar_entity).relative_position;
 	sprite.tint.a = is_preview ? 140 : 255;
 }
 
 void update_queue_preview() {
-	auto [entity, transform, sprite] = *ecs.view<QueueComp, UITransformComp, SpriteComp>().each().begin();
+	auto [entity, queue, transform, sprite] = *ecs.view<QueueComp, UITransformComp, SpriteComp>().each().begin();
 	Sprite new_sprite;
 	Vector2 new_position;
 	if (get_combat().get_active_character()->played_card.has_value()) {
-		set_queue_preview_info(get_combat().get_active_character()->played_card.value().card, false, transform, sprite);
+		set_queue_preview_info(get_combat().get_active_character()->played_card.value().card, false, transform, sprite, queue.animation_flag);
 	} else if (get_combat().ui.dragged_card != entt::null) {
-		set_queue_preview_info(ecs.get<HandCardComp>(get_combat().ui.dragged_card).get_card(), true, transform, sprite);
+		set_queue_preview_info(ecs.get<HandCardComp>(get_combat().ui.dragged_card).get_card(), true, transform, sprite, queue.animation_flag);
 	} else if (get_combat().ui.hovered_card != entt::null) {
-		set_queue_preview_info(ecs.get<HandCardComp>(get_combat().ui.hovered_card).get_card(), true, transform, sprite);
+		set_queue_preview_info(ecs.get<HandCardComp>(get_combat().ui.hovered_card).get_card(), true, transform, sprite, queue.animation_flag);
 	} else if (sprite.tint.a == 255 && sprite.sprites[1] != Sprite::NONE) {
 		sprite.sprites[1] = Sprite::NONE;
-  		add_component(entity, CycleAnimComp{.sprites = {Sprite::QUEUE_STAR_2, Sprite::QUEUE_STAR_3, Sprite::NONE}, .frequency = 10.f,
+  		add_component(entity, CycleAnimComp{.sprites = {Sprite::QUEUE_STAR_3, Sprite::QUEUE_STAR_4, Sprite::NONE}, .frequency = 10.f,
 											.finish_behaviour = FinishBehaviour::DESTROY_COMPONENT});
 	} else {
 		sprite.sprites[0] = Sprite::NONE;
@@ -268,6 +268,13 @@ void update_cards_can_play() {
 }
 
 void update_gamebar() {
+	bool vibrate = false;
+	get_combat().ui.vibrate_timer += delta_time;
+	if (get_combat().ui.vibrate_timer > SECONDS_PER_VIBRATION) {
+		get_combat().ui.vibrate_timer -= SECONDS_PER_VIBRATION;
+		vibrate = true;
+	}
+
 	auto view = ecs.view<GamebarComp, SpriteComp, UITransformComp>();
 	for (auto [entity, gamebar, sprite, transform] : view.each()) {
 		Box box = sprite.visible_bounding_box();
@@ -286,9 +293,7 @@ void update_gamebar() {
 
 		sprite.masks[1] = box;
 
-		gamebar.vibrate_timer += delta_time;
-		if (gamebar.vibrate_timer > SECONDS_PER_VIBRATION) {
-			gamebar.vibrate_timer -= SECONDS_PER_VIBRATION;
+		if (vibrate) {
 			cycle_gamebar_animation(get_combat().bar_index);
 
 			if (get_combat().get_discrete_bar_progress() != 0 && gamebar.index == get_combat().bar_index) {
@@ -302,6 +307,12 @@ void update_gamebar() {
 						.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4},
 						.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
 			}
+		}
+	}
+
+	if (vibrate) {
+		for (auto [entity, queue] : ecs.view<QueueComp>().each()) {
+			queue.animation_flag = !queue.animation_flag;
 		}
 	}
 }

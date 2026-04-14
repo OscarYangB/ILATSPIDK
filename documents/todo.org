@@ -64,7 +64,7 @@
 - [X] Greying out everything except valid targets
 - [X] Drag cancel area indicator
 - [X] Card clicked indicator
-- [ ] Queue preview tick animation
+- [X] Queue preview tick animation
 - [ ] Turn indicator (left to right)
   - [ ] Current turn
   - [ ] Turn upcoming
