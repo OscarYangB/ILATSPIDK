@@ -62,9 +62,9 @@
 - [X] Hover and Queue Indicator
 - [X] Action text
 - [X] Greying out everything except valid targets
-- [ ] Card clicked indicator
+- [X] Drag cancel area indicator
+- [X] Card clicked indicator
 - [ ] Queue preview tick animation
-- [ ] Drag cancel area indicator
 - [ ] Turn indicator (left to right)
   - [ ] Current turn
   - [ ] Turn upcoming

@@ -521,12 +521,20 @@ void on_card_click(entt::entity entity) {
 
 	auto view = ecs.view<HandButtonComp, ButtonComp>();
 	for (auto [entity, hand_button, button] : view.each()) {
-		if (hand_button.index != index) {
-			button.is_enabled = false;
-		}
+		button.is_enabled = false;
 	}
 
-	// TODO play a vfx arrow pointing up animation
+	stop_animation(card.animation_id);
+	card.animation_id = start_animation_group();
+	play_animation(0.1, 0.0, &UITransformComp::relative_position, card_entity, [](Animation& animation, Vector2 starting_value) {
+		Vector2 new_value = starting_value;
+		new_value.y = CARD_SPRITE_SHOWN_OFFSET - 30;
+		return fast_start_curve(new_value, animation, starting_value);
+	});
+	play_animation(0.04, 0.0, &UITransformComp::scale, card_entity, [](Animation& animation, float starting_value) {
+		return smooth_curve(2.f, animation, starting_value);
+	});
+	end_animation_group();
 }
 
 // 1. HandCardComp and unpositioned visuals are created/destroyed whenever hand state changes: ui_add_hand_visual() ui_destroy_hand_visual()
@@ -682,17 +690,19 @@ void destroy_cancel_area() {
 	ecs.destroy(cancel_area.begin(), cancel_area.end());
 }
 
-void stop_drag() {
+void end_card_click() {
 	get_combat().ui.dragged_card = entt::null;
-	destroy_arrow();
-	destroy_card_preview();
-	position_hand_visuals(false);
-
 	auto view = ecs.view<HandButtonComp, ButtonComp>();
 	for (auto [entity, hand_button, button] : view.each()) {
 		button.is_enabled = true;
 	}
+}
 
+void stop_drag() {
+	end_card_click();
+	destroy_arrow();
+	destroy_card_preview();
+	position_hand_visuals(false);
 	remove_global_tint();
 	destroy_cancel_area();
 }
@@ -726,13 +736,22 @@ void update_drag() {
 		}
 	}
 
-	if (!input_held(InputType::MOUSE_CLICK) && !ecs.view<CancelAreaComp>().empty()) {
-		Card card = dragged_card.get_card();
-
-		get_combat().get_active_character()->play_card(dragged_card.index, closest_character);
-
-		refresh_hand_buttons();
-		stop_drag();
+	if (!input_held(InputType::MOUSE_CLICK)) {
+		if (!ecs.view<CancelAreaComp>().empty()) {
+			Card card = dragged_card.get_card();
+			get_combat().get_active_character()->play_card(dragged_card.index, closest_character);
+			refresh_hand_buttons();
+			stop_drag();
+		} else {
+			stop_animation(dragged_card.animation_id);
+			dragged_card.animation_id =
+				play_animation(0.1, 0.0, &UITransformComp::relative_position, get_combat().ui.dragged_card, [](Animation& animation, Vector2 starting_value) {
+					Vector2 new_value = starting_value;
+					new_value.y = CARD_SPRITE_SHOWN_OFFSET;
+					return fast_start_curve(new_value, animation, starting_value);
+				});
+			end_card_click();
+		}
 	}
 }
 
