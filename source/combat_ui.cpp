@@ -401,7 +401,7 @@ void create_card_preview(Card card) {
 
 void destroy_card_preview() {
 	auto view = ecs.view<CardPreviewComp>();
-	ecs.destroy(view.begin(), view.end());
+	ecs.destroy(view.begin(), view.end()); // There's a crash here? Repro: drag JUST until the arrow appears, then drag back
 }
 
 bool is_valid_target(entt::entity target_entity, const CharacterComp& target_character, const Card& card) {

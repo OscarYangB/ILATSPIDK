@@ -79,10 +79,10 @@ constexpr Dialog TABLE_DIALOG[] {
 };
 #+end_src
 * Generic Animations
-Using entt and templates I can animate anything through a duration, delay, curve (linear, smoothstep, exponential, etc.), curve parameters, amd member pointer (the struct type is inferred).
+Using entt and templates I can animate anything through a duration, delay, curve (linear, smoothstep, exponential, etc.), curve parameters, and member pointer (the struct type is inferred).
 #+begin_src
-play_animation(0.06, 0.0, &UITransformComp::width, sprite_entity, [distance_weight](Animation& animation, u16 starting_value) {
-	return smooth_curve<u16>(CARD_SPRITE_WIDTH, animation, starting_value);
+play_animation(0.06, 0.0, &UITransformComp::width, entity, [](Animation& animation, u16 starting_value) {
+	return smooth_curve(CARD_SPRITE_WIDTH, animation, starting_value);
 });
 #+end_src
 * Text Rendering

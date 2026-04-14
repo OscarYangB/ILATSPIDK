@@ -57,6 +57,4 @@ constexpr CardData card_data[] {
 	 }},
 };
 
-constexpr CardData test = {.name = {"awdawd"}, .description = {"asdasd"}};
-
 std::vector<Card> make_cards(std::vector<CardID> ids);
