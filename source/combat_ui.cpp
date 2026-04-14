@@ -526,15 +526,27 @@ void on_card_click(entt::entity entity) {
 
 	stop_animation(card.animation_id);
 	card.animation_id = start_animation_group();
-	play_animation(0.1, 0.0, &UITransformComp::relative_position, card_entity, [](Animation& animation, Vector2 starting_value) {
+	play_animation(0.05, 0.0, &UITransformComp::relative_position, card_entity, [](Animation& animation, Vector2 starting_value) {
 		Vector2 new_value = starting_value;
 		new_value.y = CARD_SPRITE_SHOWN_OFFSET - 30;
 		return fast_start_curve(new_value, animation, starting_value);
 	});
-	play_animation(0.04, 0.0, &UITransformComp::scale, card_entity, [](Animation& animation, float starting_value) {
+	play_animation(0.05, 0.0, &UITransformComp::scale, card_entity, [](Animation& animation, float starting_value) {
 		return smooth_curve(2.f, animation, starting_value);
 	});
 	end_animation_group();
+
+	auto fx_entity = ecs.create();
+	add_component(fx_entity, UITransformComp{});
+	ecs.get<UITransformComp>(card_entity).add_child(card_entity, fx_entity);
+	add_component(fx_entity, SpriteComp{.sprites = {Sprite::NONE}, .tint = {255, 255, 255, 200}});
+	decltype(CycleAnimComp::sprites) fx_sprites;
+	switch (card.get_card().data->card_type) {
+	case CardType::GROOVE: fx_sprites = {Sprite::CARD_GROOVE_FX_1, Sprite::CARD_GROOVE_FX_2, Sprite::CARD_GROOVE_FX_3}; break;
+	case CardType::MAGIC: fx_sprites = {Sprite::CARD_MAGIC_FX_1, Sprite::CARD_MAGIC_FX_2, Sprite::CARD_MAGIC_FX_3}; break;
+	case CardType::PSYCHIC: fx_sprites = {Sprite::CARD_PSYCHIC_FX_1, Sprite::CARD_PSYCHIC_FX_2, Sprite::CARD_PSYCHIC_FX_3}; break;
+	}
+	add_component(fx_entity, CycleAnimComp{.sprites = fx_sprites, .frequency = 20.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
 }
 
 // 1. HandCardComp and unpositioned visuals are created/destroyed whenever hand state changes: ui_add_hand_visual() ui_destroy_hand_visual()
@@ -745,7 +757,7 @@ void update_drag() {
 		} else {
 			stop_animation(dragged_card.animation_id);
 			dragged_card.animation_id =
-				play_animation(0.1, 0.0, &UITransformComp::relative_position, get_combat().ui.dragged_card, [](Animation& animation, Vector2 starting_value) {
+				play_animation(0.05, 0.0, &UITransformComp::relative_position, get_combat().ui.dragged_card, [](Animation& animation, Vector2 starting_value) {
 					Vector2 new_value = starting_value;
 					new_value.y = CARD_SPRITE_SHOWN_OFFSET;
 					return fast_start_curve(new_value, animation, starting_value);
