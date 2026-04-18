@@ -1,8 +1,8 @@
 #include "combat.h"
 #include <algorithm>
 #include "game.h"
-#include <random>
 #include "card_data.h"
+#include "random.h"
 
 void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 	data = &new_data;
@@ -10,7 +10,7 @@ void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 	max_health = data->starting_health;
 	shield = data->starting_shield;
 	deck = data->starting_deck;
-	std::shuffle(deck.begin(), deck.end(), std::mt19937{std::random_device{}()});
+	std::shuffle(deck.begin(), deck.end(), random_generator);
 	hand = {};
 	status_effects = {};
 	played_card = std::nullopt;
@@ -31,6 +31,10 @@ void CharacterComp::damage(float amount) {
 }
 
 void CharacterComp::draw(u8 amount) {
+	if (data->type != CharacterType::GOOD) {
+		return;
+	}
+
 	for (int i = 0; i < amount; i++) {
 		if (deck.empty()) {
 			break;
@@ -48,31 +52,65 @@ void CharacterComp::draw(u8 amount) {
 void CharacterComp::play_card(u8 hand_index, entt::entity target) {
 	Card card = hand.at(hand_index);
 	hand.erase(hand.begin() + hand_index);
+	queue_card(card, target);
+	UI::destroy_hand_visual(*this, hand_index);
+}
 
+void CharacterComp::queue_card(Card card, entt::entity target) {
 	played_card.emplace();
 	played_card.value().card = card;
 	played_card.value().bars_until_activate = card.data->cost;
 	played_card.value().target = target;
 	card.data->play(*this, ecs.get<CharacterComp>(target));
+}
 
-	UI::destroy_hand_visual(*this, hand_index);
+void CharacterComp::queue_random_card() {
+	assert(data->type != CharacterType::GOOD);
+	assert(!deck.empty());
+	Card card = deck[random_integer(0, deck.size() - 1)];
+	std::vector<entt::entity> valid_targets;
+	for (auto [entity, character] : ecs.view<CharacterComp>().each()) {
+		if (is_valid_target(*this, character, card)) {
+			valid_targets.push_back(entity);
+		}
+	}
+	queue_card(card, valid_targets[random_integer(0, valid_targets.size() - 1)]);
 }
 
 void CharacterComp::on_bar_end() {
-	if (!played_card.has_value()) {
-		return;
+	if (played_card.has_value()) {
+		played_card.value().bars_until_activate--;
+
+		if (played_card.value().bars_until_activate <= 0) {
+			played_card.value().card.data->activate(*this, ecs.get<CharacterComp>(played_card.value().target));
+			played_card.reset();
+		}
 	}
 
-	played_card.value().bars_until_activate--;
-
-	if (played_card.value().bars_until_activate <= 0) {
-		played_card.value().card.data->activate(*this, ecs.get<CharacterComp>(played_card.value().target));
-		played_card.reset();
+	if (!played_card.has_value() && data->type != CharacterType::GOOD) {
+		queue_random_card();
 	}
 }
 
 void CharacterComp::on_turn_start() {
 	draw();
+
+	if (data->type != CharacterType::GOOD) {
+		queue_random_card();
+	}
+}
+
+bool is_valid_target(const CharacterComp& playing_character, const CharacterComp& target_character, const Card& card) {
+	auto valid_target_bitmask = playing_character.data->type == CharacterType::GOOD ? card.data->valid_target_bitmask : card.data->ai_target_bitmask;
+	if (valid_target_bitmask == 0) {
+		if (target_character.entity != get_combat().get_active_character_entity()) {
+			return false;
+		}
+	} else if ((target_character.data->type & valid_target_bitmask) != target_character.data->type) {
+		return false;
+	}
+
+	return true;
 }
 
 bool is_in_combat() {

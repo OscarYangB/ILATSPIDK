@@ -17,6 +17,7 @@
 #include "spawn.h"
 #include "character_animation.h"
 #include "combat.h"
+#include "random.h"
 
 void button_hovered() {
 	std::cout << "button hovered\n";
@@ -45,6 +46,7 @@ void start() {
 	}
 
 	init_audio();
+	init_random();
 }
 
 static void update_process_input() {

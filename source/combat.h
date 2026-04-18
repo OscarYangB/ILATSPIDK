@@ -90,6 +90,8 @@ struct CharacterComp {
 	void damage(float amount);
 	void draw(u8 amount = 1);
 	void play_card(u8 hand_index, entt::entity target);
+	void queue_card(Card card, entt::entity target);
+	void queue_random_card();
 	void on_bar_end();
 	void on_turn_start();
 };
@@ -120,3 +122,4 @@ void update_combat();
 void start_combat();
 void end_combat();
 CombatSingleton& get_combat();
+bool is_valid_target(const CharacterComp& playing_character, const CharacterComp& target_character, const Card& card);

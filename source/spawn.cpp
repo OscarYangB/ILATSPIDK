@@ -26,6 +26,6 @@ entt::entity spawn_grakeny() {
 	add_component(entity, TransformComp{});
 	add_component(entity, BoxColliderComp{GRAKENY_COLLIDER});
 	add_component(entity, CycleAnimComp{.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}, .frequency = 2.f});
-	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 150.f, .type = CharacterType::EVIL, .starting_deck = make_cards({ })});
+	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 150.f, .type = CharacterType::EVIL, .starting_deck = make_cards({CardID::GRENADE})});
 	return entity;
 }

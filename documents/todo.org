@@ -31,6 +31,9 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
+- Fix crash upon selecting certain dialog options
+- Sort character turns left to right on round start
+
 * Workflow
 - [ ] Tab to indent according to mode when line is empty and no selection
 - [ ] C-backspace stops on capital letter and line start
