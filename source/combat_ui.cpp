@@ -188,13 +188,18 @@ void UI::refresh_health_bar(const CharacterComp& character, bool is_heal) {
 
 	for (auto [entity, transform, sprite] : ecs.view<HealthbarComp, TransformComp, SpriteComp>().each()) {
 		if (transform.parent == character.entity) {
-			sprite.masks[2] = {{0.f, 0.f}, {HEALTHBAR_WIDTH * health, HEALTHBAR_HEIGHT}};
-			sprite.sprites[1] = is_heal ? Sprite::HEALTHBAR_HEAL_1 : Sprite::HEALTHBAR_DYNAMIC_1;
+			const float scaled_width = HEALTHBAR_WIDTH * health;
+			if (!is_heal) {
+				sprite.masks[2] = {{0.f, 0.f}, {scaled_width, HEALTHBAR_HEIGHT}};
+			}
 
-			play_animation(0.2, 0.0, &SpriteComp::masks, entity, [](Animation& animation, auto starting_value) {
+			play_animation(0.2, 0.0, &SpriteComp::masks, entity, [scaled_width, is_heal](Animation& animation, auto starting_value) {
 				auto new_value = starting_value;
-				float new_width = fast_start_curve(starting_value.at(2).value().width(), animation, starting_value.at(1).value().width());
+				float new_width = fast_start_curve(scaled_width, animation, starting_value.at(1).value().width());
 				new_value[1] = {{0.f, 0.f}, {new_width, HEALTHBAR_HEIGHT}};
+				if (is_heal) {
+					new_value[2] = {{0.f, 0.f}, {new_width, HEALTHBAR_HEIGHT}};
+				}
 				return new_value;
 			});
 			break;
