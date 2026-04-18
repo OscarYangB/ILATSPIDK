@@ -114,8 +114,8 @@ static void update_dialog_animation() {
 }
 
 void update_dialog() {
-	update_dialog_input();
 	update_dialog_animation();
+	update_dialog_input();
 }
 
 void delete_choice_buttons() {
