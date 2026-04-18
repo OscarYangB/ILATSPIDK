@@ -23,10 +23,10 @@ constexpr CardData card_data[] {
 	{.name= {"Saturn"}, .description = {"The power of Saturn. This text is very long and will create a line break."}, .play_text = {"is evoking the power of Saturn!"},
 	 .cost = 3, .minigame_level = 0, .valid_target_bitmask = 0, .ai_target_bitmask = GOOD, .card_type = CardType::PSYCHIC,
 	 .play = [](CharacterComp& character, CharacterComp& target) {
-		 target.heal(100.f);
+
 	 },
 	 .activate = [](CharacterComp& character, CharacterComp& target) {
-
+		 target.heal(100.f);
 	 }},
 
 	{.name= {"Mind Read"}, .description = {"Read the mind of an enemy"}, .play_text = {"is reading the mind of an enemy."},

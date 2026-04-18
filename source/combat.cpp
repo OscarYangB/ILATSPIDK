@@ -3,6 +3,7 @@
 #include "game.h"
 #include "card_data.h"
 #include "random.h"
+#include "render.h"
 
 void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 	data = &new_data;
@@ -125,6 +126,12 @@ void update_combat() {
 	get_combat().update();
 }
 
+void sort_characters() {
+	std::sort(get_combat().characters.begin(), get_combat().characters.end(), [](entt::entity first, entt::entity second) {
+		return ecs.get<TransformComp>(first).position.x < ecs.get<TransformComp>(second).position.x;
+	});
+}
+
 void start_combat() {
 	FixedList<entt::entity, 20> characters{};
 	auto view = ecs.view<CharacterDataComp>();
@@ -136,6 +143,7 @@ void start_combat() {
 	}
 
 	auto& combat = ecs.ctx().emplace<CombatSingleton>(characters);
+	sort_characters();
 	UI::start_combat();
 
 	for (auto [entity, character] : ecs.view<CharacterComp>().each()) {
@@ -169,6 +177,7 @@ void CombatSingleton::update() {
 
 			if (turn_index >= characters.size()) { // Cycle ends
 				turn_index = 0;
+				sort_characters();
 			}
 
 			get_active_character()->on_turn_start();
