@@ -104,7 +104,7 @@ constexpr u16 ARROW_DOT_HEIGHT = get_sprite_dimensions(Sprite::ARROW_DOT_1).h;
 void create_arrow() {
 	for (u8 i = 0; i < NUMBER_OF_ARROW_DOTS; i++) {
 		entt::entity entity = ecs.create();
-		add_component(entity, UITransformComp{.sort_order = 10});
+		add_component(entity, UITransformComp{});
 		add_component(entity, SpriteComp{.sprites = {Sprite::NONE}});
 		add_component(entity, ArrowComp{.index = i});
 		auto sprites = i == 0 ? decltype(CycleAnimComp::sprites){Sprite::ARROW_ARROW_1, Sprite::ARROW_ARROW_2, Sprite::ARROW_ARROW_3, Sprite::ARROW_ARROW_4} :
@@ -404,7 +404,7 @@ void attach_card_visual(Card card, entt::entity parent) {
 void create_card_preview(Card card) {
 	entt::entity entity = ecs.create();
 	auto& transform = add_component(entity, UITransformComp{.x_anchor = XAnchor::LEFT, .y_anchor = YAnchor::BOTTOM,
-															.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1, .scale = 2.f });
+															.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 2, .scale = 2.f });
 	add_component(entity, SpriteComp{}); // To access visibility for children
 	add_component(entity, CardPreviewComp{});
 	attach_card_visual(card, entity);
@@ -790,7 +790,8 @@ void on_cancel_area_unhovered(entt::entity entity) {
 
 void create_cancel_area() {
 	auto entity = ecs.create();
-	add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM, .width = static_cast<u16>(SCREEN_SPACE_WIDTH), .height = 150});
+	add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+										  .width = static_cast<u16>(SCREEN_SPACE_WIDTH), .height = 150, .sort_order = 1});
 	add_component(entity, SpriteComp{.sprites = {Sprite::CANCELAREA_1}});
 	add_component(entity, NineSliceComp{.x = 7, .y = 7, .w = 310, .h = 30});
 	add_component(entity, ButtonComp{.on_hover = on_cancel_area_hovered, .on_unhover = on_cancel_area_unhovered, .is_hovered = true});
