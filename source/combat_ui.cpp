@@ -17,10 +17,10 @@ void create_action_text() {
 	add_component(entity, TextComp{.colour = {255, 255, 255, 245}, .x_align = XAnchor::CENTER, .y_align = YAnchor::TOP, .draw_background = true});
 	add_component(entity, ActionText{});
 	play_animation(0.f, 0.f, &TextComp::colour, entity, [](Animation& animation, Colour starting_value){
-		return Colour{starting_value.r, starting_value.g, starting_value.b, sinusoid_curve(10, 0.5f, 0.f, animation, starting_value.a)};
+		return Colour{starting_value.r, starting_value.g, starting_value.b, sinusoid_curve(10, 0.5, 0.0, animation, starting_value.a)};
 	});
 	play_animation(0.f, 0.f, &TextComp::size, entity, [](Animation& animation, float starting_value){
-		return sinusoid_curve(1, 0.5f, 0.f, animation, starting_value);
+		return sinusoid_curve(1, 0.5, 0.0, animation, starting_value);
 	});
 }
 
@@ -825,7 +825,7 @@ void UI::on_turn_start() {
 	}
 	get_combat().ui.outline_animation_id =
 		play_animation(0.0, 0.0, &SpriteComp::outline_thickness, get_combat().get_active_character_entity(), [](Animation& animation, float starting_value){
-			return sinusoid_curve(10.0, 1.5f, 0.f, animation, 15.f);
+			return sinusoid_curve(10.0, 1.5, 0.0, animation, 15.0);
 		});
 }
 

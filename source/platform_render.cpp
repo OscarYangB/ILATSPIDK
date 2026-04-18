@@ -9,11 +9,22 @@ static SDL_Window* window = nullptr;
 static SDL_Renderer* renderer = nullptr;
 
 static SDL_Texture* loaded_sprites[NUMBER_OF_IMAGES] {};
+static SDL_Texture* font_textures[NUMBER_OF_FONTS] {};
+static SDL_Texture* text_background_texture = nullptr;
+
+SDL_Texture* create_texture(int index) {
+	SDL_IOStream* stream = SDL_IOFromConstMem(image_file_data[index], image_file_sizes[index]);
+	SDL_Surface* surface = SDL_LoadPNG_IO(stream, true);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_DestroySurface(surface);
+	return texture;
+}
 
 void init() {
 	for (int i = 0; i < NUMBER_OF_FONTS; i++) {
-		load_sprite(static_cast<int>(fonts[i].file));
+		font_textures[i] = create_texture(static_cast<int>(fonts[i].file));
 	}
+	text_background_texture = create_texture(static_cast<int>(ImageFile::TEXT_BACKGROUND_IMAGE));
 }
 
 bool start_window() {
@@ -46,11 +57,7 @@ void load_sprite(int index) {
 		return; // Sprite already loaded
 	}
 
-	SDL_IOStream* stream = SDL_IOFromConstMem(image_file_data[index], image_file_sizes[index]);
-	SDL_Surface* surface = SDL_LoadPNG_IO(stream, true);
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-	SDL_DestroySurface(surface);
-	loaded_sprites[index] = texture;
+	loaded_sprites[index] = create_texture(index);
 }
 
 static SDL_Texture* get_sprite(ImageFile image_file) {
@@ -61,12 +68,6 @@ static SDL_Texture* get_sprite(ImageFile image_file) {
 void unload_sprite(int index) {;
 	if (loaded_sprites[index] == nullptr) {
 		return; // Sprite wasn't loaded
-	}
-
-	for (int i = 0; i < NUMBER_OF_FONTS; i++) {
-		if (index == static_cast<int>(fonts[i].file)) {
-			return; // Keep fonts permanently loaded for now
-		}
 	}
 
 	SDL_DestroyTexture(loaded_sprites[index]);
@@ -213,14 +214,13 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 	if (render_background && !x_positions.empty()) {
 		auto [min_x, max_x] = std::ranges::minmax_element(x_positions.begin(), x_positions.begin() + length);
 		auto [min_y, max_y] = std::ranges::minmax_element(y_positions.begin(), y_positions.begin() + length);
-		static constexpr float LEFT_MARGIN = 10.f;
-		SDL_FRect rect = {*min_x - LEFT_MARGIN, *min_y, *max_x - *min_x + render_width + LEFT_MARGIN, *max_y - *min_y + size};
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, (125 * a) / 255);
-		SDL_RenderFillRect(renderer, &rect);
-		SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+		static constexpr float LEFT_MARGIN = 12.f;
+		SDL_FRect rect = {*min_x - LEFT_MARGIN, *min_y, *max_x - *min_x + render_width + LEFT_MARGIN, line_widths.size() * size};
+		SDL_SetTextureAlphaMod(text_background_texture, a);
+		SDL_RenderTexture9Grid(renderer, text_background_texture, nullptr, 6.f, 6.f, 6.f, 6.f, window_scale(), &rect);
 	}
 
-	SDL_Texture* texture = get_sprite(fonts[font_index].file);
+	SDL_Texture* texture = font_textures[font_index];
 	SDL_SetTextureColorMod(texture, r, g, b);
 	SDL_SetTextureAlphaMod(texture, a);
 	for (int i = 0; i < length; i++) {

@@ -53,6 +53,10 @@ constexpr char test_button[] {
 	#embed "..\assets\art\test_button.png"
 };
 
+constexpr char text_background[] {
+	#embed "..\assets\art\text_background.png"
+};
+
 constexpr char extra_small_font[] {
 	#embed "..\assets\font\extra_small_font.png"
 };
@@ -106,6 +110,8 @@ constexpr char test_background[] {};
 
 constexpr char test_button[] {};
 
+constexpr char text_background[] {};
+
 constexpr char extra_small_font[] {};
 
 constexpr char large_font[] {};
@@ -134,6 +140,7 @@ constexpr const char* image_file_data[] {
 	table,
 	test_background,
 	test_button,
+	text_background,
 	extra_small_font,
 	large_font,
 	medium_font,
@@ -155,6 +162,7 @@ constexpr int image_file_sizes[] {
 	sizeof(table),
 	sizeof(test_background),
 	sizeof(test_button),
+	sizeof(text_background),
 	sizeof(extra_small_font),
 	sizeof(large_font),
 	sizeof(medium_font),
@@ -176,6 +184,7 @@ enum class ImageFile {
 	TABLE_IMAGE,
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
+	TEXT_BACKGROUND_IMAGE,
 	EXTRA_SMALL_FONT_IMAGE,
 	LARGE_FONT_IMAGE,
 	MEDIUM_FONT_IMAGE,
@@ -372,6 +381,7 @@ enum class Sprite {
 	TABLE,
 	TEST_BACKGROUND,
 	TEST_BUTTON,
+	TEXT_BACKGROUND_1,
 	EXTRA_SMALL_FONT,
 	LARGE_FONT,
 	MEDIUM_FONT,
@@ -569,6 +579,7 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{0, 0, 300, 200, 56, 56, 257, 190},
 	{0, 0, 2339, 1654, 0, 0, 2339, 1654},
 	{0, 0, 400, 200, 0, 0, 400, 200},
+	{0, 0, 200, 100, 2, 1, 198, 98},
 	{0, 0, 760, 12, 11, 2, 760, 10},
 	{0, 0, 4560, 72, 54, 10, 4540, 56},
 	{0, 0, 2280, 36, 28, 5, 2272, 28},
@@ -765,6 +776,7 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::TABLE_IMAGE,
 	ImageFile::TEST_BACKGROUND_IMAGE,
 	ImageFile::TEST_BUTTON_IMAGE,
+	ImageFile::TEXT_BACKGROUND_IMAGE,
 	ImageFile::EXTRA_SMALL_FONT_IMAGE,
 	ImageFile::LARGE_FONT_IMAGE,
 	ImageFile::MEDIUM_FONT_IMAGE,
@@ -774,5 +786,5 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::VERY_LARGE_FONT_IMAGE
 };
 
-constexpr int NUMBER_OF_IMAGES = 18;
+constexpr int NUMBER_OF_IMAGES = 19;
 

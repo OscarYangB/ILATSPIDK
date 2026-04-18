@@ -106,9 +106,9 @@ T fast_end_curve(T target_value, Animation& animation, T starting_value) {
 }
 
 template <typename T>
-T sinusoid_curve(float amplitude, float frequency, float phase, Animation& animation, T starting_value) {
-	double w = frequency * M_PI * 2.0;
-	return starting_value + amplitude * std::sin(w * animation.get_animation_time() + phase);
+T sinusoid_curve(double amplitude, double frequency, double phase, Animation& animation, T starting_value) {
+	const double w = frequency * M_PI * 2.0;
+	return starting_value + amplitude * std::cos(w * animation.get_animation_time() + phase);
 }
 
 template <typename T>
