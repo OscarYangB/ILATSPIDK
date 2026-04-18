@@ -97,6 +97,40 @@ void render_transform(entt::entity entity) {
 		global_tint = ecs.ctx().get<TintSingleton>().tint;
 	}
 
+	if (sprite_component.outline_thickness > 0.f) {
+		for (int i = 0; i < sprite_component.sprites.size(); i++) {
+			if (sprite_component.sprites.at(i) == Sprite::NONE) {
+				continue;
+			}
+
+			u16 index = static_cast<u16>(sprite_component.sprites.at(i));
+			u16 atlas_x = sprite_atlas_transform[index].x;
+			u16 atlas_y = sprite_atlas_transform[index].y;
+			u16 atlas_w = sprite_atlas_transform[index].w;
+			u16 atlas_h = sprite_atlas_transform[index].h;
+
+			if (sprite_component.masks.at(i).has_value()) {
+				Box mask = sprite_component.masks.at(i).value();
+				atlas_x += mask.left_top.x;
+				atlas_y -= mask.left_top.y;
+				atlas_w = mask.width();
+				atlas_h = mask.height();
+				position.x += mask.left_top.x * window_scale();
+				position.y += mask.left_top.y * window_scale();
+			}
+
+			u16 render_w = atlas_w * render_scale();
+			u16 render_h = atlas_h * render_scale();
+
+			if (position.x > window_width() || position.y > window_height()) continue;
+			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
+
+			render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h,
+						  position.x - sprite_component.outline_thickness, position.y - sprite_component.outline_thickness,
+						  render_w + 2.f * sprite_component.outline_thickness, render_h + 2.f * sprite_component.outline_thickness, Colour::black());
+		}
+	}
+
 	for (int i = 0; i < sprite_component.sprites.size(); i++) {
 		if (sprite_component.sprites.at(i) == Sprite::NONE) {
 			continue;

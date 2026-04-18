@@ -826,6 +826,14 @@ void UI::on_turn_start() {
 	refresh_hand_buttons();
 	UI::play_queued_draw_animations();
 	position_hand_visuals(false);
+	stop_animation(get_combat().ui.outline_animation_id);
+	for (auto [entity, character, sprite] : ecs.view<CharacterComp, SpriteComp>().each()) {
+		sprite.outline_thickness = 0.f;
+	}
+	get_combat().ui.outline_animation_id =
+		play_animation(0.0, 0.0, &SpriteComp::outline_thickness, get_combat().get_active_character_entity(), [](Animation& animation, float starting_value){
+			return sinusoid_curve(10.0, 1.5f, 0.f, animation, 15.f);
+		});
 }
 
 Card HandCardComp::get_card() {

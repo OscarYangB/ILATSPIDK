@@ -65,8 +65,8 @@
 - [X] Drag cancel area indicator
 - [X] Card clicked indicator
 - [X] Queue preview tick animation
-- [ ] Turn indicator (left to right)
-  - [ ] Current turn
+- [-] Turn indicator (left to right)
+  - [X] Current turn
   - [ ] Turn upcoming
   - [ ] Turn passed
 - [ ] AOE indicators

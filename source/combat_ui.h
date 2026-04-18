@@ -26,6 +26,7 @@ struct CombatUI {
 	entt::entity dragged_card = entt::null;
 	std::optional<Vector2> target_position{};
 	double vibrate_timer = 0.0;
+	u64 outline_animation_id = 0;
 };
 
 struct HandButtonComp {

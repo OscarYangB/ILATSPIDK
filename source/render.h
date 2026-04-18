@@ -69,6 +69,7 @@ struct SpriteComp {
 	std::array<std::optional<Box>, MAX_SPRITES> masks{};
 	Colour tint{};
 	bool visible = true;
+	float outline_thickness = 0.f;
 
 	Box bounding_box();
 	Box visible_bounding_box();
