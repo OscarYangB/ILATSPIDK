@@ -746,7 +746,7 @@ void update_drag() {
 		float distance_to_mouse = Vector2::distance(character_screen_position, {get_pixel_mouse_x(), get_pixel_mouse_y()});
 		if (!get_combat().ui.target_position.has_value() || distance_to_mouse < closest_distance) {
 			closest_character = entity;
-			get_combat().ui.target_position.emplace(character_screen_position / window_scale());
+			get_combat().ui.target_position.emplace(character_screen_position / window_scale);
 			closest_distance = distance_to_mouse;
 		}
 	}

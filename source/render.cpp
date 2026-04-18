@@ -6,20 +6,21 @@
 #include "image_utils.h"
 
 Vector2 camera_position = {0.0f, 0.0f};
-float camera_scale = 1.0f; // Gameplay code can write to this
+float camera_scale = 1.0f;
+float window_scale{};
 
-float window_scale() {
+void refresh_window_scale() {
 	float width = window_width();
 	float height = window_height();
 	if (width / height < SCREEN_SPACE_WIDTH / SCREEN_SPACE_HEIGHT) {
-		return width / SCREEN_SPACE_WIDTH; // Zoom out if aspect ratio is narrower than expected
+		window_scale =  width / SCREEN_SPACE_WIDTH; // Zoom out if aspect ratio is narrower than expected
 	} else {
-		return height / SCREEN_SPACE_HEIGHT;
+		window_scale = height / SCREEN_SPACE_HEIGHT;
 	}
 }
 
 static float render_scale() {
-	return camera_scale * window_scale();
+	return camera_scale * window_scale;
 }
 
 #ifndef NDEBUG
@@ -115,8 +116,8 @@ void render_transform(entt::entity entity) {
 				atlas_y -= mask.left_top.y;
 				atlas_w = mask.width();
 				atlas_h = mask.height();
-				position.x += mask.left_top.x * window_scale();
-				position.y += mask.left_top.y * window_scale();
+				position.x += mask.left_top.x * window_scale;
+				position.y += mask.left_top.y * window_scale;
 			}
 
 			u16 render_w = atlas_w * render_scale();
@@ -125,9 +126,9 @@ void render_transform(entt::entity entity) {
 			if (position.x > window_width() || position.y > window_height()) continue;
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
+			float thickness = sprite_component.outline_thickness * window_scale;
 			render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h,
-						  position.x - sprite_component.outline_thickness, position.y - sprite_component.outline_thickness,
-						  render_w + 2.f * sprite_component.outline_thickness, render_h + 2.f * sprite_component.outline_thickness, Colour::black());
+						  position.x - thickness, position.y - thickness, render_w + 2.f * thickness, render_h + 2.f * thickness, Colour::black());
 		}
 	}
 
@@ -148,8 +149,8 @@ void render_transform(entt::entity entity) {
 			atlas_y -= mask.left_top.y;
 			atlas_w = mask.width();
 			atlas_h = mask.height();
-			position.x += mask.left_top.x * window_scale();
-			position.y += mask.left_top.y * window_scale();
+			position.x += mask.left_top.x * window_scale;
+			position.y += mask.left_top.y * window_scale;
 		}
 
 		u16 render_w = atlas_w * render_scale();
@@ -209,12 +210,12 @@ void render_anchored_transform(entt::entity entity) {
 				atlas_y -= mask.left_top.y;
 				atlas_w = mask.width();
 				atlas_h = mask.height();
-				position.x += mask.left_top.x * window_scale();
-				position.y -= mask.left_top.y * window_scale();
+				position.x += mask.left_top.x * window_scale;
+				position.y -= mask.left_top.y * window_scale;
 			}
 
-			if (transform.width == 0) render_w = atlas_w * window_scale();
-			if (transform.height == 0) render_h = atlas_h * window_scale();
+			if (transform.width == 0) render_w = atlas_w * window_scale;
+			if (transform.height == 0) render_h = atlas_h * window_scale;
 
 			if (position.x > window_width() || position.y > window_height()) continue;
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
@@ -224,7 +225,7 @@ void render_anchored_transform(entt::entity entity) {
 
 			if (nine_slice) {
 				render_nine_slice(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h,
-								  nine_slice->x, nine_slice->y, nine_slice->w, nine_slice->h, window_scale());
+								  nine_slice->x, nine_slice->y, nine_slice->w, nine_slice->h);
 			} else {
 				render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
 			}
@@ -234,7 +235,7 @@ void render_anchored_transform(entt::entity entity) {
 	if (TextComp* text = ecs.try_get<TextComp>(entity); text) {
 		Colour text_colour = text->colour;
 		text_colour *= recursive_tint;
-		render_text(text->text, position.x, position.y, render_w, render_h, text->size * window_scale() * transform.get_recursive_scale(), text->mask,
+		render_text(text->text, position.x, position.y, render_w, render_h, text->size * window_scale * transform.get_recursive_scale(), text->mask,
 					text_colour.r, text_colour.g, text_colour.b, text_colour.a, text->x_align, text->y_align, text->draw_background);
 	}
 
@@ -310,7 +311,7 @@ Vector2 UITransformComp::render_position() const {
 		canvas_height = parent_transform.render_height();
 	}
 
-	Vector2 position_offset = relative_position * window_scale() * get_parent_scale() + parent_position;
+	Vector2 position_offset = relative_position * window_scale * get_parent_scale() + parent_position;
 
 	const float scaled_width = render_width();
 	const float scaled_height = render_height();
@@ -332,11 +333,11 @@ Vector2 UITransformComp::render_position() const {
 }
 
 float UITransformComp::render_width() const {
-	return width * window_scale() * get_recursive_scale();
+	return width * window_scale * get_recursive_scale();
 }
 
 float UITransformComp::render_height() const {
-	return height * window_scale() * get_recursive_scale();
+	return height * window_scale * get_recursive_scale();
 }
 
 bool TransformComp::move(entt::entity entity_to_move, const Vector2& new_position) {

@@ -28,6 +28,10 @@ void button_clicked() {
 }
 
 void start() {
+	refresh_window_scale();
+	init_audio();
+	init_random();
+
 	entt::entity grakeny = spawn_grakeny();
 	ecs.get<TransformComp>(grakeny).position = Vector2(300.f, 300.f);
 	spawn_player();
@@ -44,9 +48,6 @@ void start() {
 		add_component(background, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
 		add_component(background, TransformComp{.position = Vector2{-1000.0f, 700.0f}});
 	}
-
-	init_audio();
-	init_random();
 }
 
 static void update_process_input() {
@@ -116,11 +117,11 @@ int main(int argc, char* argv[]) {
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_EVENT_QUIT) {
-                done = true;
-            }
-
-			handle_input_event(event.key);
+			switch(event.type) {
+			case SDL_EVENT_QUIT: done = true; break;
+			case SDL_EVENT_WINDOW_RESIZED: refresh_window_scale(); break;
+			case SDL_EVENT_KEY_DOWN: handle_input_event(event.key); break;
+			}
         }
 
         update();

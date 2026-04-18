@@ -20,11 +20,11 @@ float get_pixel_mouse_y() {
 }
 
 float get_mouse_x() {
-	return mouse_x / window_scale();
+	return mouse_x / window_scale;
 }
 
 float get_mouse_y() {
-	return mouse_y / window_scale();
+	return mouse_y / window_scale;
 }
 
 void push_input_mode(InputMode mode) {

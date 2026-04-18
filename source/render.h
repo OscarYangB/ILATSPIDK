@@ -127,6 +127,7 @@ struct TintSingleton {
 
 extern Vector2 camera_position;
 extern float camera_scale;
+extern float window_scale;
 
 constexpr float SCREEN_SPACE_WIDTH = 1920.f;
 constexpr float SCREEN_SPACE_HEIGHT = 1080.f;
@@ -134,6 +135,6 @@ constexpr float SCREEN_SPACE_HEIGHT = 1080.f;
 void update_render();
 Vector2 world_to_pixel(const Vector2& in);
 void update_sprite_resources();
-float window_scale();
+void refresh_window_scale();
 
 void debug_draw(const Vector2& start, const Vector2& end);

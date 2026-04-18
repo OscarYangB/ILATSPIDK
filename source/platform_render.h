@@ -18,7 +18,7 @@ void start_render();
 void end_render();
 void render_sprite(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h, const Colour& tint);
 void render_nine_slice(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h,
-					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale);
+					   float slice_x, float slice_y, float slice_w, float slice_h);
 
 void load_sprite(int index);
 void unload_sprite(int index);

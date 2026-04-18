@@ -93,7 +93,7 @@ void render_sprite(ImageFile image_file, float from_x, float from_y, float from_
 }
 
 void render_nine_slice(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h,
-					   float slice_x, float slice_y, float slice_w, float slice_h, float window_scale) {
+					   float slice_x, float slice_y, float slice_w, float slice_h) {
 	SDL_Texture* texture = get_sprite(image_file);
 	if (texture == nullptr) return;
 	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
@@ -217,7 +217,7 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 		static constexpr float LEFT_MARGIN = 12.f;
 		SDL_FRect rect = {*min_x - LEFT_MARGIN, *min_y, *max_x - *min_x + render_width + LEFT_MARGIN, line_widths.size() * size};
 		SDL_SetTextureAlphaMod(text_background_texture, a);
-		SDL_RenderTexture9Grid(renderer, text_background_texture, nullptr, 6.f, 6.f, 6.f, 6.f, window_scale(), &rect);
+		SDL_RenderTexture9Grid(renderer, text_background_texture, nullptr, 6.f, 6.f, 6.f, 6.f, window_scale, &rect);
 	}
 
 	SDL_Texture* texture = font_textures[font_index];
