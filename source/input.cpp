@@ -1,11 +1,11 @@
 #include "input.h"
-#include <queue>
+//#include <queue>
 #include <SDL3/SDL.h>
 #include "platform_render.h"
 #include "render.h"
 
 static Input inputs[NUMBER_OF_INPUT_TYPES] {};
-static std::queue<InputEvent> input_events {};
+//static std::queue<InputEvent> input_events {};
 
 static float mouse_x {0.0f};
 static float mouse_y {0.0f};

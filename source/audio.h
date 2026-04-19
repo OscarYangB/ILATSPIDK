@@ -1,6 +1,5 @@
 #pragma once
 #include "definitions.h"
-#include <vector>
 
 class SDL_AudioStream;
 enum class AudioAsset;
@@ -13,9 +12,5 @@ struct PlayingAudio {
 	inline u32 remaining_samples() { return length - position; }
 };
 
-extern SDL_AudioStream* audio_stream;
-extern std::vector<PlayingAudio> playing_audio;
-
 void init_audio();
-void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount);
 void play_audio(AudioAsset audio_asset);

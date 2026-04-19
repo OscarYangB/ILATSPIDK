@@ -12,7 +12,7 @@ enum class InputType {
 	INVENTORY,
 	INTERACT,
 	MOUSE_CLICK,
-	RHYTHM_1, // TODO
+	RHYTHM_1,
 	RHYTHM_2,
 	_count
 };

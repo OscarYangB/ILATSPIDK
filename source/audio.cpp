@@ -1,18 +1,10 @@
 #include "audio.h"
 #include "audio_data.h"
 #include <SDL3/SDL.h>
+#include <vector>
 
-SDL_AudioStream* audio_stream = nullptr;
-std::vector<PlayingAudio> playing_audio{};
-
-void init_audio() {
-	SDL_AudioSpec spec;
-	spec.channels = 2;
-	spec.format = SDL_AUDIO_S32LE; // All played audio needs to be in this format
-	spec.freq = 44100;
-	audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, audio_stream_callback, nullptr);
-	SDL_ResumeAudioStreamDevice(audio_stream);
-}
+static SDL_AudioStream* audio_stream = nullptr;
+static std::vector<PlayingAudio> playing_audio{};
 
 void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount) {
 	for (int i = 0; i < playing_audio.size(); i++) {
@@ -28,6 +20,16 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 		}
 		return false;
 	});
+}
+
+
+void init_audio() {
+	SDL_AudioSpec spec;
+	spec.channels = 2;
+	spec.format = SDL_AUDIO_S32LE; // All played audio needs to be in this format
+	spec.freq = 44100;
+	audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, audio_stream_callback, nullptr);
+	SDL_ResumeAudioStreamDevice(audio_stream);
 }
 
 // Could do reference counted loading. Maybe a component that keeps a file in memory if an entity needs it during its lifetime.
