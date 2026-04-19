@@ -84,6 +84,8 @@ struct CharacterComp {
 	std::vector<StatusEffect> status_effects{};
 	std::optional<PlayedCard> played_card{};
 
+	u64 low_health_animation_id{};
+
 	void init_from_data(const CharacterDataComp& new_data);
 	inline bool is_alive() { return health > 0.f; }
 	void heal(float amount);
@@ -96,7 +98,7 @@ struct CharacterComp {
 	void on_turn_start();
 };
 
-constexpr double BPM = 60.0;
+constexpr double BPM = 120.0;
 constexpr u8 BEATS_PER_BAR = 4;
 constexpr double BEATS_PER_SECOND = BPM / 60.0;
 constexpr double SECONDS_PER_BEAT = 1.0 / BEATS_PER_SECOND;

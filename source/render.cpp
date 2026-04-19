@@ -161,6 +161,7 @@ void render_transform(entt::entity entity) {
 
 		Colour tint = sprite_component.tints.at(i).has_value() ? sprite_component.tints.at(i).value() : Colour{};
 		tint *= global_tint;
+		tint *= sprite_component.tint;
 
 		render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
 	}

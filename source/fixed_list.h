@@ -65,4 +65,23 @@ struct FixedList {
 
 		return false;
 	}
+
+	void erase(size_t index) {
+		assert(index < current_size);
+		for (size_t i = index; i < current_size - 1; i++) {
+			array[i] = std::move(array[i+1]);
+		}
+		current_size--;
+	}
+
+	template<typename FunctionType>
+	void erase_if(FunctionType should_erase) {
+		for (size_t i = 0; i < current_size;) {
+			if (should_erase(array[i])) {
+				erase(i);
+			} else {
+				i++;
+			}
+		}
+	}
 };

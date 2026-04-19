@@ -34,6 +34,10 @@ void start() {
 
 	entt::entity grakeny = spawn_grakeny();
 	ecs.get<TransformComp>(grakeny).position = Vector2(300.f, 300.f);
+
+	entt::entity grakeny_2 = spawn_grakeny();
+	ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
+
 	spawn_player();
 
 	{ // TABLE
