@@ -31,8 +31,6 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
-- Optimize window_scale() by making it a variable that gets refreshed by SDL callback
-
 * Workflow
 - Tab to indent according to mode when line is empty and no selection
 - C-backspace stops on capital letter and line start
@@ -139,3 +137,6 @@ Then the weight map is multiplied by the luminance map and added to final image
 - Updates that touch everything like button, generic animation, needs to be on main thread
 - Input and render needs to be on main thread
 - Can use “update_<name>(entt::registry& ecs)” and <name>_system(View<Component> view)
+* Bugs
+- Drawn card is invisible until positions are reset
+- Arrow missing some dots after resizing window
