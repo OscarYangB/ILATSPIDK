@@ -31,6 +31,11 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
+- Winning/losing combat
+- Combat music
+- Quests
+- Inventory
+
 * Workflow
 - Tab to indent according to mode when line is empty and no selection
 - C-backspace stops on capital letter and line start

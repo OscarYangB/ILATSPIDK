@@ -87,9 +87,9 @@ struct CharacterComp {
 	u64 low_health_animation_id{};
 
 	void init_from_data(const CharacterDataComp& new_data);
-	inline bool is_alive() { return health > 0.f; }
 	void heal(float amount);
 	void damage(float amount);
+	void die();
 	void draw(u8 amount = 1);
 	void play_card(u8 hand_index, entt::entity target);
 	void queue_card(Card card, entt::entity target);
@@ -118,6 +118,8 @@ struct CombatSingleton {
 	entt::entity get_active_character_entity();
 	float get_discrete_bar_progress();
 	u8 get_bars_available();
+	void kill_zero_health_characters(u8 type_bitmask);
+	void check_combat_end();
 };
 
 void update_combat();

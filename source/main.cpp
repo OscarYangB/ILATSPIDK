@@ -35,8 +35,8 @@ void start() {
 	entt::entity grakeny = spawn_grakeny();
 	ecs.get<TransformComp>(grakeny).position = Vector2(300.f, 300.f);
 
-	entt::entity grakeny_2 = spawn_grakeny();
-	ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
+	//entt::entity grakeny_2 = spawn_grakeny();
+	//ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
 
 	spawn_player();
 
@@ -81,8 +81,11 @@ static void update() {
 	update_input();
 	update_process_input();
 
-	auto [entity, sprite, transform] = *ecs.view<SpriteComp, TransformComp, PlayerCharacterComp>().each().begin();
-	camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
+	auto view = ecs.view<SpriteComp, TransformComp, PlayerCharacterComp>();
+	if (view.begin() != view.end()) {
+		auto [entity, sprite, transform] = *view.each().begin();
+		camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
+	}
 
 	update_combat();
 

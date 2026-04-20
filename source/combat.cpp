@@ -21,6 +21,7 @@ void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 void CharacterComp::heal(float amount) {
 	if (health == 0.f && amount > 0.f) {
 		stop_animation(low_health_animation_id);
+		ecs.get<SpriteComp>(entity).tint = Colour::white();
 		low_health_animation_id = 0;
 	}
 	health += amount;
@@ -34,12 +35,21 @@ void CharacterComp::damage(float amount) {
 	health -= amount - damage_to_shield;
 	health = std::clamp(health, 0.f, max_health);
 	UI::refresh_health_bar(*this, false);
-	if (health == 0.f && low_health_animation_id == 0) {
-		low_health_animation_id = play_animation(0.0, 0.0, &SpriteComp::tint, entity, [](Animation& animation, Colour starting_value){
-			u8 value = sinusoid_curve(100.0, 2.0, 0.0, animation, 100.0);
-			return Colour{255, value, value, 255};
-		});
+	if (health == 0.f) {
+		if (data->type == CharacterType::GOOD && low_health_animation_id == 0) {
+			low_health_animation_id = play_animation(0.0, 0.0, &SpriteComp::tint, entity, [](Animation& animation, Colour starting_value) {
+				u8 value = sinusoid_curve(100.0, 2.0, 0.0, animation, 100.0);
+				return Colour{255, value, value, 255};
+			});
+		} else if (data->type != CharacterType::GOOD) {
+			get_combat().kill_zero_health_characters(CharacterType::EVIL | CharacterType::FURNITURE);
+		}
 	}
+}
+
+void CharacterComp::die() {
+	// TODO Death animation
+	ecs.get<SpriteComp>(entity).visible = false;
 }
 
 void CharacterComp::draw(u8 amount) {
@@ -188,14 +198,7 @@ void CombatSingleton::update() {
 
 			if (turn_index >= characters.size()) { // Cycle ends
 				turn_index = 0;
-				characters.erase_if([](entt::entity character) {
-					if (ecs.get<CharacterComp>(character).health <= 0.f) {
-						// TODO Death animation
-						ecs.get<SpriteComp>(character).visible = false;
-						return true;
-					}
-					return false;
-				});
+				kill_zero_health_characters(CharacterType::GOOD);
 				sort_characters();
 			}
 
@@ -207,6 +210,7 @@ void CombatSingleton::update() {
 	}
 
 	UI::update_combat();
+	check_combat_end();
 }
 
 u8 CombatSingleton::get_bars_available() {
@@ -227,6 +231,37 @@ float CombatSingleton::get_bar_progress() {
 
 float CombatSingleton::get_discrete_bar_progress() {
 	return std::floorf(get_bar_progress() * 4.f) / 4.f;
+}
+
+void CombatSingleton::kill_zero_health_characters(u8 type_bitmask) {
+	characters.erase_if([type_bitmask](entt::entity character) {
+		auto& character_component = ecs.get<CharacterComp>(character);
+		if ((character_component.data->type & type_bitmask) != 0 && character_component.health <= 0.f) {
+			character_component.die();
+			return true;
+		}
+		return false;
+	});
+}
+
+void CombatSingleton::check_combat_end() {
+	u8 good_count = 0;
+	u8 evil_count = 0;
+	for (entt::entity character : characters) {
+		auto& character_component = ecs.get<CharacterComp>(character);
+		if (character_component.health > 0.f) {
+			if (character_component.data->type == CharacterType::GOOD) good_count++;
+			if (character_component.data->type == CharacterType::EVIL) evil_count++;
+		}
+	}
+	if (good_count == 0 || evil_count == 0) {
+		// TODO win/lose screen
+		end_combat();
+
+		if (good_count == 0) {
+			ecs.clear();
+		}
+	}
 }
 
 std::vector<Card> make_cards(std::vector<CardID> ids) {
