@@ -6,8 +6,8 @@
 | #4     |   | <2026-02-15 Sun> | Gameplay UI                     |                   |
 | #5     |   | <2026-03-01 Sun> | Gameplay UI, Rendering          |                   |
 | #6     |   | <2026-03-15 Sun> | Gameplay UI                     |                   |
-| #7     | X | <2026-03-29 Sun> | Gameplay                        |                   |
-| #8     |   | <2026-04-12 Sun> | Inventory                       |                   |
+| #7     |   | <2026-03-29 Sun> | Gameplay                        |                   |
+| #8     | X | <2026-04-12 Sun> | Inventory                       |                   |
 | #9     |   | <2026-04-26 Sun> | Quest                           |                   |
 | #10    |   | <2026-05-10 Sun> | Save/Load                       | VERTICAL SLICE    |
 |--------+---+------------------+---------------------------------+-------------------|
@@ -31,7 +31,6 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
-- Winning/losing combat
 - Combat music
 - Quests
 - Inventory

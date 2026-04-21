@@ -24,13 +24,8 @@ void create_action_text() {
 	});
 }
 
-void destroy_action_text() {
-	auto view = ecs.view<ActionText>();
-	ecs.destroy(view.begin(), view.end());
-}
-
 void update_action_text() {
-	auto [entity, text] = *ecs.view<ActionText, TextComp>().each().begin();
+	auto [entity, text] = get_first_component<ActionText, TextComp>();
 	if (get_combat().get_active_character()->played_card.has_value()) {
 		text.text = std::string{get_combat().get_active_character()->data->name.get()} + " " +
 				   std::string{get_combat().get_active_character()->played_card.value().card.data->play_text.get()};
@@ -45,11 +40,6 @@ void create_queue_preview() {
 	Sprite queue_sprite{};
 	add_component(entity, SpriteComp{.sprites = {Sprite::NONE, Sprite::NONE}, .tint = {255, 255, 255, 140}});
 	add_component(entity, QueueComp{});
-}
-
-void destroy_queue_preview() {
-	auto view = ecs.view<QueueComp>();
-	ecs.destroy(view.begin(), view.end());
 }
 
 void set_queue_preview_info(Card card, bool is_preview, UITransformComp& transform, SpriteComp& sprite, bool animation_flag) {
@@ -76,7 +66,7 @@ void set_queue_preview_info(Card card, bool is_preview, UITransformComp& transfo
 }
 
 void update_queue_preview() {
-	auto [entity, queue, transform, sprite] = *ecs.view<QueueComp, UITransformComp, SpriteComp>().each().begin();
+	auto [entity, queue, transform, sprite] = get_first_component<QueueComp, UITransformComp, SpriteComp>();
 	Sprite new_sprite;
 	Vector2 new_position;
 	if (get_combat().get_active_character()->played_card.has_value()) {
@@ -111,11 +101,6 @@ void create_arrow() {
 								decltype(CycleAnimComp::sprites){Sprite::ARROW_DOT_1, Sprite::ARROW_DOT_2, Sprite::ARROW_DOT_3, Sprite::ARROW_DOT_4};
 		add_component(entity, CycleAnimComp{.sprites = sprites, .frequency = 4.f, .index = static_cast<u8>(i % sprites.current_size)});
 	}
-}
-
-void destroy_arrow() {
-	auto view = ecs.view<ArrowComp>();
-	ecs.destroy(view.begin(), view.end());
 }
 
 float curved_interpolate(float a, float b, float t) {
@@ -178,11 +163,6 @@ void create_healthbars() {
 	}
 }
 
-void destroy_healthbars() {
-	auto view = ecs.view<HealthbarComp>();
-	ecs.destroy(view.begin(), view.end());
-}
-
 void UI::refresh_health_bar(const CharacterComp& character, bool is_heal) {
 	float health = character.health / character.max_health;
 
@@ -217,11 +197,6 @@ void create_gamebar() {
 
 		add_component(entity, GamebarComp{.index = i});
 	}
-}
-
-void destroy_gamebar() {
-	auto view = ecs.view<GamebarComp>();
-	ecs.destroy(view.begin(), view.end());
 }
 
 void cycle_gamebar_animation(u8 index) {
@@ -412,11 +387,6 @@ void create_card_preview(Card card) {
 	attach_card_visual(card, entity);
 }
 
-void destroy_card_preview() {
-	auto view = ecs.view<CardPreviewComp>();
-	ecs.destroy(view.begin(), view.end());
-}
-
 void on_card_hover(entt::entity hovered_entity) {
 	auto& hovered_button = ecs.get<HandButtonComp>(hovered_entity);
 	u8 index = hovered_button.index;
@@ -554,8 +524,7 @@ void on_card_click(entt::entity entity) {
 // 3. visuals are repositioned when turn changes or hand state changes: position_hand_visuals()
 
 void refresh_hand_buttons() {
-	auto view = ecs.view<HandButtonComp>();
-	ecs.destroy(view.begin(), view.end());
+	destroy_entities<HandButtonComp>();
 
 	CharacterComp* character = get_combat().get_active_character();
 	for (u8 i = 0; i < character->hand.size(); i++) {
@@ -594,11 +563,19 @@ void UI::play_queued_draw_animations() {
 		auto& sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::NONE}});
 
 		play_animation(DURATION, delay, &UITransformComp::relative_position, fx_entity, [card_entity](Animation& animation, Vector2 starting_value) {
+			if (!ecs.valid(card_entity)) {
+				animation.should_remove = true;
+				return Vector2{};
+			}
 			Vector2 target = ecs.get<UITransformComp>(card_entity).relative_position;
 			return Vector2{smooth_curve(target.x, animation, starting_value.x), smooth_curve(target.y, animation, starting_value.y)};
 		});
 
 		play_animation(DURATION, delay, &UITransformComp::scale, fx_entity, [card_entity](Animation& animation, float starting_value) {
+			if (!ecs.valid(card_entity)) {
+				animation.should_remove = true;
+				return 1.f;
+			}
 			float target = ecs.get<UITransformComp>(card_entity).scale;
 			return smooth_curve(target, animation, starting_value);
 		});
@@ -697,11 +674,6 @@ void remove_global_tint() {
 	}
 }
 
-void destroy_cancel_area() {
-	auto cancel_area = ecs.view<CancelAreaComp>();
-	ecs.destroy(cancel_area.begin(), cancel_area.end());
-}
-
 void end_card_click() {
 	get_combat().ui.dragged_card = entt::null;
 	auto view = ecs.view<HandButtonComp, ButtonComp>();
@@ -712,11 +684,11 @@ void end_card_click() {
 
 void stop_drag() {
 	end_card_click();
-	destroy_arrow();
-	destroy_card_preview();
+	destroy_entities<ArrowComp>();
+	destroy_entities<CardPreviewComp>();
+	destroy_entities<CancelAreaComp>();
 	position_hand_visuals(false);
 	remove_global_tint();
-	destroy_cancel_area();
 }
 
 void update_drag() {
@@ -798,16 +770,24 @@ void UI::update_combat() {
 }
 
 void UI::end_combat() {
-	destroy_gamebar();
-	destroy_healthbars();
 	pop_input_mode(InputMode::COMBAT);
-	destroy_queue_preview();
-	destroy_action_text();
+	destroy_entities<GamebarComp>();
+	destroy_entities<HealthbarComp>();
+	destroy_entities<QueueComp>();
+	destroy_entities<ActionText>();
 
-	destroy_arrow();
-	destroy_card_preview();
+	destroy_entities<ArrowComp>();
+	destroy_entities<CardPreviewComp>();
+	destroy_entities<CancelAreaComp>();
 	remove_global_tint();
-	destroy_cancel_area();
+
+	destroy_entities<HandCardComp>();
+	destroy_entities<HandButtonComp>();
+
+	stop_animation(get_combat().ui.outline_animation_id);
+	for (auto [entity, character, sprite] : ecs.view<CharacterComp, SpriteComp>().each()) {
+		sprite.outline_thickness = 0.f;
+	}
 }
 
 void UI::on_turn_start() {

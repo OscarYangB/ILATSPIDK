@@ -25,3 +25,18 @@ std::tuple<entt::entity, ComponentType&> find_component(FunctionType&& function)
 
 	throw std::runtime_error("Entity not found");
 }
+
+template<typename... ComponentTypes>
+void destroy_entities() {
+	auto view = ecs.view<ComponentTypes...>();
+	for (entt::entity entity : view) {
+		ecs.destroy(entity);
+	}
+}
+
+template<typename... ComponentTypes>
+auto get_first_component() {
+	auto view = ecs.view<ComponentTypes...>();
+	assert(++view.begin() == view.end());
+	return *view.each().begin();
+}

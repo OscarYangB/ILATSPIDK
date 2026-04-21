@@ -176,6 +176,7 @@ void start_combat() {
 }
 
 void end_combat() {
+	UI::end_combat();
 	ecs.clear<CharacterComp>();
 	ecs.ctx().erase<CombatSingleton>();
 }
@@ -191,6 +192,7 @@ void CombatSingleton::update() {
 		timer -= SECONDS_PER_BAR;
 		bar_index++;
 		get_active_character()->on_bar_end();
+		if (check_combat_end()) return;
 
 		if (bar_index >= BARS_PER_TURN) { // Turn ends
 			bar_index = 0;
@@ -199,6 +201,7 @@ void CombatSingleton::update() {
 			if (turn_index >= characters.size()) { // Cycle ends
 				turn_index = 0;
 				kill_zero_health_characters(CharacterType::GOOD);
+				if (check_combat_end()) return;
 				sort_characters();
 			}
 
@@ -209,8 +212,8 @@ void CombatSingleton::update() {
 		UI::on_bar_end();
 	}
 
+	if (check_combat_end()) return;
 	UI::update_combat();
-	check_combat_end();
 }
 
 u8 CombatSingleton::get_bars_available() {
@@ -244,7 +247,7 @@ void CombatSingleton::kill_zero_health_characters(u8 type_bitmask) {
 	});
 }
 
-void CombatSingleton::check_combat_end() {
+bool CombatSingleton::check_combat_end() {
 	u8 good_count = 0;
 	u8 evil_count = 0;
 	for (entt::entity character : characters) {
@@ -261,7 +264,11 @@ void CombatSingleton::check_combat_end() {
 		if (good_count == 0) {
 			ecs.clear();
 		}
+
+		return true;
 	}
+
+	return false;
 }
 
 std::vector<Card> make_cards(std::vector<CardID> ids) {

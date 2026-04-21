@@ -119,7 +119,7 @@ struct CombatSingleton {
 	float get_discrete_bar_progress();
 	u8 get_bars_available();
 	void kill_zero_health_characters(u8 type_bitmask);
-	void check_combat_end();
+	bool check_combat_end();
 };
 
 void update_combat();

@@ -83,7 +83,7 @@ static void update() {
 
 	auto view = ecs.view<SpriteComp, TransformComp, PlayerCharacterComp>();
 	if (view.begin() != view.end()) {
-		auto [entity, sprite, transform] = *view.each().begin();
+		auto [entity, sprite, transform] = get_first_component<SpriteComp, TransformComp, PlayerCharacterComp>();
 		camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
 	}
 

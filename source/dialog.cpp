@@ -118,15 +118,10 @@ void update_dialog() {
 	update_dialog_input();
 }
 
-void delete_choice_buttons() {
-	auto view = ecs.view<DialogChoiceComp>();
-	ecs.destroy(view.begin(), view.end());
-}
-
 void choice_made(entt::entity entity) {
 	auto& choice = ecs.get<DialogChoiceComp>(entity);
 	get_dialog().visitor.index = choice.jump_index;
-	delete_choice_buttons();
+	destroy_entities<DialogChoiceComp>();
 	progress_dialog();
 }
 
