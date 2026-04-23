@@ -67,7 +67,7 @@ struct CharacterDataComp {
 	float starting_health{};
 	float starting_shield = 0.f;
 	CharacterType type{};
-	std::vector<Card> starting_deck{};
+	std::vector<Card> inventory{};
 	Sprite icon{};
 
 	static constexpr auto in_place_delete = true;

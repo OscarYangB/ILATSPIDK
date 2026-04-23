@@ -14,7 +14,7 @@ entt::entity spawn_player() {
 	add_component(entity, PlayerMovementComp{.speed = 200.f});
 	add_component(entity, BoxColliderComp{KERRY_COLLIDER});
 	add_component(entity, CharacterDataComp{.name = {"Kerry"}, .starting_health = 150.f, .type = CharacterType::GOOD,
-		.starting_deck = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE })});
+		.inventory = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE })});
 	add_component(entity, CharacterAnimComp{});
 	add_component(entity, PlayerCharacterComp{});
 	return entity;
@@ -26,6 +26,6 @@ entt::entity spawn_grakeny() {
 	add_component(entity, TransformComp{});
 	add_component(entity, BoxColliderComp{GRAKENY_COLLIDER});
 	add_component(entity, CycleAnimComp{.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}, .frequency = 2.f});
-	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 50.f, .type = CharacterType::EVIL, .starting_deck = make_cards({CardID::GRENADE})});
+	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 50.f, .type = CharacterType::EVIL, .inventory = make_cards({CardID::GRENADE})});
 	return entity;
 }

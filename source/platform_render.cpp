@@ -240,3 +240,7 @@ void enable_vsync() {
 void disable_vsync() {
 	SDL_SetRenderVSync(renderer, 0);
 }
+
+void show_error(std::string_view message) {
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message.data(), window);
+}

@@ -19,12 +19,46 @@
 #include "combat.h"
 #include "random.h"
 
-void button_hovered() {
-	std::cout << "button hovered\n";
+constexpr const char* company_name = "bright_yang";
+constexpr const char* game_name = "a_basket_full_of_gold";
+
+static std::string get_save_location() {
+	const char* save_directory = SDL_GetPrefPath(company_name, game_name);
+	std::string save_file_location = save_directory;
+	save_file_location += "save.save";
+	return save_file_location;
 }
 
-void button_clicked() {
-	std::cout << "button clicked\n";
+static void save_game() {
+	auto [entity, transform] = get_first_component<TransformComp, PlayerCharacterComp>();
+	static constexpr size_t data_size = sizeof(decltype(transform.position));
+
+	SDL_IOStream* stream = SDL_IOFromFile(get_save_location().data(), "w");
+	size_t result = SDL_WriteIO(stream, &transform.position, data_size);
+
+	if (result != data_size) {
+		show_error("Couldn't save game!");
+	}
+	SDL_CloseIO(stream);
+}
+
+static void load_game() {
+	auto [entity, transform] = get_first_component<TransformComp, PlayerCharacterComp>();
+
+	SDL_IOStream* stream = SDL_IOFromFile(get_save_location().data(), "r");
+	if (stream == nullptr) {
+		return;
+	}
+
+	size_t data_size = sizeof(decltype(transform.position));
+	char data[data_size];
+	size_t result = SDL_ReadIO(stream, &data, data_size);
+	if (result != data_size) {
+		show_error("Couldn't load game!");
+	}
+
+	std::memcpy(&transform.position, &data, data_size);
+	SDL_CloseIO(stream);
 }
 
 void start() {
@@ -39,6 +73,10 @@ void start() {
 	//ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
 
 	spawn_player();
+
+	// TEST
+	load_game();
+	// ENDTEST
 
 	{ // TABLE
 		const entt::entity entity = ecs.create();
@@ -133,6 +171,10 @@ int main(int argc, char* argv[]) {
 
         update();
     }
+
+	// TEST
+	save_game();
+	// ENDTEST
 
 	destroy_window();
     return 0;

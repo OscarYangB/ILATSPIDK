@@ -32,3 +32,5 @@ void platform_debug_draw(const Vector2& start, const Vector2& end);
 
 void enable_vsync();
 void disable_vsync();
+
+void show_error(std::string_view message);

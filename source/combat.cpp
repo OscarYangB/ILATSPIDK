@@ -11,7 +11,7 @@ void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 	health = data->starting_health;
 	max_health = data->starting_health;
 	shield = data->starting_shield;
-	deck = data->starting_deck;
+	deck = data->inventory;
 	std::shuffle(deck.begin(), deck.end(), random_generator);
 	hand = {};
 	status_effects = {};
