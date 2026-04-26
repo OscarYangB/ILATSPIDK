@@ -22,7 +22,7 @@ void create_menu_button(entt::entity parent, ButtonCallback&& callback, std::str
 
 void create_main_menu() {
 	entt::entity parent = ecs.create();
-	add_component(parent, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::CENTER, .width = 500, .height = 500});
+	add_component(parent, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::CENTER, .width = 500, .height = 600});
 	add_component(parent, LayoutComp{.axis = Axis::VERTICAL, .spacing = 50.f});
 	add_component(parent, MainMenuComp{});
 

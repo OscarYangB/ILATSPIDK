@@ -426,14 +426,35 @@ void Colour::operator*=(const Colour& other) {
 	a = (a * other.a) / 255;
 }
 
+static float& get_axis_value(Vector2& vector, Axis axis) {
+	return axis == Axis::HORIZONTAL ? vector.x : vector.y;
+}
+
+static float& get_other_axis_value(Vector2& vector, Axis axis) {
+	return axis == Axis::HORIZONTAL ? vector.y : vector.x;
+}
+
+static u16& get_axis_dimension(UITransformComp& transform, Axis axis) {
+	return axis == Axis::HORIZONTAL ? transform.width : transform.height;
+}
+
+static u16& get_other_axis_dimension(UITransformComp& transform, Axis axis) {
+	return axis == Axis::HORIZONTAL ? transform.height : transform.width;
+}
+
 void layout_children(entt::entity parent) {
 	auto [transform, layout] = ecs.get<UITransformComp, LayoutComp>(parent);
+	const Axis axis = layout.axis;
 	Vector2 offset{};
 
 	for (entt::entity child : transform.children) {
 		auto& child_transform = ecs.get<UITransformComp>(child);
+		if (get_axis_value(offset, axis) + get_axis_dimension(child_transform, axis) > get_axis_dimension(transform, axis)) {
+			get_axis_value(offset, axis) = 0.f;
+			get_other_axis_value(offset, axis) += get_other_axis_dimension(child_transform, axis) + layout.spacing;
+		}
 		child_transform.relative_position = offset;
-		switch(layout.axis) {
+		switch(axis) {
 		case Axis::HORIZONTAL: offset += {child_transform.render_width() + layout.spacing, 0.f}; break;
 		case Axis::VERTICAL: offset += {0.f, child_transform.render_height() + layout.spacing}; break;
 		}
