@@ -39,6 +39,7 @@ Art
 - The office building
 - Nielon
 - Better dialog UI
+- Inventory screen
 
 * Workflow
 - Tab to indent according to mode when line is empty and no selection
@@ -149,4 +150,3 @@ Then the weight map is multiplied by the luminance map and added to final image
 - Can use “update_<name>(entt::registry& ecs)” and <name>_system(View<Component> view)
 * Bugs
 - Drawn card is invisible until positions are reset
-- Arrow missing some dots after resizing window

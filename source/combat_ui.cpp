@@ -86,8 +86,7 @@ void update_queue_preview() {
 }
 
 static constexpr float DOT_DISTANCE = 60.f;
-static constexpr float ARROWS_PER_UNIT = 1.f / DOT_DISTANCE;
-constexpr u8 NUMBER_OF_ARROW_DOTS = (SCREEN_SPACE_HEIGHT + SCREEN_SPACE_WIDTH) / DOT_DISTANCE;
+constexpr u8 NUMBER_OF_ARROW_DOTS = 40;
 constexpr u16 ARROW_DOT_WIDTH = get_sprite_dimensions(Sprite::ARROW_DOT_1).w;
 constexpr u16 ARROW_DOT_HEIGHT = get_sprite_dimensions(Sprite::ARROW_DOT_1).h;
 
@@ -115,9 +114,9 @@ void update_arrow() {
 	Vector2 target_position = get_combat().ui.target_position.value();
 
 	for (auto [entity, transform, arrow] : ecs.view<UITransformComp, ArrowComp>().each()) {
-		static constexpr float x_start = SCREEN_SPACE_WIDTH / 2.f;
+		float x_start = SCREEN_SPACE_WIDTH / 2.f;
 		float x_end = target_position.x - ARROW_DOT_WIDTH / 2.f;
-		float y_distance = abs(SCREEN_SPACE_HEIGHT - target_position.y);
+		float y_distance = abs((SCREEN_SPACE_HEIGHT / window_scale) - target_position.y);
 		float x_distance = abs(x_start - x_end);
 		float distance = std::hypot(x_distance, y_distance);
 		float number_of_dots_on_screen = distance / DOT_DISTANCE;
