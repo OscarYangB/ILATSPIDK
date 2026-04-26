@@ -98,7 +98,7 @@ void render_nine_slice(ImageFile image_file, float from_x, float from_y, float f
 	if (texture == nullptr) return;
 	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
 	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
-	SDL_RenderTexture9Grid(renderer, texture, &from_rect, slice_x, slice_w, slice_h, slice_y, window_scale, &to_rect);
+	SDL_RenderTexture9Grid(renderer, texture, &from_rect, slice_x, from_w - slice_w - slice_x, slice_y, from_h - slice_h - slice_y, window_scale, &to_rect);
 }
 
 int window_width() {

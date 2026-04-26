@@ -2,10 +2,12 @@
 
 #include "entt/entt.hpp"
 
+using ButtonCallback = void(*)(entt::entity button);
+
 struct ButtonComp {
-	void (*on_hover)(entt::entity button) = nullptr;
-	void (*on_click)(entt::entity button) = nullptr;
-	void (*on_unhover)(entt::entity button) = nullptr;
+	ButtonCallback on_hover = nullptr;
+	ButtonCallback on_click = nullptr;
+	ButtonCallback on_unhover = nullptr;
 	bool is_enabled = true;
 
 	bool is_hovered;

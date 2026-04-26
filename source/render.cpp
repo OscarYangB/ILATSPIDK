@@ -425,3 +425,17 @@ void Colour::operator*=(const Colour& other) {
 	b = (b * other.b) / 255;
 	a = (a * other.a) / 255;
 }
+
+void layout_children(entt::entity parent) {
+	auto [transform, layout] = ecs.get<UITransformComp, LayoutComp>(parent);
+	Vector2 offset{};
+
+	for (entt::entity child : transform.children) {
+		auto& child_transform = ecs.get<UITransformComp>(child);
+		child_transform.relative_position = offset;
+		switch(layout.axis) {
+		case Axis::HORIZONTAL: offset += {child_transform.render_width() + layout.spacing, 0.f}; break;
+		case Axis::VERTICAL: offset += {0.f, child_transform.render_height() + layout.spacing}; break;
+		}
+	}
+}

@@ -125,6 +125,16 @@ struct TintSingleton {
 	FixedList<entt::entity, 20> excluded_entities{};
 };
 
+enum class Axis {
+	HORIZONTAL,
+	VERTICAL
+};
+
+struct LayoutComp {
+	Axis axis{};
+	float spacing{};
+};
+
 extern Vector2 camera_position;
 extern float camera_scale;
 extern float window_scale;
@@ -136,5 +146,6 @@ void update_render();
 Vector2 world_to_pixel(const Vector2& in);
 void update_sprite_resources();
 void refresh_window_scale();
+void layout_children(entt::entity parent);
 
 void debug_draw(const Vector2& start, const Vector2& end);
