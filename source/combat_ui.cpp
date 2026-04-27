@@ -116,7 +116,7 @@ void update_arrow() {
 	for (auto [entity, transform, arrow] : ecs.view<UITransformComp, ArrowComp>().each()) {
 		float x_start = SCREEN_SPACE_WIDTH / 2.f;
 		float x_end = target_position.x - ARROW_DOT_WIDTH / 2.f;
-		float y_distance = abs((SCREEN_SPACE_HEIGHT / window_scale) - target_position.y);
+		float y_distance = abs((SCREEN_SPACE_HEIGHT / window_scale) - target_position.y); // BUGGED MATH WRONG!
 		float x_distance = abs(x_start - x_end);
 		float distance = std::hypot(x_distance, y_distance);
 		float number_of_dots_on_screen = distance / DOT_DISTANCE;

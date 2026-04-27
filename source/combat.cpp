@@ -7,6 +7,7 @@
 #include "animation.h"
 #include "audio_data.h"
 #include "audio.h"
+#include "main_menu.h"
 
 void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 	data = &new_data;
@@ -156,7 +157,7 @@ void sort_characters() {
 }
 
 void start_combat() {
-	play_audio(AudioFile::TEST_MUSIC_AUDIO);
+	play_audio(AudioFile::TEST_MUSIC_AUDIO, 1.f, 0.75f);
 
 	FixedList<entt::entity, 20> characters{};
 	auto view = ecs.view<CharacterDataComp>();
@@ -282,6 +283,7 @@ bool CombatSingleton::check_combat_end() {
 
 		if (good_count == 0) {
 			ecs.clear();
+			create_main_menu();
 		}
 
 		return true;

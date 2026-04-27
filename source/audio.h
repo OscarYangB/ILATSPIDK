@@ -6,8 +6,10 @@ enum class AudioFile;
 
 struct PlayingAudio {
 	AudioFile file;
-	u8* data{};
+	const i8* data{};
 	u32 length{};
+	float volume = 1.f;
+	float pan = 0.5f;
 	u32 position{};
 	u32 time_position{};
 
@@ -15,6 +17,6 @@ struct PlayingAudio {
 };
 
 void init_audio();
-void play_audio(AudioFile audio_file);
+void play_audio(AudioFile audio_file, float volume, float pan);
 void stop_audio(AudioFile audio_file);
 double get_audio_time(AudioFile audio_file);

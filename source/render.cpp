@@ -32,8 +32,8 @@ struct DebugLine {
 std::vector<DebugLine> debug_lines {};
 void debug_draw(const Vector2& start, const Vector2& end) {
 	debug_lines.push_back({start, end, 0.3});
-#endif
 }
+#endif
 
 void draw_debug_lines() {
 #ifndef NDEBUG
