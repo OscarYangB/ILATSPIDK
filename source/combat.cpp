@@ -5,6 +5,8 @@
 #include "random.h"
 #include "render.h"
 #include "animation.h"
+#include "audio_data.h"
+#include "audio.h"
 
 void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
 	data = &new_data;
@@ -154,6 +156,8 @@ void sort_characters() {
 }
 
 void start_combat() {
+	play_audio(AudioFile::TEST_MUSIC_AUDIO);
+
 	FixedList<entt::entity, 20> characters{};
 	auto view = ecs.view<CharacterDataComp>();
 	for (auto [entity, data] : view.each()) { // Currently based on order in which characters were added to ecs
@@ -176,6 +180,7 @@ void start_combat() {
 }
 
 void end_combat() {
+	stop_audio(AudioFile::TEST_MUSIC_AUDIO);
 	UI::end_combat();
 	ecs.clear<CharacterComp>();
 	ecs.ctx().erase<CombatSingleton>();
@@ -185,8 +190,22 @@ CombatSingleton& get_combat() {
 	return ecs.ctx().get<CombatSingleton>();
 }
 
+static double discretize(double value, double subdivision) {
+	return std::floor(value * subdivision) / subdivision;
+}
+
 void CombatSingleton::update() {
-	timer += delta_time;
+	double audio_time = get_audio_time(AudioFile::TEST_MUSIC_AUDIO);
+	double combat_delta_time = audio_time - last_seen_audio_time;
+	last_seen_audio_time = audio_time;
+	double old_timer = timer;
+	if (combat_delta_time > 0.0) {
+		timer += combat_delta_time;
+	}
+
+	if (discretize(timer / SECONDS_PER_BAR, BEATS_PER_BAR) > discretize(old_timer / SECONDS_PER_BAR, BEATS_PER_BAR)) {
+		UI::vibrate_beat();
+	}
 
 	if (timer >= SECONDS_PER_BAR) { // Bar ends
 		timer -= SECONDS_PER_BAR;
@@ -233,7 +252,7 @@ float CombatSingleton::get_bar_progress() {
 }
 
 float CombatSingleton::get_discrete_bar_progress() {
-	return std::floorf(get_bar_progress() * 4.f) / 4.f;
+	return std::floor(get_bar_progress() * 4.0) / 4.0;
 }
 
 void CombatSingleton::kill_zero_health_characters(u8 type_bitmask) {

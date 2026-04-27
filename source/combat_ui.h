@@ -19,13 +19,14 @@ namespace UI {
 	void play_queued_draw_animations();
 
 	void refresh_health_bar(const CharacterComp& character, bool is_heal);
+
+	void vibrate_beat();
 }
 
 struct CombatUI {
 	entt::entity hovered_card = entt::null;
 	entt::entity dragged_card = entt::null;
 	std::optional<Vector2> target_position{};
-	double vibrate_timer = 0.0;
 	u64 outline_animation_id = 0;
 };
 

@@ -98,7 +98,7 @@ void create_arrow() {
 		add_component(entity, ArrowComp{.index = i});
 		auto sprites = i == 0 ? decltype(CycleAnimComp::sprites){Sprite::ARROW_ARROW_1, Sprite::ARROW_ARROW_2, Sprite::ARROW_ARROW_3, Sprite::ARROW_ARROW_4} :
 								decltype(CycleAnimComp::sprites){Sprite::ARROW_DOT_1, Sprite::ARROW_DOT_2, Sprite::ARROW_DOT_3, Sprite::ARROW_DOT_4};
-		add_component(entity, CycleAnimComp{.sprites = sprites, .frequency = 4.f, .index = static_cast<u8>(i % sprites.current_size)});
+		add_component(entity, CycleAnimComp{.sprites = sprites, .frequency = BEATS_PER_SECOND, .index = static_cast<u8>(i % sprites.current_size)});
 	}
 }
 
@@ -230,9 +230,6 @@ void cycle_gamebar_animation(u8 index) {
 	sprite.sprites.at(1) = next_sprite;
 }
 
-constexpr double VIBRATIONS_PER_BAR = 4;
-constexpr double SECONDS_PER_VIBRATION = SECONDS_PER_BAR / VIBRATIONS_PER_BAR;
-
 void update_cards_can_play() {
 	auto view = ecs.view<HandCardComp, SpriteComp>();
 	for (auto [entity, card, sprite] : view.each()) {
@@ -244,15 +241,7 @@ void update_cards_can_play() {
 }
 
 void update_gamebar() {
-	bool vibrate = false;
-	get_combat().ui.vibrate_timer += delta_time;
-	if (get_combat().ui.vibrate_timer > SECONDS_PER_VIBRATION) {
-		get_combat().ui.vibrate_timer -= SECONDS_PER_VIBRATION;
-		vibrate = true;
-	}
-
-	auto view = ecs.view<GamebarComp, SpriteComp, UITransformComp>();
-	for (auto [entity, gamebar, sprite, transform] : view.each()) {
+	for (auto [entity, gamebar, sprite] : ecs.view<GamebarComp, SpriteComp>().each()) {
 		Box box = sprite.visible_bounding_box();
 
 		if (get_combat().bar_index > gamebar.index) {  // Bar is already used
@@ -261,6 +250,7 @@ void update_gamebar() {
 		} else if (get_combat().bar_index == gamebar.index) {  // Current bar
 			sprite.tints[1] = {255, 255, 255, 255};
 			sprite.tints[0] = {0, 0, 0, 255};
+			//std::cout << "For bar: " << get_combat().get_discrete_bar_progress() << "\n";
 			box.right_bottom.x -= box.width() * get_combat().get_discrete_bar_progress();
 		} else { // Bar hasn't been used
 			sprite.tints[1] = {255, 255, 255, 255};
@@ -268,28 +258,28 @@ void update_gamebar() {
 		}
 
 		sprite.masks[1] = box;
+	}
+}
 
-		if (vibrate) {
-			cycle_gamebar_animation(get_combat().bar_index);
+void UI::vibrate_beat() {
+	for (auto [entity, gamebar, sprite, transform] : ecs.view<GamebarComp, SpriteComp, UITransformComp>().each()) {
+		cycle_gamebar_animation(get_combat().bar_index);
 
-			if (get_combat().get_discrete_bar_progress() != 0 && gamebar.index == get_combat().bar_index) {
-				entt::entity fx_entity = ecs.create();
-				auto& fx_sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1}});
-				fx_sprite.tints[0] = {255, 255, 255, 200};
-				auto& fx_transform = add_component(fx_entity, UITransformComp{transform});
-				fx_transform.relative_position.x += sprite.visible_bounding_box().width() * (1.f - get_combat().get_discrete_bar_progress());
-				fx_transform.sort_order = 1;
-				add_component(fx_entity, CycleAnimComp{
-						.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4},
-						.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
-			}
+		if (get_combat().get_discrete_bar_progress() != 0 && gamebar.index == get_combat().bar_index) {
+			entt::entity fx_entity = ecs.create();
+			auto& fx_sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1}});
+			fx_sprite.tints[0] = {255, 255, 255, 200};
+			auto& fx_transform = add_component(fx_entity, UITransformComp{transform});
+			fx_transform.relative_position.x += sprite.visible_bounding_box().width() * (1.f - get_combat().get_discrete_bar_progress());
+			fx_transform.sort_order = 1;
+			add_component(fx_entity, CycleAnimComp{
+					.sprites = {Sprite::GAMEBAR_TICK_EFFECT_1, Sprite::GAMEBAR_TICK_EFFECT_2, Sprite::GAMEBAR_TICK_EFFECT_3, Sprite::GAMEBAR_TICK_EFFECT_4},
+					.frequency = 12.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
 		}
 	}
 
-	if (vibrate) {
-		for (auto [entity, queue] : ecs.view<QueueComp>().each()) {
-			queue.animation_flag = !queue.animation_flag;
-		}
+	for (auto [entity, queue] : ecs.view<QueueComp>().each()) {
+		queue.animation_flag = !queue.animation_flag;
 	}
 }
 
@@ -753,7 +743,7 @@ void create_cancel_area() {
 	add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
 										  .width = static_cast<u16>(SCREEN_SPACE_WIDTH), .height = 150, .sort_order = 1});
 	add_component(entity, SpriteComp{.sprites = {Sprite::CANCELAREA_1}});
-	add_component(entity, NineSliceComp{.x = 7, .y = 7, .w = 310, .h = 30});
+	add_component(entity, NineSliceComp{.x = 7, .y = 7, .w = 300, .h = 20});
 	add_component(entity, ButtonComp{.on_hover = on_cancel_area_hovered, .on_unhover = on_cancel_area_unhovered, .is_hovered = true});
 	add_component(entity, CancelAreaComp{});
 	add_component(entity, TextComp{.text = "Cancel", .colour = Colour::white(), .x_align = XAnchor::CENTER, .y_align = YAnchor::CENTER});
@@ -801,7 +791,7 @@ void UI::on_turn_start() {
 	}
 	get_combat().ui.outline_animation_id =
 		play_animation(0.0, 0.0, &SpriteComp::outline_thickness, get_combat().get_active_character_entity(), [](Animation& animation, float starting_value){
-			return sinusoid_curve(10.0, 1.5, 0.0, animation, 15.0);
+			return sinusoid_curve(10.0, BEATS_PER_SECOND, 0.0, animation, 15.0);
 		});
 }
 

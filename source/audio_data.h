@@ -11,24 +11,33 @@ constexpr char success[] {
 	#embed "..\assets\audio\success.wav"
 };
 
+constexpr char test_music[] {
+	#embed "..\assets\audio\test_music.wav"
+};
+
 #pragma clang diagnostic pop
 #endif
 #ifndef FILE_EMBED
 constexpr char success[] {};
 
+constexpr char test_music[] {};
+
 #endif
 
 constexpr const char* audio_data[] {
 	success,
+	test_music,
 };
 
 constexpr int audio_sizes[] {
 	sizeof(success),
+	sizeof(test_music),
 };
 
 enum class AudioFile {
-	SUCCESS_AUDIO
+	SUCCESS_AUDIO,
+	TEST_MUSIC_AUDIO
 };
 
-constexpr int NUMBER_OF_SOUNDS = 1;
+constexpr int NUMBER_OF_SOUNDS = 2;
 

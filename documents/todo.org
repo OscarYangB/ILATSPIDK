@@ -31,7 +31,6 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
-- Combat music
 - Quests
 - Inventory
 
@@ -46,6 +45,7 @@ Art
 - C-backspace stops on capital letter and line start
 - Go to top/bottom of page and push onto xref
 - Hotkey for lsp-execute-code-action
+- entt pretty printer
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Combat UI
@@ -118,6 +118,8 @@ Art
 [[../source/audio.h]]
 ** Compression
 - [ ] Narrow bandwidth OPUS decoding
+** Reverb
+- Stereo reverb (audio data all mono) realtime
 * Collision
 [[../source/physics.h]]
 * Lighting
