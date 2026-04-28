@@ -139,8 +139,8 @@ extern Vector2 camera_position;
 extern float camera_scale;
 extern float window_scale;
 
-constexpr float SCREEN_SPACE_WIDTH = 1920.f;
-constexpr float SCREEN_SPACE_HEIGHT = 1080.f;
+constexpr float SCREEN_SPACE_WIDTH = 2560.f;
+constexpr float SCREEN_SPACE_HEIGHT = 1440.f;
 
 void update_render();
 Vector2 world_to_pixel(const Vector2& in);

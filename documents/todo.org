@@ -116,8 +116,6 @@ Art
 
 * Audio
 [[../source/audio.h]]
-** Compression
-- [ ] Narrow bandwidth OPUS decoding
 ** Reverb
 - Stereo reverb (audio data all mono) realtime
 * Collision
@@ -152,3 +150,5 @@ Then the weight map is multiplied by the luminance map and added to final image
 - Can use “update_<name>(entt::registry& ecs)” and <name>_system(View<Component> view)
 * Bugs
 - Drawn card is invisible until positions are reset
+- Drawing card at end of turn
+- UI Arrow screen scaling

@@ -8,7 +8,7 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #ifdef FILE_EMBED
 
 constexpr char test_music[] {
-	#embed "..\assets\audio\test_music.raw"
+	#embed "..\assets\audio\test_music.wav"
 };
 
 #pragma clang diagnostic pop

@@ -3,7 +3,7 @@ from cpp_utils import *
 embed_builder = EmbedBuilder("audio")
 file_enum_builder = EnumBuilder("AudioFile")
 
-files = get_files_of_type("raw")
+files = get_files_of_type("wav")
 
 for (name, path) in files:
     embed_builder.add_embed(path)

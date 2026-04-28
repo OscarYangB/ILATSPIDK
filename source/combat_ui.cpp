@@ -791,7 +791,7 @@ void UI::on_turn_start() {
 	}
 	get_combat().ui.outline_animation_id =
 		play_animation(0.0, 0.0, &SpriteComp::outline_thickness, get_combat().get_active_character_entity(), [](Animation& animation, float starting_value){
-			return sinusoid_curve(10.0, BEATS_PER_SECOND, 0.0, animation, 15.0);
+			return sinusoid_curve(15.0, BEATS_PER_SECOND / 2.0, 4.5, animation, 15.0);
 		});
 }
 

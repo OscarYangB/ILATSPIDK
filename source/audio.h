@@ -6,7 +6,7 @@ enum class AudioFile;
 
 struct PlayingAudio {
 	AudioFile file;
-	const i8* data{};
+	i16* data{};
 	u32 length{};
 	float volume = 1.f;
 	float pan = 0.5f;

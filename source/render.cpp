@@ -6,7 +6,7 @@
 #include "image_utils.h"
 
 Vector2 camera_position = {0.0f, 0.0f};
-float camera_scale = 1.0f;
+float camera_scale = 1.3f;
 float window_scale{};
 
 void refresh_window_scale() {
