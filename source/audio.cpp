@@ -9,7 +9,12 @@ static SDL_AudioStream* audio_stream = nullptr;
 static std::vector<PlayingAudio> playing_audio{};
 static std::vector<float> audio_buffer{};
 
+constexpr u32 SAMPLE_RATE = 44100;
+
 Reverb reverb{};
+bool do_reverb;
+float reverb_left{};
+float reverb_right{};
 
 void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount) {
 	u32 bytes_requested = total_amount + additional_amount;
@@ -17,7 +22,7 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 	if (audio_buffer.size() < samples_requested) {
 		audio_buffer.resize(samples_requested);
 	}
-	for (int i = 0; i < audio_buffer.size(); i++) {
+	for (int i = 0; i < samples_requested; i++) {
 		audio_buffer[i] = 0;
 	}
 
@@ -26,13 +31,20 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 		u32 samples_to_play = SDL_min(samples_requested, audio.remaining_samples());
 		u32 buffer_index = 0;
 		while (buffer_index < samples_to_play) {
-			static constexpr double mix = 0.2;
 			float sample = (static_cast<float>(audio.data[audio.position++]) / std::numeric_limits<i8>::max()) * audio.volume;
-			float left_wet; float right_wet;
-			reverb.process(sample, left_wet, right_wet);
-			audio_buffer[buffer_index++] += (sample * (1.0-mix) + left_wet * mix) * (1.f - audio.pan);
-			audio_buffer[buffer_index++] += (sample * (1.0-mix) + right_wet * mix) * audio.pan;
+			audio_buffer[buffer_index++] += sample * (1.f - audio.pan);
+			audio_buffer[buffer_index++] += sample * audio.pan;
 		}
+	}
+
+	static constexpr double mix = 0.5;
+	for (int i = 0; i < samples_requested; i++) {
+		if (do_reverb) {
+			reverb.process(audio_buffer[i], reverb_left, reverb_right);
+		}
+		do_reverb = !do_reverb;
+		audio_buffer[i] += reverb_left * mix;
+		audio_buffer[++i] += reverb_right * mix;
 	}
 
 	SDL_PutAudioStreamData(stream, audio_buffer.data(), bytes_requested);
