@@ -3,17 +3,17 @@
 #include <SDL3/SDL.h>
 #include <cassert>
 #include <vector>
+#include "dsp.h"
 
 static SDL_AudioStream* audio_stream = nullptr;
 static std::vector<PlayingAudio> playing_audio{};
-static std::vector<i16> audio_buffer{};
+static std::vector<float> audio_buffer{};
 
-constexpr int SAMPLE_RATE = 44100;
-constexpr double VOLUME_CONVERSION = static_cast<double>(std::numeric_limits<i16>::max()) / static_cast<double>(std::numeric_limits<i8>::max());
+Reverb reverb{};
 
 void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount) {
 	u32 bytes_requested = total_amount + additional_amount;
-	u32 samples_requested = bytes_requested / 2;
+	u32 samples_requested = bytes_requested / 4;
 	if (audio_buffer.size() < samples_requested) {
 		audio_buffer.resize(samples_requested);
 	}
@@ -26,9 +26,12 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 		u32 samples_to_play = SDL_min(samples_requested, audio.remaining_samples());
 		u32 buffer_index = 0;
 		while (buffer_index < samples_to_play) {
-			i16 sample = static_cast<i16>(audio.data[audio.position++]) * audio.volume * VOLUME_CONVERSION;
-			audio_buffer[buffer_index++] += sample * (1.f - audio.pan);
-			audio_buffer[buffer_index++] += sample * audio.pan;
+			static constexpr double mix = 0.2;
+			float sample = (static_cast<float>(audio.data[audio.position++]) / std::numeric_limits<i8>::max()) * audio.volume;
+			float left_wet; float right_wet;
+			reverb.process(sample, left_wet, right_wet);
+			audio_buffer[buffer_index++] += (sample * (1.0-mix) + left_wet * mix) * (1.f - audio.pan);
+			audio_buffer[buffer_index++] += (sample * (1.0-mix) + right_wet * mix) * audio.pan;
 		}
 	}
 
@@ -50,7 +53,7 @@ double get_audio_time(AudioFile audio_file) {
 void init_audio() {
 	SDL_AudioSpec spec;
 	spec.channels = 2;
-	spec.format = SDL_AUDIO_S16LE;
+	spec.format = SDL_AUDIO_F32LE;
 	spec.freq = SAMPLE_RATE;
 	audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, audio_stream_callback, nullptr);
 	SDL_ResumeAudioStreamDevice(audio_stream);

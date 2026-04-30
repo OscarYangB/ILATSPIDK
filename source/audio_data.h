@@ -7,6 +7,10 @@ static_assert(true); // There's a clang bug that gives a warning unless this fuc
 #pragma clang diagnostic ignored "-Wc23-extensions"
 #ifdef FILE_EMBED
 
+constexpr char guitar_solo[] {
+	#embed "..\assets\audio\guitar_solo.raw"
+};
+
 constexpr char test_music[] {
 	#embed "..\assets\audio\test_music.raw"
 };
@@ -14,21 +18,26 @@ constexpr char test_music[] {
 #pragma clang diagnostic pop
 #endif
 #ifndef FILE_EMBED
+constexpr char guitar_solo[] {};
+
 constexpr char test_music[] {};
 
 #endif
 
 constexpr const char* audio_data[] {
+	guitar_solo,
 	test_music,
 };
 
 constexpr int audio_sizes[] {
+	sizeof(guitar_solo),
 	sizeof(test_music),
 };
 
 enum class AudioFile {
+	GUITAR_SOLO_AUDIO,
 	TEST_MUSIC_AUDIO
 };
 
-constexpr int NUMBER_OF_SOUNDS = 1;
+constexpr int NUMBER_OF_SOUNDS = 2;
 

@@ -31,9 +31,6 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
-- Quests
-- Inventory
-
 Art
 - The office building
 - Nielon
@@ -45,7 +42,7 @@ Art
 - C-backspace stops on capital letter and line start
 - Go to top/bottom of page and push onto xref
 - Hotkey for lsp-execute-code-action
-- entt pretty printer
+- Pre-execute hook for open file add to x-ref history
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Combat UI
@@ -116,8 +113,10 @@ Art
 
 * Audio
 [[../source/audio.h]]
-** Reverb
+** TODO Reverb
 - Stereo reverb (audio data all mono) realtime
+** TODO Audio export and sync tooling
+** TODO Wind FDN Synthesis
 * Collision
 [[../source/physics.h]]
 * Lighting
