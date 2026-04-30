@@ -76,8 +76,8 @@ struct Diffuser {
 };
 
 struct Reverb {
-	std::array<Delay, CHANNELS> delays = {Delay(0.85f, 0.105f), Delay(0.84f, 0.109f), Delay(0.83f, 0.127f), Delay(0.82f, 0.132f),
-										  Delay(0.81f, 0.144f), Delay(0.80f, 0.159f), Delay(0.80f, 0.181f), Delay(0.80f, 0.200f)};
+	std::array<Delay, CHANNELS> delays = {Delay(0.85f, 0.088f), Delay(0.84f, 0.109f), Delay(0.83f, 0.69f), Delay(0.82f, 0.43f),
+										  Delay(0.81f, 0.144f), Delay(0.70f, 0.226f), Delay(0.80f, 0.177f), Delay(0.60f, 0.300f)};
 	Diffuser diffuser1 = Diffuser({0.002f, 0.007f, 0.011f, 0.012f, 0.013f, 0.017f, 0.018f, 0.020f}, 2, {7, 6, 1, 3, 4, 0, 2, 5});
 	Diffuser diffuser2 = Diffuser({0.004f, 0.008f, 0.009f, 0.010f, 0.019f, 0.021f, 0.029f, 0.040f}, 3, {6, 7, 5, 4, 0, 1, 2, 3});
 	Diffuser diffuser3 = Diffuser({0.003f, 0.015f, 0.030f, 0.039f, 0.041f, 0.055f, 0.067f, 0.080f}, 4, {1, 0, 2, 7, 4, 5, 6, 3});
