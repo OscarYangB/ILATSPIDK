@@ -157,7 +157,7 @@ void sort_characters() {
 }
 
 void start_combat() {
-	play_audio(AudioFile::TEST_MUSIC_AUDIO, 0.2f, 0.5f);
+	play_audio(AudioFile::TEST_MUSIC_AUDIO, 0.2f, 0.5f, 0.3f);
 
 	FixedList<entt::entity, 20> characters{};
 	auto view = ecs.view<CharacterDataComp>();

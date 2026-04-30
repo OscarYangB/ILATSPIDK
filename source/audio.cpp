@@ -8,6 +8,7 @@
 static SDL_AudioStream* audio_stream = nullptr;
 static std::vector<PlayingAudio> playing_audio{};
 static std::vector<float> audio_buffer{};
+static std::vector<float> reverb_buffer{};
 
 constexpr u32 SAMPLE_RATE = 44100;
 
@@ -21,9 +22,11 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 	u32 samples_requested = bytes_requested / 4;
 	if (audio_buffer.size() < samples_requested) {
 		audio_buffer.resize(samples_requested);
+		reverb_buffer.resize(samples_requested);
 	}
 	for (int i = 0; i < samples_requested; i++) {
 		audio_buffer[i] = 0;
+		reverb_buffer[i] = 0;
 	}
 
 	for (PlayingAudio& audio : playing_audio) {
@@ -32,19 +35,20 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 		u32 buffer_index = 0;
 		while (buffer_index < samples_to_play) {
 			float sample = (static_cast<float>(audio.data[audio.position++]) / std::numeric_limits<i8>::max()) * audio.volume;
+			reverb_buffer[buffer_index] += sample * (1.f - audio.pan) * audio.reverb;
 			audio_buffer[buffer_index++] += sample * (1.f - audio.pan);
+			reverb_buffer[buffer_index] += sample * audio.pan * audio.reverb;
 			audio_buffer[buffer_index++] += sample * audio.pan;
 		}
 	}
 
-	static constexpr double mix = 0.5;
 	for (int i = 0; i < samples_requested; i++) {
 		if (do_reverb) {
-			reverb.process(audio_buffer[i], reverb_left, reverb_right);
+			reverb.process(reverb_buffer[i], reverb_left, reverb_right);
 		}
 		do_reverb = !do_reverb;
-		audio_buffer[i] += reverb_left * mix;
-		audio_buffer[++i] += reverb_right * mix;
+		audio_buffer[i] += reverb_left;
+		audio_buffer[++i] += reverb_right;
 	}
 
 	SDL_PutAudioStreamData(stream, audio_buffer.data(), bytes_requested);
@@ -71,10 +75,10 @@ void init_audio() {
 	SDL_ResumeAudioStreamDevice(audio_stream);
 }
 
-void play_audio(AudioFile audio_file, float volume, float pan) {
+void play_audio(AudioFile audio_file, float volume, float pan, float reverb) {
 	// Mono signed 8-bit PCM
 	u8 audio_index = static_cast<u8>(audio_file);
-	playing_audio.push_back(PlayingAudio{audio_file, reinterpret_cast<const i8*>(audio_data[audio_index]), static_cast<u32>(audio_sizes[audio_index]), volume, pan});
+	playing_audio.push_back(PlayingAudio{audio_file, reinterpret_cast<const i8*>(audio_data[audio_index]), static_cast<u32>(audio_sizes[audio_index]), volume, pan, reverb});
 }
 
 void stop_audio(AudioFile audio_file) {

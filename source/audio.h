@@ -10,6 +10,7 @@ struct PlayingAudio {
 	u32 length{};
 	float volume = 1.f;
 	float pan = 0.5f;
+	float reverb = 0.f;
 	u32 position{};
 	u32 time_position{};
 
@@ -17,6 +18,6 @@ struct PlayingAudio {
 };
 
 void init_audio();
-void play_audio(AudioFile audio_file, float volume, float pan);
+void play_audio(AudioFile audio_file, float volume, float pan, float reverb);
 void stop_audio(AudioFile audio_file);
 double get_audio_time(AudioFile audio_file);
