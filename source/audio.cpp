@@ -68,12 +68,14 @@ void audio_stream_callback(void* userdata, SDL_AudioStream* stream, int addition
 }
 
 double get_audio_time(AudioFile audio_file) {
+	SDL_LockAudioStream(audio_stream);
 	for (int i = 0; i < playing_audio.size(); i++) {
 		if (playing_audio[i].file == audio_file) {
+			SDL_UnlockAudioStream(audio_stream);
 			return static_cast<double>(playing_audio[i].time_position) / static_cast<double>(SAMPLE_RATE);
 		}
 	}
-
+	SDL_UnlockAudioStream(audio_stream);
 	return 0.0;
 }
 
@@ -87,13 +89,16 @@ void init_audio() {
 }
 
 void play_audio(AudioFile audio_file, float volume, float pan, float reverb, float fade_duration) {
+	SDL_LockAudioStream(audio_stream);
 	// Mono signed 8-bit PCM
 	u8 audio_index = static_cast<u8>(audio_file);
 	u32 fade_samples = fade_duration * SAMPLE_RATE;
 	playing_audio.emplace_back(audio_file, reinterpret_cast<const i8*>(audio_data[audio_index]), static_cast<u32>(audio_sizes[audio_index]), volume, pan, reverb, fade_samples);
+	SDL_UnlockAudioStream(audio_stream);
 }
 
 void stop_audio(AudioFile audio_file, float duration) {
+	SDL_LockAudioStream(audio_stream);
 	if (duration == 0.f) {
 		std::erase_if(playing_audio, [audio_file](const PlayingAudio& audio) { return audio.file == audio_file; });
 	} else {
@@ -105,4 +110,5 @@ void stop_audio(AudioFile audio_file, float duration) {
 			}
 		}
 	}
+	SDL_UnlockAudioStream(audio_stream);
 }

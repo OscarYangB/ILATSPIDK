@@ -113,7 +113,7 @@ Art
 
 * Audio
 [[../source/audio.h]]
-** TODO Reverb
+** DONE Reverb
 - Stereo reverb (audio data all mono) realtime
 ** TODO Audio export and sync tooling
 ** TODO Wind FDN Synthesis
