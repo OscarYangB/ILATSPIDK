@@ -163,7 +163,7 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 	std::array<float, MAX_TEXT_LENGTH> x_positions{};
 	std::array<float, MAX_TEXT_LENGTH> y_positions{};
 	int last_space_index = -1;
-	for (int i = 0; i < length; i++) {
+	for (int i = 0; i < text.size(); i++) {
 		char character = *(first_character + i);
 		if (character == ' ') last_space_index = i;
 		u8 index = character_to_index(character);

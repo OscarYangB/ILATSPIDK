@@ -3,7 +3,7 @@
 #include "dialog_structures.h"
 #include "entt/entt.hpp"
 
-void start_dialog(const Dialog& new_dialog);
+void start_dialog(const Dialog* new_dialog);
 void progress_dialog();
 void end_dialog();
 

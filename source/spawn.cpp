@@ -2,6 +2,7 @@
 #include "SDL3/SDL_filesystem.h"
 #include "dialog_data.h"
 #include "game.h"
+#include "input.h"
 #include "render.h"
 #include "movement_controller.h"
 #include "collider_data.h"
@@ -12,6 +13,7 @@
 #include "platform_render.h"
 #include "interaction.h"
 #include "dialog.h"
+#include "dialog_data.h"
 
 constexpr const char* company_name = "bright_yang";
 constexpr const char* game_name = "a_basket_full_of_gold";
@@ -57,30 +59,40 @@ void load_game() {
 
 
 void new_game() {
-	  entt::entity grakeny = spawn_grakeny();
-	  ecs.get<TransformComp>(grakeny).position = Vector2(300.f, 300.f);
+	push_input_mode(InputMode::EXPLORE);
 
-	  //entt::entity grakeny_2 = spawn_grakeny();
-	  //ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
+	entt::entity grakeny = spawn_grakeny();
+	ecs.get<TransformComp>(grakeny).position = Vector2(300.f, 300.f);
 
-	  spawn_player();
+	//entt::entity grakeny_2 = spawn_grakeny();
+	//ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
 
-	  // TEST
-	  load_game();
-	  // ENDTEST
+	spawn_player();
 
-	  { // TABLE
-	  const entt::entity entity = ecs.create();
+	// TEST
+	load_game();
+	// ENDTEST
+
+	{ // TABLE
+	  auto entity = ecs.create();
 	  auto& sprite = add_component(entity, SpriteComp{.sprites = {Sprite::TABLE}});
 	  add_component(entity, TransformComp{.position = {0.f, 0.f}});
 	  add_component(entity, BoxColliderComp{TABLE_COLLIDER});
-	  add_component(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG[0]); }});
-	  }
-	  { // Background
-	  const entt::entity background = ecs.create();
-	  add_component(background, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
-	  add_component(background, TransformComp{.position = Vector2{-1000.0f, 700.0f}});
-	  }
+	  add_component(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG); }});
+	}
+	{ // Background
+	  auto entity = ecs.create();
+	  add_component(entity, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
+	  add_component(entity, TransformComp{.position = Vector2{-1000.0f, 700.0f}});
+	}
+	{ // Tutorial trigger
+	  auto entity = ecs.create();
+	  add_component(entity, TransformComp{});
+	  add_component(entity, InteractionComp{.box = TABLE_COLLIDER.box + Vector2{500.f, 0.f},
+											.on_interact = [](){ start_dialog(TUTORIAL_2);}, .type = InteractionType::PLAYER_ENTER});
+	}
+
+	start_dialog(TUTORIAL_1);
 }
 
 entt::entity spawn_player() {

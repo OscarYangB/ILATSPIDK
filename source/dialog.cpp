@@ -12,12 +12,12 @@ constexpr u16 X_MARGIN = 50;
 constexpr u16 Y_MARGIN = 50;
 constexpr u16 CHOICE_BUTTON_HEIGHT = 100;
 
-void start_dialog(const Dialog& new_dialog) {
+void start_dialog(const Dialog* new_dialog) {
 	push_input_mode(InputMode::DIALOG);
 
 	auto& dialog = ecs.ctx().emplace<DialogSingleton>();
 	dialog.visitor.index = 1;
-	dialog.dialog = &new_dialog;
+	dialog.dialog = new_dialog;
 
 	dialog.background = ecs.create();
 	auto& background_transform = add_component(dialog.background, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
@@ -27,7 +27,7 @@ void start_dialog(const Dialog& new_dialog) {
 
 	dialog.dialog_text = ecs.create();
 	add_component(dialog.dialog_text, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
-																	 .width = WIDTH - X_MARGIN, .height = HEIGHT - Y_MARGIN, .sort_order = 1});
+													  .width = WIDTH - X_MARGIN, .height = HEIGHT - Y_MARGIN, .sort_order = 1});
 	add_component(dialog.dialog_text, TextComp{});
 	background_transform.add_child(dialog.background, dialog.dialog_text);
 

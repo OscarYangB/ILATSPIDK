@@ -29,6 +29,7 @@ static void update_process_input() {
 	switch(get_current_input_mode()) {
 		case InputMode::EXPLORE: {
 			update_interact();
+			update_player_enter();
 			update_movement();
 			break;
 		}

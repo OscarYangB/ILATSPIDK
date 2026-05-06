@@ -63,3 +63,7 @@ float Box::width() {
 float Box::height() {
 	return std::abs(left_top.y - right_bottom.y);
 }
+
+bool Box::contains_point(const Vector2& point) {
+	return point.x > left_top.x && point.x < right_bottom.x && point.y > right_bottom.y && point.y < left_top.y;
+}

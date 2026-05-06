@@ -70,4 +70,5 @@ struct Box {
 	Vector2 center();
 	float width();
 	float height();
+	bool contains_point(const Vector2& point);
 };

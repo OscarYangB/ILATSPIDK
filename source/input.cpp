@@ -9,7 +9,7 @@ static Input inputs[NUMBER_OF_INPUT_TYPES] {};
 
 static float mouse_x {0.0f};
 static float mouse_y {0.0f};
-static std::vector<InputMode> input_mode_stack = {InputMode::EXPLORE};
+static std::vector<InputMode> input_mode_stack = {InputMode::MENU};
 
 float get_pixel_mouse_x() {
 	return mouse_x;

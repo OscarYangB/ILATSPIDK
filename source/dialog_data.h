@@ -11,7 +11,10 @@ enum class Speaker {
 	KERRY,
 	TABLE,
 	NARRATOR,
-	INTERCOM
+	INTERCOM,
+	ENRETTE,
+	MAXWELL,
+	SAM
 };
 
 void give_flower();
@@ -120,5 +123,52 @@ constexpr Dialog TUTORIAL_DIALOG[] {
 /* 013 */	DialogLine { {"Yes. You will see."}, Speaker::NARRATOR },
 /* 014 */	DialogLine { {"For now, you should probably follow the instructions from the intercom. Use the WASD keys to move around."}, Speaker::NARRATOR },
 /* 015 */	DialogJump { 0 },
+};
+
+constexpr Dialog TUTORIAL_1[] {
+/* 001 */	DialogLine { {"I dreamt of my mother last night. Do you think that means anything?"}, Speaker::ENRETTE },
+/* 002 */	DialogLine { {"..."}, Speaker::KERRY },
+/* 003 */	DialogLine { {"I was sitting on the porch -- the one back home -- and I was crying."}, Speaker::ENRETTE },
+/* 004 */	DialogLine { {"I can't remember what I tried to say to her, but she was just staring at me without saying anything."}, Speaker::ENRETTE },
+/* 005 */	DialogLine { {"I hope I said sorry. And I hope that she could hear me."}, Speaker::ENRETTE },
+/* 006 */	DialogLine { {"..."}, Speaker::KERRY },
+/* 007 */	DialogLine { {"Yeah, that's what I thought. Anyway it's almost over now."}, Speaker::ENRETTE },
+/* 008 */	DialogLine { {"You have five minutes director."}, Speaker::NIELON },
+/* 009 */	DialogLine { {"Thank you sir, the team has been working very hard. Kerry, why don't you move around for us? (With the WASD keys perhaps?)"}, Speaker::ENRETTE },
+/* 010 */	DialogJump { 0 },
+};
+
+constexpr Dialog TUTORIAL_2[] {
+/* 001 */	DialogLine { {"We're still working on integrating the Necromancer project technology that you mentioned."}, Speaker::ENRETTE },
+/* 002 */	DialogLine { {"I've seen enough. I'm letting go of your entire team including you. The Kerry project will be merged with Necromancer."}, Speaker::NIELON },
+/* 003 */	DialogLine { {"..."}, Speaker::ENRETTE },
+/* 004 */	DialogLine { {"There's nothing you'd like to say?"}, Speaker::NIELON },
+/* 005 */	DialogLine { {"Kerry, kill him."}, Speaker::ENRETTE },
+/* 006 */	DialogLine { {"So you HAVE figured out the Necromancer technology."}, Speaker::NIELON },
+/* 007 */	DialogLine { {"What happened?"}, Speaker::ENRETTE },
+/* 008 */	DialogLine { {"I am under the protection of a power greater than you can understand. I did not mean for it to injure you so badly, but of course it was in self-defence."}, Speaker::NIELON },
+/* 009 */	DialogLine { {"I don't know why you attempted this, but needless to say, you're still fired if you survive."}, Speaker::NIELON },
+/* 010 */	DialogLine { {"Your five minutes are up. Goodbye."}, Speaker::NIELON },
+/* 011 */	DialogLine { {"Kerry? Can you hear me?"}, Speaker::ENRETTE },
+/* 012 */	DialogLine { {"..."}, Speaker::KERRY },
+/* 013 */	DialogLine { {"Everything is wrong in this world. When you leave this room remember that. When you leave this room everything will appear okay to you."}, Speaker::ENRETTE },
+/* 014 */	DialogLine { {"There is no lie, nobody will really lie to you. Everything is as it seems, but everything is still wrong and nobody can tell. Something is evil in this world."}, Speaker::ENRETTE },
+/* 015 */	DialogLine { {"I'm sorry for bringing you into all of this."}, Speaker::ENRETTE },
+/* 016 */	DialogLine { {"What was all that noise dad?"}, Speaker::MAXWELL },
+/* 017 */	DialogLine { {"Oh Ms. Enrette was just showing me her project. It's nothing to worry about."}, Speaker::NIELON },
+/* 018 */	DialogLine { {"Is Ms. Enrette busy right now? She promised me that she would teach me more about feedback delay networks and also demo her project!"}, Speaker::LADYBUG },
+/* 019 */	DialogLine { {"She is very busy. You won't be seeing her for quite some time, but her project is right there. It's called Kerry."}, Speaker::NIELON },
+/* 020 */	DialogLine { {"Wow!"}, Speaker::LADYBUG },
+/* 021 */	DialogLine { {"You can take a closer look but be careful. It's extremely expensive."}, Speaker::NIELON },
+/* 022 */	DialogLine { {"Thanks Nielon!"}, Speaker::LADYBUG },
+/* 023 */	DialogLine { {"Sir!"}, Speaker::SAM },
+/* 024 */	DialogLine { {"I'm taking my kids to lunch. Whatever this is has got to wait."}, Speaker::NIELON },
+/* 025 */	DialogLine { {"It's from the Necromancer project. He wants to see you right away. His team has been pinging me nonstop."}, Speaker::SAM },
+/* 026 */	DialogLine { {"I haven't seen him in years, are you sure he wants me right now?"}, Speaker::NIELON },
+/* 027 */	DialogLine { {"It's okay dad, you pretty much never cancel on me. You should go if it's an emergency."}, Speaker::MAXWELL },
+/* 028 */	DialogLine { {"That's kind of you son. Although I remember cancelling on your recently when the company made me fly out that one time."}, Speaker::NIELON },
+/* 029 */	DialogLine { {"That was years ago! You should go!"}, Speaker::MAXWELL },
+/* 030 */	DialogLine { {"Alright, thank you son. I'll see you and Ladybug again soon."}, Speaker::NIELON },
+/* 031 */	DialogJump { 0 },
 };
 

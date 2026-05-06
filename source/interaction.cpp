@@ -35,6 +35,19 @@ void update_interact() {
 	std::vector<InteractionComp*> results {};
 	raytest<InteractionComp>(results, transform.position + sprite.bounding_box().center(), direction, INTERACTION_RANGE);
 	for (InteractionComp* component : results) {
-		if (component && component->on_interact) component->on_interact();
+		if (component && component->enabled && component->on_interact) {
+			component->on_interact();
+		}
+	}
+}
+
+void update_player_enter() {
+	auto [player_entity, player_transform] = get_first_component<PlayerCharacterComp, TransformComp>();
+	for (auto [entity, interaction, transform] : ecs.view<InteractionComp, TransformComp>().each()) {
+		if (interaction.enabled && interaction.type == InteractionType::PLAYER_ENTER &&
+			(interaction.box + transform.position).contains_point(player_transform.position) && interaction.on_interact) {
+			interaction.on_interact();
+			interaction.enabled = false;
+		}
 	}
 }
