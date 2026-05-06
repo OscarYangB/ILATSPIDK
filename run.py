@@ -32,6 +32,8 @@ while True:
     elif command == "font" or command == "f":
         run_tool("import_font.py")
         run_tool("import_images.py")
+    elif command == "map" or command == "m":
+        run_tool("import_positions.py")
     elif command == "build" or command == "b":
         os.chdir("./build")
         subprocess.call(os.path.abspath("build.bat"), shell=True)
@@ -65,6 +67,7 @@ while True:
         print("(a)udio")
         print("(d)ialog")
         print("(f)ont")
+        print("(m)ap")
         print("(b)uild")
         print("(p)db")
         print("(n)ew <filename>")

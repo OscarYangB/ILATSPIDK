@@ -3,6 +3,7 @@
 #include "dialog_data.h"
 #include "game.h"
 #include "input.h"
+#include "position_data.h"
 #include "render.h"
 #include "movement_controller.h"
 #include "collider_data.h"
@@ -62,16 +63,15 @@ void new_game() {
 	push_input_mode(InputMode::EXPLORE);
 
 	entt::entity grakeny = spawn_grakeny();
-	ecs.get<TransformComp>(grakeny).position = Vector2(300.f, 300.f);
+	ecs.get<TransformComp>(grakeny).position = ENEMY_POSITION;
 
 	//entt::entity grakeny_2 = spawn_grakeny();
 	//ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
 
-	spawn_player();
+	auto player = spawn_player();
+	ecs.get<TransformComp>(player).position = PLAYER_POSITION;
 
-	// TEST
-	load_game();
-	// ENDTEST
+	//load_game();
 
 	{ // TABLE
 	  auto entity = ecs.create();
@@ -83,7 +83,7 @@ void new_game() {
 	{ // Background
 	  auto entity = ecs.create();
 	  add_component(entity, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
-	  add_component(entity, TransformComp{.position = Vector2{-1000.0f, 700.0f}});
+	  add_component(entity, TransformComp{});
 	}
 	{ // Tutorial trigger
 	  auto entity = ecs.create();
