@@ -16,6 +16,9 @@ oxipng_path = "C:/oxipng/oxipng.exe"
 # 5% new and exciting patterns emergse -> 99% reduction
 # 1% blocky pixel art -> 99% reduction
 
+# oxipng <image> --alpha -o max -z
+# magick convert -resize 272x192 <input>.png <output>.png
+
 for (name, path) in get_files_of_type("png"):
     subprocess.run([oxipng_path, path, "--alpha", "-o", "max", "-z"], shell=True)
     print(path)

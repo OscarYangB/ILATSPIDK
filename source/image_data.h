@@ -21,6 +21,10 @@ constexpr char card[] {
 	#embed "..\assets\art\card.png"
 };
 
+constexpr char fireball[] {
+	#embed "..\assets\art\fireball.png"
+};
+
 constexpr char gamebar[] {
 	#embed "..\assets\art\GameBar.png"
 };
@@ -39,6 +43,10 @@ constexpr char kerry[] {
 
 constexpr char queue[] {
 	#embed "..\assets\art\Queue.png"
+};
+
+constexpr char saturn[] {
+	#embed "..\assets\art\saturn.png"
 };
 
 constexpr char table[] {
@@ -94,6 +102,8 @@ constexpr char cancelarea[] {};
 
 constexpr char card[] {};
 
+constexpr char fireball[] {};
+
 constexpr char gamebar[] {};
 
 constexpr char grakeny[] {};
@@ -103,6 +113,8 @@ constexpr char healthbar[] {};
 constexpr char kerry[] {};
 
 constexpr char queue[] {};
+
+constexpr char saturn[] {};
 
 constexpr char table[] {};
 
@@ -132,11 +144,13 @@ constexpr const char* image_file_data[] {
 	arrow,
 	cancelarea,
 	card,
+	fireball,
 	gamebar,
 	grakeny,
 	healthbar,
 	kerry,
 	queue,
+	saturn,
 	table,
 	test_background,
 	test_button,
@@ -154,11 +168,13 @@ constexpr int image_file_sizes[] {
 	sizeof(arrow),
 	sizeof(cancelarea),
 	sizeof(card),
+	sizeof(fireball),
 	sizeof(gamebar),
 	sizeof(grakeny),
 	sizeof(healthbar),
 	sizeof(kerry),
 	sizeof(queue),
+	sizeof(saturn),
 	sizeof(table),
 	sizeof(test_background),
 	sizeof(test_button),
@@ -176,11 +192,13 @@ enum class ImageFile {
 	ARROW_IMAGE,
 	CANCELAREA_IMAGE,
 	CARD_IMAGE,
+	FIREBALL_IMAGE,
 	GAMEBAR_IMAGE,
 	GRAKENY_IMAGE,
 	HEALTHBAR_IMAGE,
 	KERRY_IMAGE,
 	QUEUE_IMAGE,
+	SATURN_IMAGE,
 	TABLE_IMAGE,
 	TEST_BACKGROUND_IMAGE,
 	TEST_BUTTON_IMAGE,
@@ -246,6 +264,7 @@ enum class Sprite {
 	CARD_GROOVE_FX_1,
 	CARD_GROOVE_FX_2,
 	CARD_GROOVE_FX_3,
+	FIREBALL,
 	GAMEBAR_START_1,
 	GAMEBAR_START_2,
 	GAMEBAR_START_3,
@@ -378,6 +397,7 @@ enum class Sprite {
 	QUEUE_STAR_2,
 	QUEUE_STAR_3,
 	QUEUE_STAR_4,
+	SATURN,
 	TABLE,
 	TEST_BACKGROUND,
 	TEST_BUTTON,
@@ -444,6 +464,7 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{1200, 2000, 300, 400, 1, 1, 298, 400},
 	{1500, 2000, 300, 400, 2, 3, 297, 400},
 	{1800, 2000, 300, 400, 4, 2, 297, 400},
+	{0, 0, 272, 192, 0, 0, 272, 192},
 	{0, 0, 300, 100, 39, 23, 254, 68},
 	{300, 0, 300, 100, 40, 24, 254, 69},
 	{600, 0, 300, 100, 40, 22, 254, 70},
@@ -576,6 +597,7 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{915, 162, 915, 81, 28, 15, 84, 77},
 	{1830, 162, 915, 81, 24, 11, 89, 80},
 	{2745, 162, 915, 81, 24, 8, 96, 80},
+	{0, 0, 272, 192, 0, 0, 272, 192},
 	{0, 0, 300, 200, 56, 56, 257, 190},
 	{0, 0, 2339, 1654, 0, 0, 2339, 1654},
 	{0, 0, 400, 200, 0, 0, 400, 200},
@@ -641,6 +663,7 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::CARD_IMAGE,
 	ImageFile::CARD_IMAGE,
 	ImageFile::CARD_IMAGE,
+	ImageFile::FIREBALL_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
 	ImageFile::GAMEBAR_IMAGE,
@@ -773,6 +796,7 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::QUEUE_IMAGE,
 	ImageFile::QUEUE_IMAGE,
 	ImageFile::QUEUE_IMAGE,
+	ImageFile::SATURN_IMAGE,
 	ImageFile::TABLE_IMAGE,
 	ImageFile::TEST_BACKGROUND_IMAGE,
 	ImageFile::TEST_BUTTON_IMAGE,
@@ -786,5 +810,5 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::VERY_LARGE_FONT_IMAGE
 };
 
-constexpr int NUMBER_OF_IMAGES = 19;
+constexpr int NUMBER_OF_IMAGES = 21;
 

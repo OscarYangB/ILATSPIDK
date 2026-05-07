@@ -22,10 +22,10 @@ struct CardData {
 	Text description{};
 	Text play_text{};
 	u8 cost{};
-	u8 minigame_level{}; // 0 means none
 	u8 valid_target_bitmask{};
 	u8 ai_target_bitmask{};
-	CardType card_type;
+	CardType card_type{};
+	Sprite sprite{};
 
 	void (*play)(CharacterComp& character, CharacterComp& target);
 	void (*activate)(CharacterComp& character, CharacterComp& target);

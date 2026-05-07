@@ -337,7 +337,7 @@ void attach_card_visual(Card card, entt::entity parent) {
 	entt::entity art = ecs.create();
 	add_component(art, UITransformComp{.x_anchor = XAnchor::CENTER, .relative_position = {0.f, 20.f}, .width = 136, .height = 96,});
 	transform.add_child(parent, art);
-	add_component(art, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
+	add_component(art, SpriteComp{.sprites = {card.data->sprite}});
 
 	entt::entity frame = ecs.create();
 	add_component(frame, UITransformComp{.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT});
