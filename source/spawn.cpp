@@ -92,7 +92,7 @@ void new_game() {
 											.on_interact = [](){ start_dialog(TUTORIAL_2);}, .type = InteractionType::PLAYER_ENTER});
 	}
 
-	start_dialog(TUTORIAL_1);
+	//start_dialog(TUTORIAL_1);
 }
 
 entt::entity spawn_player() {

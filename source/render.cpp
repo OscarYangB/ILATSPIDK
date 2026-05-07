@@ -79,7 +79,8 @@ void sort_sprites() {
 
 void render_transform(entt::entity entity) {
 	TransformComp& transform = ecs.get<TransformComp>(entity);
-	SpriteComp& sprite_component = ecs.get<SpriteComp>(entity);
+	SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity);
+	if (!sprite_component) return;
 	Vector2 world_position = transform.position;
 
 	TransformComp* parent_transform = &transform;
@@ -91,27 +92,27 @@ void render_transform(entt::entity entity) {
 
 	Vector2 position = world_to_pixel(world_position);
 
-	if (!sprite_component.visible) return;
+	if (!sprite_component->visible) return;
 
 	Colour global_tint{};
 	if (ecs.ctx().contains<TintSingleton>() && !ecs.ctx().get<TintSingleton>().excluded_entities.contains(entity)) {
 		global_tint = ecs.ctx().get<TintSingleton>().tint;
 	}
 
-	if (sprite_component.outline_thickness > 0.f) {
-		for (int i = 0; i < sprite_component.sprites.size(); i++) {
-			if (sprite_component.sprites.at(i) == Sprite::NONE) {
+	if (sprite_component->outline_thickness > 0.f) {
+		for (int i = 0; i < sprite_component->sprites.size(); i++) {
+			if (sprite_component->sprites.at(i) == Sprite::NONE) {
 				continue;
 			}
 
-			u16 index = static_cast<u16>(sprite_component.sprites.at(i));
+			u16 index = static_cast<u16>(sprite_component->sprites.at(i));
 			u16 atlas_x = sprite_atlas_transform[index].x;
 			u16 atlas_y = sprite_atlas_transform[index].y;
 			u16 atlas_w = sprite_atlas_transform[index].w;
 			u16 atlas_h = sprite_atlas_transform[index].h;
 
-			if (sprite_component.masks.at(i).has_value()) {
-				Box mask = sprite_component.masks.at(i).value();
+			if (sprite_component->masks.at(i).has_value()) {
+				Box mask = sprite_component->masks.at(i).value();
 				atlas_x += mask.left_top.x;
 				atlas_y -= mask.left_top.y;
 				atlas_w = mask.width();
@@ -126,25 +127,25 @@ void render_transform(entt::entity entity) {
 			if (position.x > window_width() || position.y > window_height()) continue;
 			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
-			float thickness = sprite_component.outline_thickness * window_scale;
+			float thickness = sprite_component->outline_thickness * window_scale;
 			render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h,
 						  position.x - thickness, position.y - thickness, render_w + 2.f * thickness, render_h + 2.f * thickness, Colour::black());
 		}
 	}
 
-	for (int i = 0; i < sprite_component.sprites.size(); i++) {
-		if (sprite_component.sprites.at(i) == Sprite::NONE) {
+	for (int i = 0; i < sprite_component->sprites.size(); i++) {
+		if (sprite_component->sprites.at(i) == Sprite::NONE) {
 			continue;
 		}
 
-		u16 index = static_cast<u16>(sprite_component.sprites.at(i));
+		u16 index = static_cast<u16>(sprite_component->sprites.at(i));
 		u16 atlas_x = sprite_atlas_transform[index].x;
 		u16 atlas_y = sprite_atlas_transform[index].y;
 		u16 atlas_w = sprite_atlas_transform[index].w;
 		u16 atlas_h = sprite_atlas_transform[index].h;
 
-		if (sprite_component.masks.at(i).has_value()) {
-			Box mask = sprite_component.masks.at(i).value();
+		if (sprite_component->masks.at(i).has_value()) {
+			Box mask = sprite_component->masks.at(i).value();
 			atlas_x += mask.left_top.x;
 			atlas_y -= mask.left_top.y;
 			atlas_w = mask.width();
@@ -159,9 +160,9 @@ void render_transform(entt::entity entity) {
 		if (position.x > window_width() || position.y > window_height()) continue;
 		if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
 
-		Colour tint = sprite_component.tints.at(i).has_value() ? sprite_component.tints.at(i).value() : Colour{};
+		Colour tint = sprite_component->tints.at(i).has_value() ? sprite_component->tints.at(i).value() : Colour{};
 		tint *= global_tint;
-		tint *= sprite_component.tint;
+		tint *= sprite_component->tint;
 
 		render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
 	}
@@ -248,8 +249,8 @@ void render_anchored_transform(entt::entity entity) {
 }
 
 void render_sprites() {
-	auto transforms = ecs.view<TransformComp, SpriteComp>();
-	for (auto [entity, transform, sprite] : transforms.each()) {
+	auto transforms = ecs.view<TransformComp>();
+	for (auto [entity, transform] : transforms.each()) {
 		if (transform.parent != entt::null) continue;
 		render_transform(entity);
 	}
