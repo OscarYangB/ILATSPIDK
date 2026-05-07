@@ -42,10 +42,10 @@ void update_interact() {
 }
 
 void update_player_enter() {
-	auto [player_entity, player_transform] = get_first_component<PlayerCharacterComp, TransformComp>();
+	auto [player_entity, player_transform, player_collider] = get_first_component<PlayerCharacterComp, TransformComp, BoxColliderComp>();
 	for (auto [entity, interaction, transform] : ecs.view<InteractionComp, TransformComp>().each()) {
 		if (interaction.enabled && interaction.type == InteractionType::PLAYER_ENTER &&
-			(interaction.box + transform.position).contains_point(player_transform.position) && interaction.on_interact) {
+			(interaction.box + transform.position).contains_point(player_transform.position + player_collider.box.center()) && interaction.on_interact) {
 			interaction.on_interact();
 			interaction.enabled = false;
 		}

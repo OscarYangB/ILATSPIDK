@@ -88,7 +88,7 @@ void new_game() {
 	{ // Tutorial trigger
 	  auto entity = ecs.create();
 	  add_component(entity, TransformComp{});
-	  add_component(entity, InteractionComp{.box = TABLE_COLLIDER.box + Vector2{500.f, 0.f},
+	  add_component(entity, InteractionComp{.box = TEST_BOX,
 											.on_interact = [](){ start_dialog(TUTORIAL_2);}, .type = InteractionType::PLAYER_ENTER});
 	}
 
