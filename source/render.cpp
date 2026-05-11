@@ -5,7 +5,7 @@
 #include "physics.h"
 #include "image_utils.h"
 
-bool camera_follow = false;
+bool camera_follow = true;
 Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.3f;
 float window_scale{};
@@ -107,7 +107,7 @@ void render_transform_sprite(Sprite sprite, Vector2 position, Box mask, float ou
 	if (bottom_y > 0) {
 		atlas_h = bottom_y;
 		render_h = atlas_h * render_scale();
-		float perspective_scale = std::lerp(TOP_SCALE, BOTTOM_SCALE, (position.y + bottom_y) / SCREEN_SPACE_HEIGHT); // TODO Wrong when changing to taller aspect ratio
+		float perspective_scale = std::lerp(TOP_SCALE, BOTTOM_SCALE, ((position.y + bottom_y) / SCREEN_SPACE_HEIGHT) / window_scale);
 		float height_change = render_h * perspective_scale - render_h;
 		render_h += height_change;
 		position.y -= height_change;
