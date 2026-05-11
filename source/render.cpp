@@ -5,6 +5,7 @@
 #include "physics.h"
 #include "image_utils.h"
 
+bool camera_follow = false;
 Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.3f;
 float window_scale{};
@@ -31,7 +32,7 @@ struct DebugLine {
 };
 std::vector<DebugLine> debug_lines {};
 void debug_draw(const Vector2& start, const Vector2& end) {
-	debug_lines.push_back({start, end, 0.3});
+	debug_lines.push_back({start, end, delta_time});
 }
 #endif
 
@@ -77,6 +78,52 @@ void sort_sprites() {
 	});
 }
 
+constexpr float TOP_SCALE = 0.8f;
+constexpr float BOTTOM_SCALE = 1.1f;
+
+void render_transform_sprite(Sprite sprite, Vector2 position, Box mask, float outline, Colour tint, u16 bottom_y) {
+	if (sprite == Sprite::NONE) {
+		return;
+	}
+
+	u16 index = static_cast<u16>(sprite);
+	u16 atlas_x = sprite_atlas_transform[index].x;
+	u16 atlas_y = sprite_atlas_transform[index].y;
+	u16 atlas_w = sprite_atlas_transform[index].w;
+	u16 atlas_h = sprite_atlas_transform[index].h;
+
+	if (mask.width() > 0.f || mask.height() > 0.f) {
+		atlas_x += mask.left_top.x;
+		atlas_y -= mask.left_top.y;
+		atlas_w = mask.width();
+		atlas_h = mask.height();
+		position.x += mask.left_top.x * window_scale;
+		position.y += mask.left_top.y * window_scale;
+	}
+
+	u16 render_w = atlas_w * render_scale();
+	u16 render_h = atlas_h * render_scale();
+
+	if (bottom_y > 0) {
+		atlas_h = bottom_y;
+		render_h = atlas_h * render_scale();
+		float perspective_scale = std::lerp(TOP_SCALE, BOTTOM_SCALE, (position.y + bottom_y) / SCREEN_SPACE_HEIGHT); // TODO Wrong when changing to taller aspect ratio
+		float height_change = render_h * perspective_scale - render_h;
+		render_h += height_change;
+		position.y -= height_change;
+		float width_change = render_w * perspective_scale - render_w;
+		render_w += width_change;
+		position.x -= width_change / 2.f;
+	}
+
+	if (position.x > window_width() || position.y > window_height()) return;
+	if (position.x + render_w < 0.f || position.y + render_h < 0.f) return;
+
+	float thickness = outline * window_scale;
+	render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h,
+				  position.x - thickness, position.y - thickness, render_w + 2.f * thickness, render_h + 2.f * thickness, tint);
+}
+
 void render_transform(entt::entity entity) {
 	TransformComp& transform = ecs.get<TransformComp>(entity);
 	SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity);
@@ -99,72 +146,29 @@ void render_transform(entt::entity entity) {
 		global_tint = ecs.ctx().get<TintSingleton>().tint;
 	}
 
+	u16 max_y = 0;
+	if (ecs.all_of<PerspectiveComp>(entity)) {
+		for (Sprite sprite : sprite_component->sprites) {
+			max_y = std::max(max_y, sprite_atlas_transform[static_cast<size_t>(sprite)].visible_down);
+		}
+	}
+
 	if (sprite_component->outline_thickness > 0.f) {
 		for (int i = 0; i < sprite_component->sprites.size(); i++) {
-			if (sprite_component->sprites.at(i) == Sprite::NONE) {
-				continue;
-			}
-
-			u16 index = static_cast<u16>(sprite_component->sprites.at(i));
-			u16 atlas_x = sprite_atlas_transform[index].x;
-			u16 atlas_y = sprite_atlas_transform[index].y;
-			u16 atlas_w = sprite_atlas_transform[index].w;
-			u16 atlas_h = sprite_atlas_transform[index].h;
-
-			if (sprite_component->masks.at(i).has_value()) {
-				Box mask = sprite_component->masks.at(i).value();
-				atlas_x += mask.left_top.x;
-				atlas_y -= mask.left_top.y;
-				atlas_w = mask.width();
-				atlas_h = mask.height();
-				position.x += mask.left_top.x * window_scale;
-				position.y += mask.left_top.y * window_scale;
-			}
-
-			u16 render_w = atlas_w * render_scale();
-			u16 render_h = atlas_h * render_scale();
-
-			if (position.x > window_width() || position.y > window_height()) continue;
-			if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
-
-			float thickness = sprite_component->outline_thickness * window_scale;
-			render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h,
-						  position.x - thickness, position.y - thickness, render_w + 2.f * thickness, render_h + 2.f * thickness, Colour::black());
+			render_transform_sprite(sprite_component->sprites.at(i), position,
+									sprite_component->masks.at(i).has_value() ? sprite_component->masks.at(i).value() : Box{},
+									sprite_component->outline_thickness, Colour::black(), max_y);
 		}
 	}
 
 	for (int i = 0; i < sprite_component->sprites.size(); i++) {
-		if (sprite_component->sprites.at(i) == Sprite::NONE) {
-			continue;
-		}
-
-		u16 index = static_cast<u16>(sprite_component->sprites.at(i));
-		u16 atlas_x = sprite_atlas_transform[index].x;
-		u16 atlas_y = sprite_atlas_transform[index].y;
-		u16 atlas_w = sprite_atlas_transform[index].w;
-		u16 atlas_h = sprite_atlas_transform[index].h;
-
-		if (sprite_component->masks.at(i).has_value()) {
-			Box mask = sprite_component->masks.at(i).value();
-			atlas_x += mask.left_top.x;
-			atlas_y -= mask.left_top.y;
-			atlas_w = mask.width();
-			atlas_h = mask.height();
-			position.x += mask.left_top.x * window_scale;
-			position.y += mask.left_top.y * window_scale;
-		}
-
-		u16 render_w = atlas_w * render_scale();
-		u16 render_h = atlas_h * render_scale();
-
-		if (position.x > window_width() || position.y > window_height()) continue;
-		if (position.x + render_w < 0.f || position.y + render_h < 0.f) continue;
-
 		Colour tint = sprite_component->tints.at(i).has_value() ? sprite_component->tints.at(i).value() : Colour{};
 		tint *= global_tint;
 		tint *= sprite_component->tint;
 
-		render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
+		render_transform_sprite(sprite_component->sprites.at(i), position,
+								sprite_component->masks.at(i).has_value() ? sprite_component->masks.at(i).value() : Box{},
+								0.f, tint, max_y);
 	}
 
 	if (!transform.children.empty()) {

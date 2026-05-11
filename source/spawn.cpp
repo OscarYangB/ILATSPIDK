@@ -105,6 +105,7 @@ entt::entity spawn_player() {
 		.inventory = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE })});
 	add_component(entity, CharacterAnimComp{});
 	add_component(entity, PlayerCharacterComp{});
+	add_component(entity, PerspectiveComp{});
 	return entity;
 }
 

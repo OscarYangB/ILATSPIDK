@@ -52,18 +52,26 @@ Box Box::operator+(const Vector2& offset) const {
 	return {left_top + offset, right_bottom + offset};
 }
 
-Vector2 Box::center() {
+Vector2 Box::center() const {
 	return {(left_top.x + right_bottom.x) / 2.f, (right_bottom.y + left_top.y) / 2.f};
 }
 
-float Box::width() {
+float Box::width() const {
 	return std::abs(right_bottom.x - left_top.x);
 }
 
-float Box::height() {
+float Box::height() const {
 	return std::abs(left_top.y - right_bottom.y);
 }
 
-bool Box::contains_point(const Vector2& point) {
+bool Box::contains_point(const Vector2& point) const {
 	return point.x > left_top.x && point.x < right_bottom.x && point.y > right_bottom.y && point.y < left_top.y;
+}
+
+Vector2 Box::left_bottom() const {
+	return {left_top.x, right_bottom.y};
+}
+
+Vector2 Box::right_top() const {
+	return {right_bottom.x, left_top.y};
 }

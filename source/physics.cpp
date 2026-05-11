@@ -6,6 +6,15 @@ bool is_colliding(const Vector2& first_position, const Vector2& second_position,
 	Vector2 second_left_top = second_position + second_collider.box.left_top;
 	Vector2 second_right_bottom = second_position + second_collider.box.right_bottom;
 
+	// debug_draw(first_left_top, first_position + first_collider.box.right_top());
+	// debug_draw(first_left_top, first_position + first_collider.box.left_bottom());
+	// debug_draw(first_right_bottom, first_position + first_collider.box.right_top());
+	// debug_draw(first_right_bottom, first_position + first_collider.box.left_bottom());
+	// debug_draw(second_left_top, second_position + second_collider.box.right_top());
+	// debug_draw(second_left_top, second_position + second_collider.box.left_bottom());
+	// debug_draw(second_right_bottom, second_position + second_collider.box.right_top());
+	// debug_draw(second_right_bottom, second_position + second_collider.box.left_bottom());
+
 	if (first_right_bottom.x < second_left_top.x) return false;
 	if (first_left_top.x > second_right_bottom.x) return false;
 	if (first_right_bottom.y > second_left_top.y) return false;

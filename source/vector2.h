@@ -67,8 +67,10 @@ struct Box {
 	Vector2 right_bottom{};
 
 	Box operator+(const Vector2& offset) const;
-	Vector2 center();
-	float width();
-	float height();
-	bool contains_point(const Vector2& point);
+	Vector2 center() const;
+	float width() const;
+	float height() const;
+	bool contains_point(const Vector2& point) const;
+	Vector2 left_bottom() const;
+	Vector2 right_top() const;
 };

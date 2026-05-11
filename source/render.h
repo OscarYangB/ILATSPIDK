@@ -135,6 +135,11 @@ struct LayoutComp {
 	float spacing{};
 };
 
+struct PerspectiveComp {
+	float amount = 1.f;
+};
+
+extern bool camera_follow;
 extern Vector2 camera_position;
 extern float camera_scale;
 extern float window_scale;
