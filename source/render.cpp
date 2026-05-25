@@ -5,7 +5,7 @@
 #include "physics.h"
 #include "image_utils.h"
 
-bool camera_follow = false;
+bool camera_follow = true;
 Vector2 camera_position = {0.0f, 0.0f};
 float camera_scale = 1.35f;
 float window_scale{};
@@ -402,6 +402,9 @@ bool TransformComp::can_move(entt::entity entity_to_move, const Vector2& new_pos
 }
 
 Box SpriteComp::bounding_box() {
+	if (sprites.size() == 0 || sprites.at(0) == Sprite::NONE) {
+		return {};
+	}
 	int image_index = static_cast<int>(sprite_to_image_file[static_cast<int>(sprites.at(0))]);
 	return {{0.f, 0.f}, {static_cast<float>(image_dimensions[image_index].width), -static_cast<float>(image_dimensions[image_index].height)}};
 }
