@@ -82,7 +82,7 @@ struct Reverb {
 	Diffuser diffuser2 = Diffuser({0.004f, 0.008f, 0.009f, 0.010f, 0.019f, 0.021f, 0.029f, 0.040f}, 3, {6, 7, 5, 4, 0, 1, 2, 3});
 	Diffuser diffuser3 = Diffuser({0.003f, 0.015f, 0.030f, 0.039f, 0.041f, 0.055f, 0.067f, 0.080f}, 4, {1, 0, 2, 7, 4, 5, 6, 3});
 
-	inline void process(SampleType sample, SampleType& left_out, SampleType& right_out) {
+	inline virtual void process(SampleType sample, SampleType& left_out, SampleType& right_out) {
 		std::array<SampleType, CHANNELS> samples = {sample, sample, sample, sample, sample, sample, sample, sample};
 		samples = diffuser1.process(samples);
 		samples = diffuser2.process(samples);
@@ -101,5 +101,22 @@ struct Reverb {
 
 		left_out = samples[0];
 		right_out = samples[1];
+	}
+};
+
+struct Wind {
+	Reverb reverb{};
+
+	inline void process(SampleType sample, SampleType& left_out, SampleType& right_out) {
+		reverb.process(sample, left_out, right_out);
+
+		static constexpr float WIND_MAGNITUDE_START = 0.4f;
+		static constexpr float WIND_MAGNITUDE_END = 0.8f;
+		const float wind_magnitude = (left_out - WIND_MAGNITUDE_START) / (WIND_MAGNITUDE_END - WIND_MAGNITUDE_START);
+		const float feedback = std::lerp(1.1f, 0.4f, 1.f - wind_magnitude);
+
+		for (Delay& delay : reverb.delays) {
+			delay.feedback = feedback;
+		}
 	}
 };
