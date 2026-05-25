@@ -7,6 +7,7 @@ file_enum_builder = EnumBuilder("ImageFile")
 sprite_enum_builder = EnumBuilder("Sprite")
 transform_array_builder = ArrayBuilder("SpriteAtlasTransform", "sprite_atlas_transform")
 sprite_to_image_array_builder = ArrayBuilder("ImageFile", "sprite_to_image_file")
+image_size_array_builder = ArrayBuilder("ImageDimensions", "image_dimensions");
 
 files = get_files_of_type("png")
 
@@ -20,6 +21,7 @@ for (name, path) in files:
         with open(json_path) as data:
             data = json.load(data)
             list = data["frames"]
+            image_size_array_builder.add_entry("{%s, %s}"%(list[0]["sourceSize"]["w"], list[0]["sourceSize"]["h"]))
             for entry in list:
                 image_name = entry["filename"].upper().replace(" ", "_")
                 image_name = image_name.replace("LAYER_1_", "")
@@ -28,26 +30,28 @@ for (name, path) in files:
                 image_y = entry["frame"]["y"]
                 image_w = entry["frame"]["w"]
                 image_h = entry["frame"]["h"]
-
-                image = Image.open(path)
-                aabb = image.crop((image_x, image_y, image_x + image_w, image_y + image_h)).getbbox()
-                assert aabb is not None
+                visible_x = entry["spriteSourceSize"]["x"]
+                visible_y = entry["spriteSourceSize"]["y"]
+                visible_w = entry["spriteSourceSize"]["w"]
+                visible_h = entry["spriteSourceSize"]["h"]
 
                 sprite_enum_builder.add_entry(image_name)
-                transform_array_builder.add_entry("{%s, %s, %s, %s, %s, %s, %s, %s}"%(image_x,image_y,image_w,image_h,aabb[0],aabb[1],aabb[2],aabb[3]))
+                transform_array_builder.add_entry("{%s, %s, %s, %s, %s, %s, %s, %s}"%(image_x,image_y,image_w,image_h,visible_x,visible_y,visible_x+visible_w,visible_y+visible_h))
                 sprite_to_image_array_builder.add_entry("ImageFile::%s"%(asset_name))
     else:
         sprite_enum_builder.add_entry(name.upper())
         image = Image.open(path)
         aabb = image.getbbox()
+        dimensions = image.size
         assert aabb is not None
         transform_array_builder.add_entry("{%s, %s, %s, %s, %s, %s, %s, %s}"%(0, 0, image.size[0], image.size[1],aabb[0],aabb[1],aabb[2],aabb[3]))
         sprite_to_image_array_builder.add_entry("ImageFile::%s"%(asset_name))
+        image_size_array_builder.add_entry("{%s, %s}"%(dimensions[0], dimensions[1]))
 
 sprite_enum_builder.add_entry("NONE")
 
 text : str = build_header(
-    [embed_builder, file_enum_builder, sprite_enum_builder, transform_array_builder, sprite_to_image_array_builder, f"constexpr int NUMBER_OF_IMAGES = {len(files)};"],
+    [embed_builder, file_enum_builder, image_size_array_builder, sprite_enum_builder, transform_array_builder, sprite_to_image_array_builder, f"constexpr int NUMBER_OF_IMAGES = {len(files)};"],
     ["image_structures.h"])
 
 with open("../source/image_data.h", "w") as header:

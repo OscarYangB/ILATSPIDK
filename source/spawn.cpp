@@ -82,7 +82,7 @@ void new_game() {
 	}
 	{ // Background
 	  auto entity = ecs.create();
-	  add_component(entity, SpriteComp{.sprites = {Sprite::TEST_BACKGROUND}});
+	  add_component(entity, SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_1}});
 	  add_component(entity, TransformComp{});
 	}
 	{ // Tutorial trigger

@@ -113,10 +113,10 @@ int window_height() {
 	return h;
 }
 
-void platform_debug_draw(const Vector2& start, const Vector2& end) {
+void platform_debug_draw(const Vector2& start, const Vector2& end, bool is_world) {
 #ifndef NDEBUG
-	Vector2 pixel_start = world_to_pixel(start);
-	Vector2 pixel_end = world_to_pixel(end);
+	Vector2 pixel_start = is_world ? world_to_pixel(start) : start;
+	Vector2 pixel_end = is_world ? world_to_pixel(end) : end;
 	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
 	SDL_RenderLine(renderer, pixel_start.x, pixel_start.y, pixel_end.x, pixel_end.y);
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);

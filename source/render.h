@@ -153,4 +153,4 @@ void update_sprite_resources();
 void refresh_window_scale();
 void layout_children(entt::entity parent);
 
-void debug_draw(const Vector2& start, const Vector2& end);
+void debug_draw(const Vector2& start, const Vector2& end, bool is_world = true);
