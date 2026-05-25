@@ -87,8 +87,7 @@ void update_queue_preview() {
 
 static constexpr float DOT_DISTANCE = 60.f;
 constexpr u8 NUMBER_OF_ARROW_DOTS = 40;
-constexpr u16 ARROW_DOT_WIDTH = get_sprite_dimensions(Sprite::ARROW_DOT_1).w;
-constexpr u16 ARROW_DOT_HEIGHT = get_sprite_dimensions(Sprite::ARROW_DOT_1).h;
+constexpr u16 ARROW_WIDTH = get_sprite_dimensions(Sprite::ARROW_ARROW_1).w;
 
 void create_arrow() {
 	for (u8 i = 0; i < NUMBER_OF_ARROW_DOTS; i++) {
@@ -115,7 +114,7 @@ void update_arrow() {
 
 	for (auto [entity, transform, arrow] : ecs.view<UITransformComp, ArrowComp>().each()) {
 		float x_start = SCREEN_SPACE_WIDTH / 2.f;
-		float x_end = target_position.x - ARROW_DOT_WIDTH / 2.f;
+		float x_end = target_position.x - ARROW_WIDTH / 2.f;
 		float y_distance = abs((SCREEN_SPACE_HEIGHT / window_scale) - target_position.y); // BUGGED MATH WRONG!
 		float x_distance = abs(x_start - x_end);
 		float distance = std::hypot(x_distance, y_distance);

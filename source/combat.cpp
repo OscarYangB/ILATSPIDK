@@ -27,9 +27,12 @@ void CharacterComp::heal(float amount) {
 		ecs.get<SpriteComp>(entity).tint = Colour::white();
 		low_health_animation_id = 0;
 	}
+	float old_health = health;
 	health += amount;
 	health = std::clamp(health, 0.f, max_health);
-	UI::refresh_health_bar(*this, true);
+	if (old_health != health) {
+		UI::refresh_health_bar(*this, true);
+	}
 }
 
 void CharacterComp::damage(float amount) {
