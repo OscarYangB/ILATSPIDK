@@ -73,4 +73,6 @@ struct Box {
 	bool contains_point(const Vector2& point) const;
 	Vector2 left_bottom() const;
 	Vector2 right_top() const;
+	bool is_empty() const;
+	float area() const;
 };

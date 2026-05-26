@@ -58,6 +58,47 @@ void load_game() {
 	SDL_CloseIO(stream);
 }
 
+entt::entity create_image(Sprite sprite, const Box& collider_box) {
+	auto entity = ecs.create();
+	add_component(entity, TransformComp{});
+	add_component(entity, SpriteComp{.sprites = {sprite}});
+	if (!collider_box.is_empty()) {
+		add_component(entity, BoxColliderComp{.box = collider_box});
+	}
+	return entity;
+}
+
+entt::entity create_collider(const Box& collider_box) {
+	auto entity = ecs.create();
+	add_component(entity, TransformComp{});
+	add_component(entity, BoxColliderComp{.box = collider_box});
+	return entity;
+}
+
+void center_scene(Sprite background) {
+	camera_follow = false;
+	const auto& dimensions = image_dimensions[static_cast<size_t>(sprite_to_image_file[static_cast<size_t>(background)])];
+	camera_position = {dimensions.width / 2.f, -dimensions.height / 2.f};
+}
+
+void enrette_office() {
+	// TODO fade out/in
+	create_image(Sprite::ENRETTEOFFICE_BG_1, {});
+	create_image(Sprite::ENRETTEOFFICE_SHELF_1, SHELF_BOX);
+	create_image(Sprite::ENRETTEOFFICE_DRAWER_1, DRAWER_BOX);
+	create_image(Sprite::ENRETTEOFFICE_TABLE_1, TABLE_BOX);
+	create_image(Sprite::ENRETTEOFFICE_CHAIR_1, CHAIR_BOX);
+	create_image(Sprite::ENRETTEOFFICE_COUCH_1, COUCH_BOX);
+	auto vent = create_image(Sprite::ENRETTEOFFICE_VENT_1, {});
+	add_component(vent, CycleAnimComp{.sprites = {Sprite::ENRETTEOFFICE_VENT_1, Sprite::ENRETTEOFFICE_VENT_2, Sprite::ENRETTEOFFICE_VENT_3}, .frequency = 24.f});
+	create_image(Sprite::ENRETTEOFFICE_GARBAGE_1, GARBAGE_BOX);
+	create_image(Sprite::ENRETTEOFFICE_BOOKS_1, BOOKS_BOX);
+	create_collider(TOP_WALL);
+	create_collider(LEFT_WALL);
+	create_collider(RIGHT_WALL);
+	create_collider(BOTTOM_WALL);
+	center_scene(Sprite::ENRETTEOFFICE_BG_1);
+}
 
 void new_game() {
 	push_input_mode(InputMode::EXPLORE);
@@ -80,17 +121,14 @@ void new_game() {
 	  add_component(entity, BoxColliderComp{TABLE_COLLIDER});
 	  add_component(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG); }});
 	}
-	{ // Background
-	  auto entity = ecs.create();
-	  add_component(entity, SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_1}});
-	  add_component(entity, TransformComp{});
-	}
 	{ // Tutorial trigger
 	  auto entity = ecs.create();
 	  add_component(entity, TransformComp{});
-	  add_component(entity, InteractionComp{.box = TEST_BOX,
-											.on_interact = [](){ start_dialog(TUTORIAL_2);}, .type = InteractionType::PLAYER_ENTER});
+	  // add_component(entity, InteractionComp{.box = TEST_BOX,
+	  // 										.on_interact = [](){ start_dialog(TUTORIAL_2);}, .type = InteractionType::PLAYER_ENTER});
 	}
+
+	enrette_office();
 
 	//start_dialog(TUTORIAL_1);
 }

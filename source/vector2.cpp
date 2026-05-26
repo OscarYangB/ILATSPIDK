@@ -75,3 +75,11 @@ Vector2 Box::left_bottom() const {
 Vector2 Box::right_top() const {
 	return {right_bottom.x, left_top.y};
 }
+
+bool Box::is_empty() const {
+	return width() == 0 || height() == 0;
+}
+
+float Box::area() const {
+	return width() * height();
+}

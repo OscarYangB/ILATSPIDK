@@ -70,6 +70,14 @@ void sort_sprites() {
 		TransformComp& first_transform = ecs.get<TransformComp>(first);
 		TransformComp& second_transform = ecs.get<TransformComp>(second);
 
+		if (!first_collider && !second_collider) {
+			SpriteComp* first_sprite = ecs.try_get<SpriteComp>(first);
+			SpriteComp* second_sprite = ecs.try_get<SpriteComp>(second);
+			if (first_sprite && second_sprite) {
+				return first_sprite->visible_bounding_box().area() > second_sprite->visible_bounding_box().area();
+			}
+		}
+
 		// Background
 		if (!first_collider) return true;
 		if (!second_collider) return false;
