@@ -1,0 +1,494 @@
+#include "render.h"
+#include "platform_render.h"
+#include "game.h"
+#include "physics.h"
+#include "image_utils.h"
+
+#include "../data/image_data.h"
+
+bool camera_follow = true;
+Vector2 camera_position = {0.0f, 0.0f};
+float camera_scale = 1.35f;
+float window_scale{};
+
+void refresh_window_scale() {
+	float width = window_width();
+	float height = window_height();
+	if (width / height < SCREEN_SPACE_WIDTH / SCREEN_SPACE_HEIGHT) {
+		window_scale =  width / SCREEN_SPACE_WIDTH; // Zoom out if aspect ratio is narrower than expected
+	} else {
+		window_scale = height / SCREEN_SPACE_HEIGHT;
+	}
+}
+
+static float render_scale() {
+	return camera_scale * window_scale;
+}
+
+#ifndef NDEBUG
+struct DebugLine {
+	Vector2 start;
+	Vector2 end;
+	double time_left;
+	bool is_world;
+};
+std::vector<DebugLine> debug_lines {};
+void debug_draw(const Vector2& start, const Vector2& end, bool is_world) {
+	debug_lines.push_back({start, end, delta_time, is_world});
+}
+#endif
+
+void draw_debug_lines() {
+#ifndef NDEBUG
+	for (DebugLine& line : debug_lines) {
+		platform_debug_draw(line.start, line.end, line.is_world);
+		line.time_left -= delta_time;
+	}
+
+	std::erase_if(debug_lines, [](const DebugLine& line) { return line.time_left < 0.f; });
+#endif
+}
+
+void render_fps_counter() {
+#ifndef NDEBUG
+	render_text(std::to_string(static_cast<int>(1.0 / delta_time)).c_str(), 200, 200, 200, 200, 50, 0, 255, 0, 0, 255, XAnchor::LEFT, YAnchor::TOP, false);
+#endif
+}
+
+void sort_sprites() {
+	// true -> second is above
+	// false -> first is above
+
+	ecs.sort<UITransformComp>([](entt::entity first, entt::entity second) {
+		UITransformComp& first_transform = ecs.get<UITransformComp>(first);
+		UITransformComp& second_transform = ecs.get<UITransformComp>(second);
+		return first_transform.sort_order < second_transform.sort_order;
+	});
+
+	ecs.sort<TransformComp>([](entt::entity first, entt::entity second) {
+		BoxColliderComp* first_collider = ecs.try_get<BoxColliderComp>(first);
+		BoxColliderComp* second_collider = ecs.try_get<BoxColliderComp>(second);
+		TransformComp& first_transform = ecs.get<TransformComp>(first);
+		TransformComp& second_transform = ecs.get<TransformComp>(second);
+
+		if (!first_collider && !second_collider) {
+			SpriteComp* first_sprite = ecs.try_get<SpriteComp>(first);
+			SpriteComp* second_sprite = ecs.try_get<SpriteComp>(second);
+			if (first_sprite && second_sprite) {
+				return first_sprite->visible_bounding_box().area() > second_sprite->visible_bounding_box().area();
+			}
+		}
+
+		// Background
+		if (!first_collider) return true;
+		if (!second_collider) return false;
+
+		// Foreground
+		return first_collider->box.left_top.y + first_transform.position.y > second_collider->box.left_top.y + second_transform.position.y;
+	});
+}
+
+constexpr float TOP_SCALE = 0.8f;
+constexpr float BOTTOM_SCALE = 1.1f;
+
+void render_transform_sprite(Sprite sprite, const Vector2& root_position, Box mask, float outline, const Colour& tint, u16 bottom_y) {
+	if (sprite == Sprite::NONE) {
+		return;
+	}
+
+	Vector2 position = root_position;
+
+	u16 index = static_cast<u16>(sprite);
+	u16 atlas_x = sprite_atlas_transform[index].x;
+	u16 atlas_y = sprite_atlas_transform[index].y;
+	u16 atlas_w = sprite_atlas_transform[index].w;
+	u16 atlas_h = sprite_atlas_transform[index].h;
+
+	position.x += sprite_atlas_transform[index].visible_left * render_scale();
+	position.y += sprite_atlas_transform[index].visible_up * render_scale();
+
+	mask = mask + Vector2{-static_cast<float>(sprite_atlas_transform[index].visible_left),
+						  -static_cast<float>(sprite_atlas_transform[index].visible_up)};
+
+	if (mask.width() > 0.f || mask.height() > 0.f) {
+		if (mask.left_top.x > 0) {
+			atlas_x += mask.left_top.x;
+			position.x += mask.left_top.x * render_scale();
+		}
+		if (mask.left_top.y > 0) {
+			atlas_y -= mask.left_top.y;
+			position.y += mask.left_top.y * render_scale();
+		}
+		atlas_w = mask.width();
+		atlas_h = mask.height();
+	}
+
+	u16 render_w = atlas_w * render_scale();
+	u16 render_h = atlas_h * render_scale();
+
+	if (bottom_y > 0) {
+		float perspective_scale = std::lerp(TOP_SCALE, BOTTOM_SCALE, ((root_position.y + bottom_y*render_scale()) / SCREEN_SPACE_HEIGHT) / window_scale);
+		render_h *= perspective_scale;
+		position.y += ((sprite_atlas_transform[index].visible_up - bottom_y) * perspective_scale + bottom_y - sprite_atlas_transform[index].visible_up) * render_scale();
+		render_w *= perspective_scale;
+		float center = image_dimensions[static_cast<size_t>(sprite_to_image_file[index])].width / 2.f;
+		position.x += ((sprite_atlas_transform[index].visible_left - center) * perspective_scale + center - sprite_atlas_transform[index].visible_left) * render_scale();
+	}
+
+	if (position.x > window_width() || position.y > window_height()) return;
+	if (position.x + render_w < 0.f || position.y + render_h < 0.f) return;
+
+	float thickness = outline * window_scale;
+	render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h,
+				  position.x - thickness, position.y - thickness, render_w + 2.f * thickness, render_h + 2.f * thickness, tint);
+}
+
+void render_transform(entt::entity entity) {
+	TransformComp& transform = ecs.get<TransformComp>(entity);
+	SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity);
+	if (!sprite_component) return;
+	Vector2 world_position = transform.position;
+
+	TransformComp* parent_transform = &transform;
+	while (parent_transform->parent != entt::null) {
+		parent_transform = ecs.try_get<TransformComp>(parent_transform->parent);
+		if (parent_transform == nullptr) break;
+		world_position += parent_transform->position;
+	}
+
+	Vector2 position = world_to_pixel(world_position);
+
+	if (!sprite_component->visible) return;
+
+	Colour global_tint{};
+	if (ecs.ctx().contains<TintSingleton>() && !ecs.ctx().get<TintSingleton>().excluded_entities.contains(entity)) {
+		global_tint = ecs.ctx().get<TintSingleton>().tint;
+	}
+
+	u16 max_y = 0;
+	if (ecs.all_of<PerspectiveComp>(entity)) {
+		for (Sprite sprite : sprite_component->sprites) {
+			max_y = std::max(max_y, sprite_atlas_transform[static_cast<size_t>(sprite)].visible_down);
+		}
+	}
+
+	if (sprite_component->outline_thickness > 0.f) {
+		for (int i = 0; i < sprite_component->sprites.size(); i++) {
+			render_transform_sprite(sprite_component->sprites.at(i), position,
+									sprite_component->masks.at(i).has_value() ? sprite_component->masks.at(i).value() : Box{},
+									sprite_component->outline_thickness, Colour::black(), max_y);
+		}
+	}
+
+	for (int i = 0; i < sprite_component->sprites.size(); i++) {
+		Colour tint = sprite_component->tints.at(i).has_value() ? sprite_component->tints.at(i).value() : Colour{};
+		tint *= global_tint;
+		tint *= sprite_component->tint;
+
+		render_transform_sprite(sprite_component->sprites.at(i), position,
+								sprite_component->masks.at(i).has_value() ? sprite_component->masks.at(i).value() : Box{},
+								0.f, tint, max_y);
+	}
+
+	if (!transform.children.empty()) {
+		for (entt::entity child : transform.children) {
+			render_transform(child);
+		}
+	}
+}
+
+void render_anchored_transform(entt::entity entity) {
+	UITransformComp& transform = ecs.get<UITransformComp>(entity);
+	Vector2 position = transform.render_position();
+	float render_w = transform.render_width();
+	float render_h = transform.render_height();
+
+	Colour recursive_tint{};
+	UITransformComp* parent_transform = &transform;
+	while (parent_transform->parent != entt::null) {
+		auto* parent_sprite = ecs.try_get<SpriteComp>(parent_transform->parent);
+		if (parent_sprite) {
+			recursive_tint *= parent_sprite->tint;
+		}
+		parent_transform = ecs.try_get<UITransformComp>(parent_transform->parent);
+		if (parent_transform == nullptr) break;
+	}
+
+	if (SpriteComp* sprite_component = ecs.try_get<SpriteComp>(entity); sprite_component) {
+		if (!sprite_component->visible) return;
+		recursive_tint *= sprite_component->tint;
+		NineSliceComp* nine_slice = ecs.try_get<NineSliceComp>(entity);
+
+		for (int i = 0; i < sprite_component->sprites.size(); i++) {
+			if (sprite_component->sprites.at(i) == Sprite::NONE) {
+				continue;
+			}
+			u16 index = static_cast<u16>(sprite_component->sprites.at(i));
+			u16 atlas_x = sprite_atlas_transform[index].x;
+			u16 atlas_y = sprite_atlas_transform[index].y;
+			u16 atlas_w = sprite_atlas_transform[index].w;
+			u16 atlas_h = sprite_atlas_transform[index].h;
+
+			Vector2 sprite_position = position;
+			float x_scale = render_w / image_dimensions[static_cast<size_t>(sprite_to_image_file[index])].width;
+			float y_scale = render_h / image_dimensions[static_cast<size_t>(sprite_to_image_file[index])].height;
+			if (x_scale == 0) x_scale = window_scale;
+			if (y_scale == 0) y_scale = window_scale;
+			sprite_position.x += sprite_atlas_transform[index].visible_left * x_scale;
+			sprite_position.y += sprite_atlas_transform[index].visible_up * y_scale;
+
+			float sprite_render_w = x_scale * (sprite_atlas_transform[index].visible_right - sprite_atlas_transform[index].visible_left);
+			float sprite_render_h = y_scale * (sprite_atlas_transform[index].visible_down - sprite_atlas_transform[index].visible_up);
+
+			if (sprite_component->masks.at(i).has_value()) {
+				Box mask = sprite_component->masks.at(i).value();
+				mask = mask + Vector2{-static_cast<float>(sprite_atlas_transform[index].visible_left),
+									  -static_cast<float>(sprite_atlas_transform[index].visible_up)};
+				if (mask.left_top.x > 0) {
+					atlas_x += mask.left_top.x;
+					sprite_position.x += mask.left_top.x * window_scale;
+				}
+				if (mask.left_top.y > 0) {
+					atlas_y -= mask.left_top.y;
+					sprite_position.y -= mask.left_top.y * window_scale;
+				}
+
+				sprite_render_w *= mask.width() / atlas_w;
+				sprite_render_h *= mask.height() / atlas_h;
+
+				atlas_w = mask.width();
+				atlas_h = mask.height();
+			}
+
+			if (sprite_position.x > window_width() || sprite_position.y > window_height()) continue;
+			if (sprite_position.x + render_w < 0.f || sprite_position.y + render_h < 0.f) continue;
+
+			Colour tint = sprite_component->tints.at(i).has_value() ? sprite_component->tints.at(i).value() : Colour{};
+			tint *= recursive_tint;
+
+			if (nine_slice) {
+				render_nine_slice(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, sprite_position.x, sprite_position.y, sprite_render_w, sprite_render_h,
+								  nine_slice->x, nine_slice->y, nine_slice->w, nine_slice->h);
+			} else {
+				render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, sprite_position.x, sprite_position.y, sprite_render_w, sprite_render_h, tint);
+			}
+		}
+	}
+
+	if (TextComp* text = ecs.try_get<TextComp>(entity); text) {
+		Colour text_colour = text->colour;
+		text_colour *= recursive_tint;
+		render_text(text->text, position.x, position.y, render_w, render_h, text->size * window_scale * transform.get_recursive_scale(), text->mask,
+					text_colour.r, text_colour.g, text_colour.b, text_colour.a, text->x_align, text->y_align, text->draw_background);
+	}
+
+	if (!transform.children.empty()) {
+		for (entt::entity child : transform.children) {
+			render_anchored_transform(child);
+		}
+	}
+}
+
+void render_sprites() {
+	auto transforms = ecs.view<TransformComp>();
+	for (auto [entity, transform] : transforms.each()) {
+		if (transform.parent != entt::null) continue;
+		render_transform(entity);
+	}
+
+	auto anchored_transforms = ecs.view<UITransformComp>();
+	for (auto [entity, transform] : anchored_transforms.each()) {
+		if (transform.parent != entt::null) continue;
+		render_anchored_transform(entity);
+	}
+}
+
+void update_render() {
+	start_render();
+
+	sort_sprites();
+	render_sprites();
+	draw_debug_lines();
+	render_fps_counter();
+
+	end_render();
+}
+
+void update_sprite_resources() { // Going to load/unload the textures based on what existing entities need. Watch out--could become a performance concern
+	bool is_loaded[NUMBER_OF_IMAGES];
+	auto view = ecs.view<SpriteComp>();
+
+	for (auto [entity, sprite] : view.each()) {
+		for (Sprite sprite : sprite.sprites) {
+			if (sprite == Sprite::NONE) continue;
+			is_loaded[sprite_to_image_file_index(sprite)] = true;
+		}
+	}
+
+	for (int i = 0; i < sizeof is_loaded; i++) {
+		if (is_loaded[i]) {
+			load_sprite(i);
+		} else {
+			unload_sprite(i);
+		}
+	}
+}
+
+Vector2 world_to_pixel(const Vector2& in) {
+	return Vector2{(in.x - camera_position.x) * render_scale() + window_width() / 2.0f,
+				   (-in.y + camera_position.y) * render_scale() + window_height() / 2.0f};
+}
+
+Vector2 UITransformComp::render_position() const {
+	Vector2 parent_position;
+	float canvas_width;
+	float canvas_height;
+	if (parent == entt::null) {
+		parent_position = {};
+		canvas_width = window_width();
+		canvas_height = window_height();
+	} else {
+		auto& parent_transform = ecs.get<UITransformComp>(parent);
+		parent_position = parent_transform.render_position();
+		canvas_width = parent_transform.render_width();
+		canvas_height = parent_transform.render_height();
+	}
+
+	Vector2 position_offset = relative_position * window_scale * get_parent_scale() + parent_position;
+
+	const float scaled_width = render_width();
+	const float scaled_height = render_height();
+	Vector2 anchor_offset{};
+
+	switch(y_anchor) {
+		case YAnchor::TOP: break;
+		case YAnchor::CENTER: anchor_offset.y += (canvas_height - scaled_height) / 2.0f; break;
+		case YAnchor::BOTTOM: anchor_offset.y += canvas_height - scaled_height; break;
+	}
+
+	switch(x_anchor) {
+		case XAnchor::LEFT: break;
+		case XAnchor::CENTER: anchor_offset.x += (canvas_width - scaled_width) / 2.0f; break;
+		case XAnchor::RIGHT: anchor_offset.x += canvas_width - scaled_width; break;
+	}
+
+	return position_offset + anchor_offset;
+}
+
+float UITransformComp::render_width() const {
+	return width * window_scale * get_recursive_scale();
+}
+
+float UITransformComp::render_height() const {
+	return height * window_scale * get_recursive_scale();
+}
+
+bool TransformComp::move(entt::entity entity_to_move, const Vector2& new_position) {
+	if (can_move(entity_to_move, new_position)) {
+		position = new_position;
+		return true;
+	}
+
+	return false;
+}
+
+bool TransformComp::can_move(entt::entity entity_to_move, const Vector2& new_position) {
+	if (BoxColliderComp* collider_to_move = ecs.try_get<BoxColliderComp>(entity_to_move); collider_to_move != nullptr) {
+		auto view = ecs.view<BoxColliderComp, TransformComp>();
+
+		for (auto [entity, collider, transform] : view.each()) {
+			if (entity == entity_to_move) continue;
+
+			if (is_colliding(transform.position, new_position, collider, *collider_to_move)) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	return true; // No collider on entity_to_move
+}
+
+Box SpriteComp::bounding_box() {
+	if (sprites.size() == 0 || sprites.at(0) == Sprite::NONE) {
+		return {};
+	}
+	int image_index = static_cast<int>(sprite_to_image_file[static_cast<int>(sprites.at(0))]);
+	return {{0.f, 0.f}, {static_cast<float>(image_dimensions[image_index].width), -static_cast<float>(image_dimensions[image_index].height)}};
+}
+
+Box SpriteComp::visible_bounding_box() {
+	int index = static_cast<int>(sprites.at(0));
+	u16 left = sprite_atlas_transform[index].visible_left; // These use downward-positive y-coordinates
+	u16 right = sprite_atlas_transform[index].visible_right;
+	u16 up = sprite_atlas_transform[index].visible_up;
+	u16 down = sprite_atlas_transform[index].visible_down;
+
+	for (int i = 1; i < sprites.size(); i++) {
+		index = static_cast<int>(sprites.at(i));
+		left = std::min(left, sprite_atlas_transform[index].visible_left);
+		right = std::max(right, sprite_atlas_transform[index].visible_right);
+		up = std::min(up, sprite_atlas_transform[index].visible_up);
+		down = std::max(down, sprite_atlas_transform[index].visible_down);
+	}
+
+	return {{(float)left, -((float)up)}, {(float)right, -((float)down)}};
+}
+
+float UITransformComp::get_recursive_scale() const {
+	return get_parent_scale() * scale;
+}
+
+float UITransformComp::get_parent_scale() const {
+	float result = 1.f;
+	const UITransformComp* transform = this;
+	while (true) {
+		if (transform->parent == entt::null) break;
+		transform = &ecs.get<UITransformComp>(transform->parent);
+		result *= transform->scale;
+	}
+	return result;
+}
+
+void Colour::operator*=(const Colour& other) {
+	r = (r * other.r) / 255;
+	g = (g * other.g) / 255;
+	b = (b * other.b) / 255;
+	a = (a * other.a) / 255;
+}
+
+static float& get_axis_value(Vector2& vector, Axis axis) {
+	return axis == Axis::HORIZONTAL ? vector.x : vector.y;
+}
+
+static float& get_other_axis_value(Vector2& vector, Axis axis) {
+	return axis == Axis::HORIZONTAL ? vector.y : vector.x;
+}
+
+static u16& get_axis_dimension(UITransformComp& transform, Axis axis) {
+	return axis == Axis::HORIZONTAL ? transform.width : transform.height;
+}
+
+static u16& get_other_axis_dimension(UITransformComp& transform, Axis axis) {
+	return axis == Axis::HORIZONTAL ? transform.height : transform.width;
+}
+
+void layout_children(entt::entity parent) {
+	auto [transform, layout] = ecs.get<UITransformComp, LayoutComp>(parent);
+	const Axis axis = layout.axis;
+	Vector2 offset{};
+
+	for (entt::entity child : transform.children) {
+		auto& child_transform = ecs.get<UITransformComp>(child);
+		if (get_axis_value(offset, axis) + get_axis_dimension(child_transform, axis) > get_axis_dimension(transform, axis)) {
+			get_axis_value(offset, axis) = 0.f;
+			get_other_axis_value(offset, axis) += get_other_axis_dimension(child_transform, axis) + layout.spacing;
+		}
+		child_transform.relative_position = offset;
+		switch(axis) {
+		case Axis::HORIZONTAL: offset += {child_transform.render_width() + layout.spacing, 0.f}; break;
+		case Axis::VERTICAL: offset += {0.f, child_transform.render_height() + layout.spacing}; break;
+		}
+	}
+}

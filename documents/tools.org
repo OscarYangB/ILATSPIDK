@@ -14,7 +14,7 @@
     - dap-mode [[https://github.com/emacs-lsp/dap-mode]]
     - org-mode [[https://orgmode.org/]]
     - magit [[https://magit.vc/]]
-  - git
+  - git [[https://git-scm.com/]]
   - gdb
     - llvm libcxx pretty printer [[https://github.com/llvm/llvm-project/blob/main/libcxx/utils/gdb/libcxx/printers.py]]
   - ag [[https://github.com/ggreer/the_silver_searcher]]

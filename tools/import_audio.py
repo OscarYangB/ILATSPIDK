@@ -12,5 +12,5 @@ for (name, path) in files:
 
 text : str = build_header([embed_builder, file_enum_builder, f"constexpr int NUMBER_OF_SOUNDS = {len(files)};"], [])
 
-with open("../source/audio_data.h", "w") as header:
+with open("../source/data/audio_data.h", "w") as header:
     header.write(text)

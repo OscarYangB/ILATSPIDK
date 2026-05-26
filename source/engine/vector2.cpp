@@ -1,0 +1,86 @@
+#include "vector2.h"
+
+#include <cmath>
+#include <cassert>
+
+bool Vector2::operator==(const Vector2& other) const {
+	return x == other.x && y == other.y;
+}
+
+Vector2 Vector2::operator+(const Vector2& other) const {
+	return Vector2{x + other.x, y + other.y};
+}
+
+Vector2 Vector2::operator-(const Vector2& other) const {
+	return Vector2{x - other.x, y - other.y};
+}
+
+float Vector2::operator*(const Vector2& other) const {
+	return x * other.x + y * other.y;
+}
+
+Vector2& Vector2::operator+=(const Vector2& other) {
+	this->x += other.x;
+	this->y += other.y;
+	return *this;
+}
+
+Vector2& Vector2::operator-=(const Vector2& other) {
+	this->x -= other.x;
+	this->y -= other.y;
+	return *this;
+}
+
+Vector2 Vector2::normalized() {
+	assert(!(x == 0.f && y == 0.f));
+	float mag = magnitude();
+	return Vector2{x / mag, y / mag};
+}
+
+float Vector2::magnitude() {
+	return std::sqrt(x * x + y * y);
+}
+
+float Vector2::distance(const Vector2& first, const Vector2& second) {
+	return (first - second).magnitude();
+}
+
+Vector2 Vector2::lerp(const Vector2& first, const Vector2& second, float scalar) {
+	return { std::lerp(first.x, second.x, scalar), std::lerp(first.y, second.y, scalar) };
+}
+
+Box Box::operator+(const Vector2& offset) const {
+	return {left_top + offset, right_bottom + offset};
+}
+
+Vector2 Box::center() const {
+	return {(left_top.x + right_bottom.x) / 2.f, (right_bottom.y + left_top.y) / 2.f};
+}
+
+float Box::width() const {
+	return std::abs(right_bottom.x - left_top.x);
+}
+
+float Box::height() const {
+	return std::abs(left_top.y - right_bottom.y);
+}
+
+bool Box::contains_point(const Vector2& point) const {
+	return point.x > left_top.x && point.x < right_bottom.x && point.y > right_bottom.y && point.y < left_top.y;
+}
+
+Vector2 Box::left_bottom() const {
+	return {left_top.x, right_bottom.y};
+}
+
+Vector2 Box::right_top() const {
+	return {right_bottom.x, left_top.y};
+}
+
+bool Box::is_empty() const {
+	return width() == 0 || height() == 0;
+}
+
+float Box::area() const {
+	return width() * height();
+}

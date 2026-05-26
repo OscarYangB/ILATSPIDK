@@ -31,8 +31,8 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
--Scene fade in/out
--Line colliders
+- Scene fade in/out
+- Line colliders
 
 Art
 - Nielon

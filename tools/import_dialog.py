@@ -148,5 +148,5 @@ builders = [speaker_enum_builder, function_text, check_text];
 builders.extend(dialog_data)
 text : str = build_header(builders, ["dialog_structures.h"])
 
-with open("../source/dialog_data.h", "w") as header:
+with open("../source/data/dialog_data.h", "w") as header:
     header.write(text)

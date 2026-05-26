@@ -54,5 +54,5 @@ text : str = build_header(
     [embed_builder, file_enum_builder, image_size_array_builder, sprite_enum_builder, transform_array_builder, sprite_to_image_array_builder, f"constexpr int NUMBER_OF_IMAGES = {len(files)};"],
     ["image_structures.h"])
 
-with open("../source/image_data.h", "w") as header:
+with open("../source/data/image_data.h", "w") as header:
     header.write(text)

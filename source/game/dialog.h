@@ -1,0 +1,39 @@
+#pragma once
+
+#include "../data/dialog_structures.h"
+
+#include <entt/entt.hpp>
+
+void start_dialog(const Dialog* new_dialog);
+void progress_dialog();
+void end_dialog();
+
+void update_dialog();
+bool in_dialog();
+
+struct DialogVisitor {
+	u16 index = 0;
+	bool proceed = false;
+
+	void operator()(const DialogLine&);
+	void operator()(const DialogChoice&);
+	void operator()(const DialogCheck&);
+	void operator()(const DialogFunction&);
+	void operator()(const DialogJump&);
+};
+
+struct DialogChoiceComp {
+	u16 jump_index = 0;
+};
+
+constexpr double DIALOG_ANIMATION_RATE = 50.0;
+constexpr double DIALOG_ANIMATION_DELTA = 1.0 / DIALOG_ANIMATION_RATE;
+
+struct DialogSingleton {
+	entt::entity background = entt::null;
+	entt::entity dialog_text = entt::null;
+	const Dialog* dialog = nullptr;
+	DialogVisitor visitor {};
+	double dialog_animation_timer = DIALOG_ANIMATION_DELTA;
+	bool is_dialog_animating = false;
+};

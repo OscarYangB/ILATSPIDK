@@ -78,5 +78,5 @@ kerning_text += "};"
 
 text : str = build_header([font_builder, number_of_fonts_text, english_start_text, width_builder, kerning_text], ["font_structures.h"])
 
-with open("../source/font_data.h", "w") as header:
+with open("../source/data/font_data.h", "w") as header:
     header.write(text)
