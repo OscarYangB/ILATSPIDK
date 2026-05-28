@@ -1,8 +1,8 @@
 #include "physics.h"
 
 bool is_colliding(const Box& first, const Box& second) {
-	debug_draw(first);
-	debug_draw(second);
+	// debug_draw(first);
+	// debug_draw(second);
 
 	if (first.right_bottom.x < second.left_top.x) return false;
 	if (first.left_top.x > second.right_bottom.x) return false;
@@ -15,7 +15,8 @@ bool is_colliding(const Vector2& polygon_position, const PolygonColliderComp& po
 	for (int i = 0; i < polygon_collider.points.size(); i++) {
 		Vector2 start = polygon_collider.points[i] + polygon_position;
 		Vector2 end = polygon_collider.points[(i+1) % polygon_collider.points.size()] + polygon_position;
-		if (line_segments_intersect(box.left_top, box.right_top(), start, end) ||
+		if (point_in_box(box, start) ||
+			line_segments_intersect(box.left_top, box.right_top(), start, end) ||
 			line_segments_intersect(box.left_top, box.left_bottom(), start, end) ||
 			line_segments_intersect(box.right_bottom, box.right_top(), start, end) ||
 			line_segments_intersect(box.right_bottom, box.left_bottom(), start, end)) {
