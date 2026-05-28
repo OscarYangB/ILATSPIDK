@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 struct Vector2 {
 	float x = 0.f;
 	float y = 0.f;
@@ -75,4 +77,19 @@ struct Box {
 	Vector2 right_top() const;
 	bool is_empty() const;
 	float area() const;
+
+	template<typename... Boxes>
+	static Box bounds(Boxes... boxes) {
+		Box result{{std::numeric_limits<float>::max(), std::numeric_limits<float>::lowest()},
+				   {std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max()}};
+
+		([&] {
+			result.left_top.x = std::min(result.left_top.x, boxes.left_top.x);
+			result.left_top.y = std::max(result.left_top.y, boxes.left_top.y);
+			result.right_bottom.x = std::max(result.right_bottom.x, boxes.right_bottom.x);
+			result.right_bottom.y = std::min(result.right_bottom.y, boxes.right_bottom.y);
+		}(), ...);
+
+		return result;
+	}
 };

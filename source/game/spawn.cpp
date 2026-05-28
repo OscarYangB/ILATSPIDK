@@ -78,6 +78,13 @@ entt::entity create_collider(const Box& collider_box) {
 	return entity;
 }
 
+entt::entity create_collider(const std::initializer_list<Vector2>& points) {
+	auto entity = ecs.create();
+	add_component(entity, TransformComp{});
+	add_component(entity, PolygonColliderComp{points});
+	return entity;
+}
+
 void center_scene(Sprite background) {
 	camera_follow = false;
 	const auto& dimensions = image_dimensions[static_cast<size_t>(sprite_to_image_file[static_cast<size_t>(background)])];
@@ -96,10 +103,7 @@ void enrette_office() {
 	add_component(vent, CycleAnimComp{.sprites = {Sprite::ENRETTEOFFICE_VENT_1, Sprite::ENRETTEOFFICE_VENT_2, Sprite::ENRETTEOFFICE_VENT_3}, .frequency = 24.f});
 	create_image(Sprite::ENRETTEOFFICE_GARBAGE_1, GARBAGE_BOX);
 	create_image(Sprite::ENRETTEOFFICE_BOOKS_1, BOOKS_BOX);
-	create_collider(TOP_WALL);
-	create_collider(LEFT_WALL);
-	create_collider(RIGHT_WALL);
-	create_collider(BOTTOM_WALL);
+	create_collider(OFFICE_BORDER);
 	center_scene(Sprite::ENRETTEOFFICE_BG_1);
 }
 

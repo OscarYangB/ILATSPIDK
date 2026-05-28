@@ -36,6 +36,13 @@ std::vector<DebugLine> debug_lines {};
 void debug_draw(const Vector2& start, const Vector2& end, bool is_world) {
 	debug_lines.push_back({start, end, delta_time, is_world});
 }
+
+void debug_draw(const Box& box, bool is_world) {
+	debug_draw(box.left_top, box.right_top());
+	debug_draw(box.left_top, box.left_bottom());
+	debug_draw(box.right_bottom, box.right_top());
+	debug_draw(box.right_bottom, box.left_bottom());
+}
 #endif
 
 void draw_debug_lines() {
@@ -394,12 +401,18 @@ bool TransformComp::move(entt::entity entity_to_move, const Vector2& new_positio
 
 bool TransformComp::can_move(entt::entity entity_to_move, const Vector2& new_position) {
 	if (BoxColliderComp* collider_to_move = ecs.try_get<BoxColliderComp>(entity_to_move); collider_to_move != nullptr) {
-		auto view = ecs.view<BoxColliderComp, TransformComp>();
+		Box test_box = Box::bounds(collider_to_move->box + position, collider_to_move->box + new_position);
 
-		for (auto [entity, collider, transform] : view.each()) {
+		for (auto [entity, collider, transform] : ecs.view<BoxColliderComp, TransformComp>().each()) {
 			if (entity == entity_to_move) continue;
 
-			if (is_colliding(transform.position, new_position, collider, *collider_to_move)) {
+			if (is_colliding(test_box, collider.box + transform.position)) {
+				return false;
+			}
+		}
+
+		for (auto [entity, collider, transform] : ecs.view<PolygonColliderComp, TransformComp>().each()) {
+			if (is_colliding(transform.position, collider, test_box)) {
 				return false;
 			}
 		}

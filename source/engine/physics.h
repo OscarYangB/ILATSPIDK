@@ -8,7 +8,13 @@ struct BoxColliderComp {
 	Box box{};
 };
 
-bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComp& first_collider, const BoxColliderComp& second_collider);
+struct PolygonColliderComp {
+	FixedList<Vector2, 4> points{};
+};
+
+bool is_colliding(const Box& first, const Box& second);
+bool is_colliding(const Vector2& polygon_position, const PolygonColliderComp& polygon_collider, const Box& box);
+bool is_colliding(const Vector2& first_position, const Vector2& second_position, const PolygonColliderComp& first_collider, const PolygonColliderComp& second_collider);
 bool line_segments_intersect(const Vector2& start_1, const Vector2& end_1, const Vector2& start_2, const Vector2& end_2);
 bool point_in_box(const Box& box, const Vector2& vector);
 
@@ -17,25 +23,18 @@ void raytest(std::vector<BoxComp*>& out, const Vector2& position, const Vector2&
 	Vector2 line_end = position + direction * length;
 	auto view = ecs.view<BoxComp, TransformComp>();
 
-	//debug_draw(position, line_end);
+	// debug_draw(position, line_end);
 
 	for (auto [entity, component, transform] : view.each()) {
-		Box offset_box = component.box + transform.position;
-		Vector2 bottom_left = {offset_box.left_top.x, offset_box.right_bottom.y};
-		Vector2 top_right = {offset_box.right_bottom.x, offset_box.left_top.y};
+		Box box = component.box + transform.position;
 
-		/*
-		debug_draw(offset_box.left_top, top_right);
-		debug_draw(top_right, offset_box.right_bottom);
-		debug_draw(offset_box.right_bottom, bottom_left);
-		debug_draw(bottom_left, offset_box.left_top);
-		*/
+		// debug_draw(box);
 
-		if (point_in_box(offset_box, position) || point_in_box(offset_box, line_end) ||
-			line_segments_intersect(position, line_end, offset_box.left_top, top_right) ||
-			line_segments_intersect(position, line_end, top_right, offset_box.right_bottom) ||
-			line_segments_intersect(position, line_end, offset_box.right_bottom, bottom_left) ||
-			line_segments_intersect(position, line_end, bottom_left, offset_box.left_top)) {
+		if (point_in_box(box, position) || point_in_box(box, line_end) ||
+			line_segments_intersect(position, line_end, box.left_top, box.right_top()) ||
+			line_segments_intersect(position, line_end, box.right_top(), box.right_bottom) ||
+			line_segments_intersect(position, line_end, box.right_bottom, box.left_bottom()) ||
+			line_segments_intersect(position, line_end, box.left_bottom(), box.left_top)) {
 			out.push_back(&component);
 		}
 	}

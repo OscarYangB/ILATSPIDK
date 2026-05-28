@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cassert>
+#include <initializer_list>
 
 template<typename T, size_t max_size>
 struct FixedList {
@@ -12,6 +13,13 @@ struct FixedList {
 	template<typename... Arguments>
 	FixedList(Arguments... arguments) : array{arguments...} {
 		current_size = sizeof...(Arguments);
+	}
+
+	FixedList(const std::initializer_list<T>& list) {
+		for (int i = 0; i < list.size(); i++) {
+			array[i] = *(list.begin() + i);
+		}
+		current_size = list.size();
 	}
 
 	void push_back(T value) {
@@ -39,6 +47,17 @@ struct FixedList {
 	T& operator[](size_t index) {
 		return at(index);
 	}
+
+
+	const T& at(size_t index) const {
+		assert(index < current_size);
+		return array[index];
+	}
+
+	const T& operator[](size_t index) const {
+		return at(index);
+	}
+
 
 	T* begin() {
 		return &array[0];

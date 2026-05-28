@@ -1,25 +1,43 @@
 #include "physics.h"
 
-bool is_colliding(const Vector2& first_position, const Vector2& second_position, const BoxColliderComp& first_collider, const BoxColliderComp& second_collider) {
-	Vector2 first_left_top = first_position + first_collider.box.left_top;
-	Vector2 first_right_bottom = first_position + first_collider.box.right_bottom;
-	Vector2 second_left_top = second_position + second_collider.box.left_top;
-	Vector2 second_right_bottom = second_position + second_collider.box.right_bottom;
+bool is_colliding(const Box& first, const Box& second) {
+	debug_draw(first);
+	debug_draw(second);
 
-	// debug_draw(first_left_top, first_position + first_collider.box.right_top());
-	// debug_draw(first_left_top, first_position + first_collider.box.left_bottom());
-	// debug_draw(first_right_bottom, first_position + first_collider.box.right_top());
-	// debug_draw(first_right_bottom, first_position + first_collider.box.left_bottom());
-	// debug_draw(second_left_top, second_position + second_collider.box.right_top());
-	// debug_draw(second_left_top, second_position + second_collider.box.left_bottom());
-	// debug_draw(second_right_bottom, second_position + second_collider.box.right_top());
-	// debug_draw(second_right_bottom, second_position + second_collider.box.left_bottom());
-
-	if (first_right_bottom.x < second_left_top.x) return false;
-	if (first_left_top.x > second_right_bottom.x) return false;
-	if (first_right_bottom.y > second_left_top.y) return false;
-	if (first_left_top.y < second_right_bottom.y) return false;
+	if (first.right_bottom.x < second.left_top.x) return false;
+	if (first.left_top.x > second.right_bottom.x) return false;
+	if (first.right_bottom.y > second.left_top.y) return false;
+	if (first.left_top.y < second.right_bottom.y) return false;
 	return true;
+}
+
+bool is_colliding(const Vector2& polygon_position, const PolygonColliderComp& polygon_collider, const Box& box) {
+	for (int i = 0; i < polygon_collider.points.size(); i++) {
+		Vector2 start = polygon_collider.points[i] + polygon_position;
+		Vector2 end = polygon_collider.points[(i+1) % polygon_collider.points.size()] + polygon_position;
+		if (line_segments_intersect(box.left_top, box.right_top(), start, end) ||
+			line_segments_intersect(box.left_top, box.left_bottom(), start, end) ||
+			line_segments_intersect(box.right_bottom, box.right_top(), start, end) ||
+			line_segments_intersect(box.right_bottom, box.left_bottom(), start, end)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool is_colliding(const Vector2& first_position, const Vector2& second_position, const PolygonColliderComp& first_collider, const PolygonColliderComp& second_collider) {
+	for (int i = 0; i < first_collider.points.size(); i++) {
+		Vector2 first_start = first_collider.points[i] + first_position;
+		Vector2 first_end = first_collider.points[(i+1) % first_collider.points.size()] + first_position;
+		for (int j = 0; j < second_collider.points.size(); j++) {
+			Vector2 second_start = second_collider.points[j] + second_position;
+			Vector2 second_end = second_collider.points[(j+1) % second_collider.points.size()] + second_position;
+			if (line_segments_intersect(first_start, first_end, second_start, second_end)) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 bool point_in_box(const Box& box, const Vector2& point) {

@@ -154,3 +154,4 @@ void refresh_window_scale();
 void layout_children(entt::entity parent);
 
 void debug_draw(const Vector2& start, const Vector2& end, bool is_world = true);
+void debug_draw(const Box& box, bool is_world = true);
