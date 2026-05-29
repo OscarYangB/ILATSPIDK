@@ -2,7 +2,6 @@
 
 #include "../basic/definitions.h"
 
-class SDL_AudioStream;
 enum class AudioFile;
 
 enum class Fade {

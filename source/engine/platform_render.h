@@ -4,8 +4,6 @@
 
 #include <string_view>
 
-struct SDL_Surface;
-struct SDL_Texture;
 enum class ImageFile;
 enum class YAnchor;
 enum class XAnchor;
@@ -29,7 +27,7 @@ int window_height();
 
 void render_text(std::string_view text, float x, float y, float w, float h, float size, u8 mask, u8 r, u8 g, u8 b, u8 a, XAnchor x_align, YAnchor y_align, bool render_background);
 
-void platform_debug_draw(const Vector2& start, const Vector2& end, bool is_world);
+void platform_debug_draw(const Vector2& start, const Vector2& end);
 
 void enable_vsync();
 void disable_vsync();

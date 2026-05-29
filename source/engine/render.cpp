@@ -30,11 +30,12 @@ struct DebugLine {
 	Vector2 start;
 	Vector2 end;
 	double time_left;
-	bool is_world;
 };
 std::vector<DebugLine> debug_lines {};
 void debug_draw(const Vector2& start, const Vector2& end, bool is_world) {
-	debug_lines.push_back({start, end, delta_time, is_world});
+	Vector2 line_start = is_world ? world_to_pixel(start) : start;
+	Vector2 line_end = is_world ? world_to_pixel(end) : end;
+	debug_lines.push_back({line_start, line_end, delta_time});
 }
 
 void debug_draw(const Box& box, bool is_world) {
@@ -48,7 +49,7 @@ void debug_draw(const Box& box, bool is_world) {
 void draw_debug_lines() {
 #ifndef NDEBUG
 	for (DebugLine& line : debug_lines) {
-		platform_debug_draw(line.start, line.end, line.is_world);
+		platform_debug_draw(line.start, line.end);
 		line.time_left -= delta_time;
 	}
 
