@@ -113,7 +113,7 @@ int window_height() {
 	return h;
 }
 
-void platform_debug_draw(const Vector2& start, const Vector2& end, bool is_world) {
+void platform_debug_draw(const Vector2& start, const Vector2& end) {
 #ifndef NDEBUG
 	SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
 	SDL_RenderLine(renderer, start.x, start.y, end.x, end.y);
