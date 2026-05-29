@@ -3,6 +3,7 @@
 #include "combat.h"
 #include "main_menu.h"
 
+#include "../basic/random.h"
 #include "../engine/audio.h"
 #include "../engine/render.h"
 #include "../engine/game.h"
@@ -13,7 +14,6 @@
 #include "../engine/interaction.h"
 #include "../engine/animation.h"
 #include "../engine/character_animation.h"
-#include "../engine/random.h"
 
 #include <SDL3/SDL.h>
 #include <iostream>

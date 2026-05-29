@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vector2.h"
+#include "../basic/shapes.h"
 
 enum class InteractionType {
 	INTERACT,

@@ -2,16 +2,16 @@
 
 #pragma once
 
-#include "../engine/vector2.h"
-#include <initializer_list>
+#include "../basic/shapes.h"
 
-constexpr Vector2 ENEMY_POSITION = {971.0, -272.0};
-constexpr Vector2 PLAYER_POSITION = {369.0, -399.0};
-constexpr Box TABLE_BOX = {{1134.0, -366.0}, {1327.0, -690.0}};
-constexpr Box COUCH_BOX = {{690.0, -266.0}, {1095.0, -370.0}};
-constexpr Box SHELF_BOX = {{324.0, -233.0}, {674.0, -336.0}};
-constexpr Box DRAWER_BOX = {{1174.0, -262.0}, {1471.0, -346.0}};
-constexpr Box CHAIR_BOX = {{1389.0, -649.0}, {1514.0, -738.0}};
-constexpr Box BOOKS_BOX = {{245.0, -971.0}, {1350.0, -1054.0}};
-constexpr Box GARBAGE_BOX = {{1399.0, -959.0}, {1497.0, -1020.0}};
-constexpr std::initializer_list<Vector2> OFFICE_BORDER = {{88,-1072},{1669,-1072},{1475,-294},{324,-270},};
+constexpr Vector2 ENRETTEOFFICE_ENEMY_POSITION = {971.0, -272.0};
+constexpr Vector2 ENRETTEOFFICE_PLAYER_POSITION = {369.0, -399.0};
+constexpr Box ENRETTEOFFICE_TABLE_BOX = {{1134.0, -366.0}, {1327.0, -690.0}};
+constexpr Box ENRETTEOFFICE_COUCH_BOX = {{690.0, -266.0}, {1095.0, -370.0}};
+constexpr Box ENRETTEOFFICE_SHELF_BOX = {{324.0, -233.0}, {674.0, -336.0}};
+constexpr Box ENRETTEOFFICE_DRAWER_BOX = {{1174.0, -262.0}, {1471.0, -346.0}};
+constexpr Box ENRETTEOFFICE_CHAIR_BOX = {{1389.0, -649.0}, {1514.0, -738.0}};
+constexpr Box ENRETTEOFFICE_BOOKS_BOX = {{245.0, -971.0}, {1350.0, -1054.0}};
+constexpr Box ENRETTEOFFICE_GARBAGE_BOX = {{1399.0, -959.0}, {1497.0, -1020.0}};
+constexpr Polygon ENRETTEOFFICE_BORDER = {{Vector2{88,-1072},Vector2{1669,-1072},Vector2{1475,-294},Vector2{324,-270},}};
+constexpr Box KERRY_COLLISION = {{47.0, -251.0}, {151.0, -291.0}};

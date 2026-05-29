@@ -11,10 +11,10 @@ bool is_colliding(const Box& first, const Box& second) {
 	return true;
 }
 
-bool is_colliding(const Vector2& polygon_position, const PolygonColliderComp& polygon_collider, const Box& box) {
-	for (int i = 0; i < polygon_collider.points.size(); i++) {
-		Vector2 start = polygon_collider.points[i] + polygon_position;
-		Vector2 end = polygon_collider.points[(i+1) % polygon_collider.points.size()] + polygon_position;
+bool is_colliding(const Polygon& polygon, const Box& box) {
+	for (int i = 0; i < polygon.points.size(); i++) {
+		Vector2 start = polygon.points[i];
+		Vector2 end = polygon.points[(i+1) % polygon.points.size()];
 		if (point_in_box(box, start) ||
 			line_segments_intersect(box.left_top, box.right_top(), start, end) ||
 			line_segments_intersect(box.left_top, box.left_bottom(), start, end) ||
@@ -26,13 +26,13 @@ bool is_colliding(const Vector2& polygon_position, const PolygonColliderComp& po
 	return false;
 }
 
-bool is_colliding(const Vector2& first_position, const Vector2& second_position, const PolygonColliderComp& first_collider, const PolygonColliderComp& second_collider) {
-	for (int i = 0; i < first_collider.points.size(); i++) {
-		Vector2 first_start = first_collider.points[i] + first_position;
-		Vector2 first_end = first_collider.points[(i+1) % first_collider.points.size()] + first_position;
-		for (int j = 0; j < second_collider.points.size(); j++) {
-			Vector2 second_start = second_collider.points[j] + second_position;
-			Vector2 second_end = second_collider.points[(j+1) % second_collider.points.size()] + second_position;
+bool is_colliding(const Polygon& first, const Polygon& second) {
+	for (int i = 0; i < first.points.size(); i++) {
+		Vector2 first_start = first.points[i];
+		Vector2 first_end = first.points[(i+1) % first.points.size()];
+		for (int j = 0; j < second.points.size(); j++) {
+			Vector2 second_start = second.points[j];
+			Vector2 second_end = second.points[(j+1) % second.points.size()];
 			if (line_segments_intersect(first_start, first_end, second_start, second_end)) {
 				return true;
 			}

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../basic/definitions.h"
 #include "../data/dialog_structures.h"
 
 #include <entt/entt.hpp>

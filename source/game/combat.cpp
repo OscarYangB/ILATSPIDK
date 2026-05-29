@@ -2,11 +2,11 @@
 #include "cards.h"
 #include "main_menu.h"
 
+#include "../basic/random.h"
+#include "../data/audio_data.h"
 #include "../engine/game.h"
-#include "../engine/random.h"
 #include "../engine/render.h"
 #include "../engine/animation.h"
-#include "../data/audio_data.h"
 #include "../engine/audio.h"
 
 void CharacterComp::init_from_data(const CharacterDataComp& new_data) {

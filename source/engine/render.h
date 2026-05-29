@@ -1,10 +1,10 @@
 #pragma once
 
-#include "vector2.h"
-#include "definitions.h"
 #include "game.h"
-#include "fixed_list.h"
 
+#include "../basic/fixed_list.h"
+#include "../basic/definitions.h"
+#include "../basic/shapes.h"
 #include "../data/image_data.h"
 
 enum class ImageAsset;

@@ -1,9 +1,30 @@
 #pragma once
 
-#include "../engine/definitions.h"
-#include "../engine/text.h"
+#include "../basic/definitions.h"
 
 #include <variant>
+#include <string_view>
+
+enum class Language {
+	ENGLISH,
+	FRENCH,
+};
+
+inline Language language = Language::ENGLISH;
+
+struct Text {
+	std::string_view english = "";
+	std::string_view french = "";
+
+	inline std::string_view get() const {
+		switch (language) {
+		case Language::ENGLISH: return english;
+		case Language::FRENCH: return french;
+		}
+		return "";
+	}
+};
+
 
 enum class Speaker;
 

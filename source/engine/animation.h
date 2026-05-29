@@ -1,7 +1,8 @@
 #pragma once
 
 #include "game.h"
-#include "definitions.h"
+
+#include "../basic/definitions.h"
 
 #include <functional>
 

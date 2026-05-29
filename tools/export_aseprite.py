@@ -24,7 +24,7 @@ subprocess.run([aseprite_path,
                 "--ignore-layer", "Reference",
                 "C:/Projects/Aseprite Projects/%s.aseprite"%name], shell=True)
 subprocess.run([aseprite_path,
-                "--sheet", godot_project_path + "%s.png"%name,
+                "--sheet", godot_project_path + "images/%s.png"%name,
                 "--data", godot_project_path + "image_json_data/%s.json"%name,
                 "--all-layers",
                 "--ignore-empty",

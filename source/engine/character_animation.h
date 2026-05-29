@@ -1,8 +1,7 @@
 #pragma once
 
-#include "fixed_list.h"
-#include "definitions.h"
-
+#include "../basic/fixed_list.h"
+#include "../basic/definitions.h"
 #include "../data/image_data.h"
 
 #include <entt/entt.hpp>

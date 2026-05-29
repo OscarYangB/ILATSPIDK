@@ -1,6 +1,5 @@
 #pragma once
 
-#include "vector2.h"
 #include "game.h"
 #include "render.h"
 
@@ -9,12 +8,12 @@ struct BoxColliderComp {
 };
 
 struct PolygonColliderComp {
-	FixedList<Vector2, 4> points{};
+	Polygon polygon{};
 };
 
 bool is_colliding(const Box& first, const Box& second);
-bool is_colliding(const Vector2& polygon_position, const PolygonColliderComp& polygon_collider, const Box& box);
-bool is_colliding(const Vector2& first_position, const Vector2& second_position, const PolygonColliderComp& first_collider, const PolygonColliderComp& second_collider);
+bool is_colliding(const Polygon& polygon, const Box& box);
+bool is_colliding(const Polygon& first, const Polygon& second);
 bool line_segments_intersect(const Vector2& start_1, const Vector2& end_1, const Vector2& start_2, const Vector2& end_2);
 bool point_in_box(const Box& box, const Vector2& vector);
 

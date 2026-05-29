@@ -2,10 +2,10 @@
 
 #include "combat_ui.h"
 
+#include "../basic/definitions.h"
+#include "../basic/fixed_list.h"
 #include "../data/image_data.h"
-#include "../engine/definitions.h"
-#include "../engine/text.h"
-#include "../engine/fixed_list.h"
+#include "../data/dialog_structures.h"
 
 #include <vector>
 #include <optional>

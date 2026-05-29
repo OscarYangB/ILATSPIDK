@@ -1,20 +1,15 @@
 #include "spawn.h"
 #include "dialog.h"
 #include "cards.h"
-#include "combat.h"
 
-#include "../data/collider_data.h"
+#include "../engine/physics.h"
 #include "../data/position_data.h"
 #include "../data/dialog_data.h"
-#include "../data/dialog_data.h"
-#include "../engine/game.h"
 #include "../engine/input.h"
-#include "../engine/render.h"
 #include "../engine/movement_controller.h"
 #include "../engine/character_animation.h"
 #include "../engine/platform_render.h"
 #include "../engine/interaction.h"
-
 
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_filesystem.h>
@@ -78,7 +73,7 @@ entt::entity create_collider(const Box& collider_box) {
 	return entity;
 }
 
-entt::entity create_collider(const std::initializer_list<Vector2>& points) {
+entt::entity create_collider(const Polygon& points) {
 	auto entity = ecs.create();
 	add_component(entity, TransformComp{});
 	add_component(entity, PolygonColliderComp{points});
@@ -94,16 +89,16 @@ void center_scene(Sprite background) {
 void enrette_office() {
 	// TODO fade out/in
 	create_image(Sprite::ENRETTEOFFICE_BG_1, {});
-	create_image(Sprite::ENRETTEOFFICE_SHELF_1, SHELF_BOX);
-	create_image(Sprite::ENRETTEOFFICE_DRAWER_1, DRAWER_BOX);
-	create_image(Sprite::ENRETTEOFFICE_TABLE_1, TABLE_BOX);
-	create_image(Sprite::ENRETTEOFFICE_CHAIR_1, CHAIR_BOX);
-	create_image(Sprite::ENRETTEOFFICE_COUCH_1, COUCH_BOX);
+	create_image(Sprite::ENRETTEOFFICE_SHELF_1, ENRETTEOFFICE_SHELF_BOX);
+	create_image(Sprite::ENRETTEOFFICE_DRAWER_1, ENRETTEOFFICE_DRAWER_BOX);
+	create_image(Sprite::ENRETTEOFFICE_TABLE_1, ENRETTEOFFICE_TABLE_BOX);
+	create_image(Sprite::ENRETTEOFFICE_CHAIR_1, ENRETTEOFFICE_CHAIR_BOX);
+	create_image(Sprite::ENRETTEOFFICE_COUCH_1, ENRETTEOFFICE_COUCH_BOX);
 	auto vent = create_image(Sprite::ENRETTEOFFICE_VENT_1, {});
 	add_component(vent, CycleAnimComp{.sprites = {Sprite::ENRETTEOFFICE_VENT_1, Sprite::ENRETTEOFFICE_VENT_2, Sprite::ENRETTEOFFICE_VENT_3}, .frequency = 24.f});
-	create_image(Sprite::ENRETTEOFFICE_GARBAGE_1, GARBAGE_BOX);
-	create_image(Sprite::ENRETTEOFFICE_BOOKS_1, BOOKS_BOX);
-	create_collider(OFFICE_BORDER);
+	create_image(Sprite::ENRETTEOFFICE_GARBAGE_1, ENRETTEOFFICE_GARBAGE_BOX);
+	create_image(Sprite::ENRETTEOFFICE_BOOKS_1, ENRETTEOFFICE_BOOKS_BOX);
+	create_collider(ENRETTEOFFICE_BORDER);
 	center_scene(Sprite::ENRETTEOFFICE_BG_1);
 }
 
@@ -111,13 +106,13 @@ void new_game() {
 	push_input_mode(InputMode::EXPLORE);
 
 	entt::entity grakeny = spawn_grakeny();
-	ecs.get<TransformComp>(grakeny).position = ENEMY_POSITION;
+	ecs.get<TransformComp>(grakeny).position = ENRETTEOFFICE_ENEMY_POSITION;
 
 	//entt::entity grakeny_2 = spawn_grakeny();
 	//ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
 
 	auto player = spawn_player();
-	ecs.get<TransformComp>(player).position = PLAYER_POSITION;
+	ecs.get<TransformComp>(player).position = ENRETTEOFFICE_PLAYER_POSITION;
 
 	//load_game();
 
@@ -125,7 +120,7 @@ void new_game() {
 	  auto entity = ecs.create();
 	  auto& sprite = add_component(entity, SpriteComp{.sprites = {Sprite::TABLE}});
 	  add_component(entity, TransformComp{.position = {0.f, 0.f}});
-	  add_component(entity, BoxColliderComp{TABLE_COLLIDER});
+	  add_component(entity, BoxColliderComp{KERRY_COLLISION});
 	  add_component(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG); }});
 	}
 	{ // Tutorial trigger
@@ -145,7 +140,7 @@ entt::entity spawn_player() {
 	add_component(entity, SpriteComp{.sprites = {Sprite::NONE, Sprite::NONE, Sprite::NONE, Sprite::NONE, Sprite::NONE}});
 	add_component(entity, TransformComp{});
 	add_component(entity, PlayerMovementComp{.speed = 200.f});
-	add_component(entity, BoxColliderComp{KERRY_COLLIDER});
+	add_component(entity, BoxColliderComp{KERRY_COLLISION});
 	add_component(entity, CharacterDataComp{.name = {"Kerry"}, .starting_health = 150.f, .type = CharacterType::GOOD,
 		.inventory = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE })});
 	add_component(entity, CharacterAnimComp{});
@@ -158,7 +153,7 @@ entt::entity spawn_grakeny() {
 	const entt::entity entity = ecs.create();
 	add_component(entity, SpriteComp{.sprites = {Sprite::GRAKENY_1}});
 	add_component(entity, TransformComp{});
-	add_component(entity, BoxColliderComp{GRAKENY_COLLIDER});
+	add_component(entity, BoxColliderComp{KERRY_COLLISION});
 	add_component(entity, CycleAnimComp{.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}, .frequency = 2.f});
 	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 50.f, .type = CharacterType::EVIL, .inventory = make_cards({CardID::GRENADE})});
 	return entity;

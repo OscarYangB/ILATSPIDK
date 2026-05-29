@@ -4,9 +4,6 @@
 #include "../data/audio_data.h"
 
 #include <SDL3/SDL.h>
-#include <cassert>
-#include <vector>
-
 
 static SDL_AudioStream* audio_stream = nullptr;
 static std::vector<PlayingAudio> playing_audio{};

@@ -1,7 +1,8 @@
 #include "input.h"
-#include <SDL3/SDL.h>
 #include "platform_render.h"
 #include "render.h"
+
+#include <SDL3/SDL.h>
 
 static Input inputs[NUMBER_OF_INPUT_TYPES] {};
 //static std::queue<InputEvent> input_events {};

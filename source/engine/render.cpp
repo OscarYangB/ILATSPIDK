@@ -412,7 +412,8 @@ bool TransformComp::can_move(entt::entity entity_to_move, const Vector2& new_pos
 		}
 
 		for (auto [entity, collider, transform] : ecs.view<PolygonColliderComp, TransformComp>().each()) {
-			if (is_colliding(transform.position, collider, test_box)) {
+			Polygon polygon = collider.polygon + transform.position;
+			if (is_colliding(polygon, test_box)) {
 				return false;
 			}
 		}

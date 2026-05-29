@@ -65,7 +65,7 @@ for pair in kern_reader.kerningPairs:
     kerning_data[first_index][second_index] = kern_reader.kerningPairs[pair]
 #print(kerning_data)
 
-kerning_text = "constexpr i8 kerning[][%s] = {\n"%number_of_english_characters;
+kerning_text = "constexpr int8_t kerning[][%s] = {\n"%number_of_english_characters;
 for i in range(number_of_english_characters):
     kerning_text += "\t {"
     for j in range(number_of_english_characters):

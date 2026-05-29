@@ -1,8 +1,6 @@
 #include "platform_render.h"
 #include "render.h"
-#include "fixed_list.h"
 
-#include "../data/image_data.h"
 #include "../data/font_data.h"
 
 #include <SDL3/SDL.h>

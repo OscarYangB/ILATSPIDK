@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../engine/definitions.h"
+#include "../basic/definitions.h"
 
 struct SpriteAtlasTransform {
 	u16 x{};

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../engine/definitions.h"
-#include "../engine/vector2.h"
+#include "../basic/definitions.h"
+#include "../basic/vector2.h"
 
 #include <entt/entt.hpp>
 

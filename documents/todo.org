@@ -33,6 +33,11 @@
 
 - Scene fade in/out
 
+- Move all platform code to a module that the engine module depends on
+  - Use my own ECS implementation
+    - Fix sorting issue
+    - Lower memory requirement
+
 Art
 - Nielon
 - Better dialog UI
