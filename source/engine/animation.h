@@ -45,15 +45,26 @@ struct ComponentAnimation {
 	MemberType starting_value;
 
 	void update(Animation& animation) {
-		if (!ecs.valid(entity)) {
-			animation.should_remove = true;
-			return;
-		}
+		ComponentType* component;
 
-		ComponentType* component = ecs.try_get<ComponentType>(entity);
-		if (component == nullptr) {
-			animation.should_remove = true;
-			return;
+		if (entity == entt::null) {
+			if (!ecs.ctx().contains<ComponentType>()) {
+				animation.should_remove = true;
+				return;
+			}
+
+			component = &ecs.ctx().get<ComponentType>();
+		} else {
+			if (!ecs.valid(entity)) {
+				animation.should_remove = true;
+				return;
+			}
+
+			component = ecs.try_get<ComponentType>(entity);
+			if (component == nullptr) {
+				animation.should_remove = true;
+				return;
+			}
 		}
 
 		component->*member = curve(animation, starting_value);
@@ -71,7 +82,7 @@ void end_animation_group();
 
 template <typename MemberType, typename ComponentType, typename CurveType>
 u64 play_animation(double duration, double delay, MemberType ComponentType::* member, entt::entity entity, CurveType curve) {
-	MemberType starting_value = ecs.get<ComponentType>(entity).*member;
+	MemberType starting_value = entity == entt::null ? ecs.ctx().get<ComponentType>().*member : ecs.get<ComponentType>(entity).*member;
 	return register_animation(Animation{duration, delay, ComponentAnimation<MemberType, ComponentType>{entity, curve, member, starting_value}});
 }
 

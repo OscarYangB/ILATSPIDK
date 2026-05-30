@@ -6,9 +6,6 @@
 
 #include "../data/image_data.h"
 
-bool camera_follow = true;
-Vector2 camera_position = {0.0f, 0.0f};
-float camera_scale = 1.35f;
 float window_scale{};
 
 void refresh_window_scale() {
@@ -22,7 +19,7 @@ void refresh_window_scale() {
 }
 
 static float render_scale() {
-	return camera_scale * window_scale;
+	return ecs.ctx().get<CameraSingleton>().camera_scale * window_scale;
 }
 
 #ifndef NDEBUG
@@ -172,6 +169,8 @@ void render_transform(entt::entity entity) {
 	if (ecs.ctx().contains<TintSingleton>() && !ecs.ctx().get<TintSingleton>().excluded_entities.contains(entity)) {
 		global_tint = ecs.ctx().get<TintSingleton>().tint;
 	}
+	float brightness = ecs.ctx().get<CameraSingleton>().brightness;
+	global_tint = Colour{static_cast<u8>(global_tint.r * brightness), static_cast<u8>(global_tint.g * brightness), static_cast<u8>(global_tint.b * brightness), global_tint.a};
 
 	u16 max_y = 0;
 	if (ecs.all_of<PerspectiveComp>(entity)) {
@@ -343,8 +342,8 @@ void update_sprite_resources() { // Going to load/unload the textures based on w
 }
 
 Vector2 world_to_pixel(const Vector2& in) {
-	return Vector2{(in.x - camera_position.x) * render_scale() + window_width() / 2.0f,
-				   (-in.y + camera_position.y) * render_scale() + window_height() / 2.0f};
+	return Vector2{(in.x - ecs.ctx().get<CameraSingleton>().camera_position.x) * render_scale() + window_width() / 2.0f,
+				   (-in.y + ecs.ctx().get<CameraSingleton>().camera_position.y) * render_scale() + window_height() / 2.0f};
 }
 
 Vector2 UITransformComp::render_position() const {

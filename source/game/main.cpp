@@ -55,11 +55,12 @@ static void update() {
 	update_input();
 	update_process_input();
 
-	if (camera_follow) {
+	if (ecs.ctx().contains<CameraSingleton>() && ecs.ctx().get<CameraSingleton>().camera_follow) {
 		auto view = ecs.view<SpriteComp, TransformComp, PlayerCharacterComp>();
 		if (view.begin() != view.end()) {
 			auto [entity, sprite, transform] = get_first_component<SpriteComp, TransformComp, PlayerCharacterComp>();
-			camera_position = Vector2::lerp(camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
+			ecs.ctx().get<CameraSingleton>().camera_position =
+				Vector2::lerp(ecs.ctx().get<CameraSingleton>().camera_position, sprite.bounding_box().center() + transform.position, 0.1f); // This is some bullshit
 		}
 	}
 

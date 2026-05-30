@@ -9,6 +9,13 @@
 
 enum class ImageAsset;
 
+struct CameraSingleton {
+	bool camera_follow = true;
+	Vector2 camera_position = {0.0f, 0.0f};
+	float camera_scale = 1.35f;
+	float brightness = 1.f;
+};
+
 template<typename T>
 struct HierarchyComp {
 	std::vector<entt::entity> children{};
@@ -139,9 +146,6 @@ struct PerspectiveComp {
 	float amount = 1.f;
 };
 
-extern bool camera_follow;
-extern Vector2 camera_position;
-extern float camera_scale;
 extern float window_scale;
 
 constexpr float SCREEN_SPACE_WIDTH = 2560.f;

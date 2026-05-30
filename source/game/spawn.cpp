@@ -10,6 +10,7 @@
 #include "../engine/character_animation.h"
 #include "../engine/platform_render.h"
 #include "../engine/interaction.h"
+#include "../engine/animation.h"
 
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_filesystem.h>
@@ -81,9 +82,9 @@ entt::entity create_collider(const Polygon& points) {
 }
 
 void center_scene(Sprite background) {
-	camera_follow = false;
+	ecs.ctx().get<CameraSingleton>().camera_follow = false;
 	const auto& dimensions = image_dimensions[static_cast<size_t>(sprite_to_image_file[static_cast<size_t>(background)])];
-	camera_position = {dimensions.width / 2.f, -dimensions.height / 2.f};
+	ecs.ctx().get<CameraSingleton>().camera_position = {dimensions.width / 2.f, -dimensions.height / 2.f};
 }
 
 void enrette_office() {
@@ -104,6 +105,11 @@ void enrette_office() {
 
 void new_game() {
 	push_input_mode(InputMode::EXPLORE);
+
+	ecs.ctx().emplace<CameraSingleton>();
+	play_animation(3.f, 0.f, &CameraSingleton::brightness, entt::null, [](Animation& animation, float starting_value) {
+		return linear_curve(1.f, animation, 0.f);
+	});
 
 	entt::entity grakeny = spawn_grakeny();
 	ecs.get<TransformComp>(grakeny).position = ENRETTEOFFICE_ENEMY_POSITION;
