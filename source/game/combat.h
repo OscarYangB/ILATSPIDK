@@ -4,8 +4,8 @@
 
 #include "../basic/definitions.h"
 #include "../basic/fixed_list.h"
+#include "../basic/text.h"
 #include "../data/image_data.h"
-#include "../data/dialog_structures.h"
 
 #include <vector>
 #include <optional>

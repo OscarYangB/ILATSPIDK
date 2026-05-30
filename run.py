@@ -43,6 +43,7 @@ while True:
     elif command.startswith("new ") or command.startswith("n "):
         name = command.removeprefix("new ")
         name = name.removeprefix("n ")
+        relative_name = name.split("/")[-1]
         if os.path.isfile(f"./source/{name}.cpp") or os.path.isfile(f"./source/{name}.h"):
             print("file already exists")
             continue
@@ -50,7 +51,7 @@ while True:
             with open(f"./source/{name}.h", "w") as h:
                 h.write("#pragma once\n")
             with open(f"./source/{name}.cpp", "w") as cpp:
-                cpp.write(f"#include \"{name}.h\"\n")
+                cpp.write(f"#include \"{relative_name}.h\"\n")
     elif command.startswith("remove ") or command.startswith("r "):
         name = command.removeprefix("remove ")
         name = name.removeprefix("r ")
