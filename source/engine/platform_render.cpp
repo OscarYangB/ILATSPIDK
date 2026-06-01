@@ -84,7 +84,7 @@ void end_render() {
 
 void render_sprite(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h, const Colour& tint) {
 	SDL_Texture* texture = get_sprite(image_file);
-	if (texture == nullptr) return;
+	assert(texture != nullptr);
 	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
 	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
 	SDL_SetTextureColorMod(texture, tint.r, tint.g, tint.b);
@@ -95,7 +95,7 @@ void render_sprite(ImageFile image_file, float from_x, float from_y, float from_
 void render_nine_slice(ImageFile image_file, float from_x, float from_y, float from_w, float from_h, float to_x, float to_y, float to_w, float to_h,
 					   float slice_x, float slice_y, float slice_w, float slice_h) {
 	SDL_Texture* texture = get_sprite(image_file);
-	if (texture == nullptr) return;
+	assert(texture != nullptr);
 	SDL_FRect from_rect = {from_x, from_y, from_w, from_h};
 	SDL_FRect to_rect = {to_x, to_y, to_w, to_h};
 	SDL_RenderTexture9Grid(renderer, texture, &from_rect, slice_x, from_w - slice_w - slice_x, slice_y, from_h - slice_h - slice_y, window_scale, &to_rect);

@@ -31,7 +31,9 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
-- Scene fade in/out
+- Moving between scenes
+- Scene load/unload during fadout system
+
 
 Art
 - Nielon
