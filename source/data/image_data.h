@@ -49,6 +49,10 @@ constexpr char queue[] {
 	#embed "..\assets\art\Queue.png"
 };
 
+constexpr char reception[] {
+	#embed "..\assets\art\Reception.png"
+};
+
 constexpr char saturn[] {
 	#embed "..\assets\art\saturn.png"
 };
@@ -120,6 +124,8 @@ constexpr char kerry[] {};
 
 constexpr char queue[] {};
 
+constexpr char reception[] {};
+
 constexpr char saturn[] {};
 
 constexpr char table[] {};
@@ -157,6 +163,7 @@ constexpr const char* image_file_data[] {
 	healthbar,
 	kerry,
 	queue,
+	reception,
 	saturn,
 	table,
 	test_background,
@@ -182,6 +189,7 @@ constexpr int image_file_sizes[] {
 	sizeof(healthbar),
 	sizeof(kerry),
 	sizeof(queue),
+	sizeof(reception),
 	sizeof(saturn),
 	sizeof(table),
 	sizeof(test_background),
@@ -207,6 +215,7 @@ enum class ImageFile {
 	HEALTHBAR_IMAGE,
 	KERRY_IMAGE,
 	QUEUE_IMAGE,
+	RECEPTION_IMAGE,
 	SATURN_IMAGE,
 	TABLE_IMAGE,
 	TEST_BACKGROUND_IMAGE,
@@ -232,6 +241,7 @@ constexpr ImageDimensions image_dimensions[] {
 	{175, 21},
 	{200, 300},
 	{915, 81},
+	{1920, 1080},
 	{272, 192},
 	{300, 200},
 	{2339, 1654},
@@ -442,6 +452,12 @@ enum class Sprite {
 	QUEUE_STAR_2,
 	QUEUE_STAR_3,
 	QUEUE_STAR_4,
+	RECEPTION_BACKGROUND_1,
+	RECEPTION_WALL_1,
+	RECEPTION_SOFA_1,
+	RECEPTION_SOFA2_1,
+	RECEPTION_TABLE_1,
+	RECEPTION_DESK_1,
 	SATURN,
 	TABLE,
 	TEST_BACKGROUND,
@@ -653,6 +669,12 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{455, 60, 56, 62, 28, 15, 84, 77},
 	{2480, 0, 65, 69, 24, 11, 89, 80},
 	{2406, 0, 72, 72, 24, 8, 96, 80},
+	{0, 0, 1920, 1080, 0, 0, 1920, 1080},
+	{0, 1085, 1920, 306, 0, 0, 1920, 306},
+	{3007, 288, 368, 271, 38, 146, 406, 417},
+	{3007, 0, 515, 283, 868, 140, 1383, 423},
+	{2454, 0, 548, 566, 844, 281, 1392, 847},
+	{1925, 0, 524, 703, 1363, 104, 1887, 807},
 	{0, 0, 272, 192, 0, 0, 272, 192},
 	{0, 0, 300, 200, 56, 56, 257, 190},
 	{0, 0, 2339, 1654, 0, 0, 2339, 1654},
@@ -863,6 +885,12 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::QUEUE_IMAGE,
 	ImageFile::QUEUE_IMAGE,
 	ImageFile::QUEUE_IMAGE,
+	ImageFile::RECEPTION_IMAGE,
+	ImageFile::RECEPTION_IMAGE,
+	ImageFile::RECEPTION_IMAGE,
+	ImageFile::RECEPTION_IMAGE,
+	ImageFile::RECEPTION_IMAGE,
+	ImageFile::RECEPTION_IMAGE,
 	ImageFile::SATURN_IMAGE,
 	ImageFile::TABLE_IMAGE,
 	ImageFile::TEST_BACKGROUND_IMAGE,
@@ -877,5 +905,5 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::VERY_LARGE_FONT_IMAGE
 };
 
-constexpr int NUMBER_OF_IMAGES = 22;
+constexpr int NUMBER_OF_IMAGES = 23;
 

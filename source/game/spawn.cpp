@@ -10,13 +10,24 @@
 #include "../engine/character_animation.h"
 #include "../engine/platform_render.h"
 #include "../engine/interaction.h"
-#include "../engine/animation.h"
 
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_filesystem.h>
 
 constexpr const char* company_name = "bright_yang";
 constexpr const char* game_name = "a_basket_full_of_gold";
+
+enum class SceneTransitionDirection {
+	IN,
+	OUT,
+	NONE
+};
+SceneTransitionDirection scene_transition_direction = SceneTransitionDirection::NONE;
+std::vector<entt::entity> scene_entities{};
+constexpr float SCENE_TRANSITION_TIME = 0.5f;
+float scene_transition_timer = 0.f;
+using SceneFunction = void(*)();
+SceneFunction scene_function = nullptr;
 
 static std::string get_save_location() {
 	const char* save_directory = SDL_GetPrefPath(company_name, game_name);
@@ -57,27 +68,46 @@ void load_game() {
 	SDL_CloseIO(stream);
 }
 
-entt::entity create_image(Sprite sprite, const Box& collider_box) {
+entt::entity create_transform() {
 	auto entity = ecs.create();
+	scene_entities.push_back(entity);
 	add_component(entity, TransformComp{});
+	return entity;
+}
+
+entt::entity create_sprite(Sprite sprite) {
+	auto entity = create_transform();
 	add_component(entity, SpriteComp{.sprites = {sprite}});
-	if (!collider_box.is_empty()) {
-		add_component(entity, BoxColliderComp{.box = collider_box});
-	}
 	return entity;
 }
 
-entt::entity create_collider(const Box& collider_box) {
-	auto entity = ecs.create();
-	add_component(entity, TransformComp{});
-	add_component(entity, BoxColliderComp{.box = collider_box});
+entt::entity create_sprite(Sprite sprite, const Box& box) {
+	auto entity = create_sprite(sprite);
+	add_component(entity, BoxColliderComp{.box = box});
 	return entity;
 }
 
-entt::entity create_collider(const Polygon& points) {
-	auto entity = ecs.create();
-	add_component(entity, TransformComp{});
-	add_component(entity, PolygonColliderComp{points});
+entt::entity create_sprite(Sprite sprite, const Polygon& polygon) {
+	auto entity = create_sprite(sprite);
+	add_component(entity, PolygonColliderComp{.polygon = polygon});
+	return entity;
+}
+
+entt::entity create_collider(const Box& box) {
+	auto entity = create_transform();
+	add_component(entity, BoxColliderComp{.box = box});
+	return entity;
+}
+
+entt::entity create_collider(const Polygon& polygon) {
+	auto entity = create_transform();
+	add_component(entity, PolygonColliderComp{polygon});
+	return entity;
+}
+
+entt::entity create_trigger(const Box& box, void (*on_interact)()) {
+	auto entity = create_transform();
+	add_component(entity, InteractionComp{.box = box, .on_interact = on_interact, .type = InteractionType::PLAYER_ENTER});
 	return entity;
 }
 
@@ -87,19 +117,64 @@ void center_scene(Sprite background) {
 	ecs.ctx().get<CameraSingleton>().camera_position = {dimensions.width / 2.f, -dimensions.height / 2.f};
 }
 
+void transition_scene(SceneFunction new_scene) {
+	scene_function = new_scene;
+	scene_transition_timer = 0.f;
+	scene_transition_direction = SceneTransitionDirection::OUT;
+}
+
+void update_transition_scene() {
+	if (scene_transition_direction == SceneTransitionDirection::NONE) {
+		return;
+	}
+
+	float brightness = scene_transition_timer / SCENE_TRANSITION_TIME;
+	if (scene_transition_direction == SceneTransitionDirection::OUT) {
+		brightness *= -1.f;
+	}
+	scene_transition_timer += delta_time;
+	if (scene_transition_timer > SCENE_TRANSITION_TIME) {
+		if (scene_transition_direction == SceneTransitionDirection::OUT) {
+			for (entt::entity entity : scene_entities) {
+				ecs.destroy(entity);
+			}
+			scene_entities.clear();
+			scene_function();
+			scene_transition_timer = 0.f;
+			scene_transition_direction = SceneTransitionDirection::IN;
+			brightness = 0.f;
+		} else {
+			brightness = 1.f;
+			scene_transition_direction = SceneTransitionDirection::NONE;
+		}
+	}
+	ecs.ctx().get<CameraSingleton>().brightness = brightness;
+}
+
+void office_reception() {
+	create_sprite(Sprite::RECEPTION_BACKGROUND_1);
+	create_sprite(Sprite::RECEPTION_WALL_1);
+	create_sprite(Sprite::RECEPTION_SOFA_1, LD::RECEPTION_SOFA_1);
+	create_sprite(Sprite::RECEPTION_SOFA2_1, LD::RECEPTION_SOFA_2);
+	create_sprite(Sprite::RECEPTION_TABLE_1, LD::RECEPTION_TABLE);
+	create_sprite(Sprite::RECEPTION_DESK_1, LD::RECEPTION_DESK);
+	create_collider(LD::RECEPTION_BORDER);
+	center_scene(Sprite::RECEPTION_BACKGROUND_1);
+}
+
 void enrette_office() {
-	// TODO fade out/in
-	create_image(Sprite::ENRETTEOFFICE_BG_1, {});
-	create_image(Sprite::ENRETTEOFFICE_SHELF_1, ENRETTEOFFICE_SHELF_BOX);
-	create_image(Sprite::ENRETTEOFFICE_DRAWER_1, ENRETTEOFFICE_DRAWER_BOX);
-	create_image(Sprite::ENRETTEOFFICE_TABLE_1, ENRETTEOFFICE_TABLE_BOX);
-	create_image(Sprite::ENRETTEOFFICE_CHAIR_1, ENRETTEOFFICE_CHAIR_BOX);
-	create_image(Sprite::ENRETTEOFFICE_COUCH_1, ENRETTEOFFICE_COUCH_BOX);
-	auto vent = create_image(Sprite::ENRETTEOFFICE_VENT_1, {});
+	create_sprite(Sprite::ENRETTEOFFICE_BG_1);
+	create_sprite(Sprite::ENRETTEOFFICE_SHELF_1, LD::ENRETTEOFFICE_SHELF_BOX);
+	create_sprite(Sprite::ENRETTEOFFICE_DRAWER_1, LD::ENRETTEOFFICE_DRAWER_BOX);
+	create_sprite(Sprite::ENRETTEOFFICE_TABLE_1, LD::ENRETTEOFFICE_TABLE_BOX);
+	create_sprite(Sprite::ENRETTEOFFICE_CHAIR_1, LD::ENRETTEOFFICE_CHAIR_BOX);
+	create_sprite(Sprite::ENRETTEOFFICE_COUCH_1, LD::ENRETTEOFFICE_COUCH_BOX);
+	auto vent = create_sprite(Sprite::ENRETTEOFFICE_VENT_1);
 	add_component(vent, CycleAnimComp{.sprites = {Sprite::ENRETTEOFFICE_VENT_1, Sprite::ENRETTEOFFICE_VENT_2, Sprite::ENRETTEOFFICE_VENT_3}, .frequency = 24.f});
-	create_image(Sprite::ENRETTEOFFICE_GARBAGE_1, ENRETTEOFFICE_GARBAGE_BOX);
-	create_image(Sprite::ENRETTEOFFICE_BOOKS_1, ENRETTEOFFICE_BOOKS_BOX);
-	create_collider(ENRETTEOFFICE_BORDER);
+	create_sprite(Sprite::ENRETTEOFFICE_GARBAGE_1, LD::ENRETTEOFFICE_GARBAGE_BOX);
+	create_sprite(Sprite::ENRETTEOFFICE_BOOKS_1, LD::ENRETTEOFFICE_BOOKS_BOX);
+	create_collider(LD::ENRETTEOFFICE_BORDER);
+	create_trigger(LD::ENRETTEOFFICE_DOOR_BOX, [](){transition_scene(office_reception);});
 	center_scene(Sprite::ENRETTEOFFICE_BG_1);
 }
 
@@ -107,18 +182,15 @@ void new_game() {
 	push_input_mode(InputMode::EXPLORE);
 
 	ecs.ctx().emplace<CameraSingleton>();
-	play_animation(3.f, 0.f, &CameraSingleton::brightness, entt::null, [](Animation& animation, float starting_value) {
-		return linear_curve(1.f, animation, 0.f);
-	});
 
 	entt::entity grakeny = spawn_grakeny();
-	ecs.get<TransformComp>(grakeny).position = ENRETTEOFFICE_ENEMY_POSITION;
+	ecs.get<TransformComp>(grakeny).position = LD::ENRETTEOFFICE_ENEMY_POSITION;
 
 	//entt::entity grakeny_2 = spawn_grakeny();
 	//ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
 
 	auto player = spawn_player();
-	ecs.get<TransformComp>(player).position = ENRETTEOFFICE_PLAYER_POSITION;
+	ecs.get<TransformComp>(player).position = LD::ENRETTEOFFICE_PLAYER_POSITION;
 
 	//load_game();
 
@@ -126,7 +198,7 @@ void new_game() {
 	  auto entity = ecs.create();
 	  auto& sprite = add_component(entity, SpriteComp{.sprites = {Sprite::TABLE}});
 	  add_component(entity, TransformComp{.position = {0.f, 0.f}});
-	  add_component(entity, BoxColliderComp{KERRY_COLLISION});
+	  add_component(entity, BoxColliderComp{LD::KERRY_COLLISION});
 	  add_component(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG); }});
 	}
 	{ // Tutorial trigger
@@ -146,7 +218,7 @@ entt::entity spawn_player() {
 	add_component(entity, SpriteComp{.sprites = {Sprite::NONE, Sprite::NONE, Sprite::NONE, Sprite::NONE, Sprite::NONE}});
 	add_component(entity, TransformComp{});
 	add_component(entity, PlayerMovementComp{.speed = 200.f});
-	add_component(entity, BoxColliderComp{KERRY_COLLISION});
+	add_component(entity, BoxColliderComp{LD::KERRY_COLLISION});
 	add_component(entity, CharacterDataComp{.name = {"Kerry"}, .starting_health = 150.f, .type = CharacterType::GOOD,
 		.inventory = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE })});
 	add_component(entity, CharacterAnimComp{});
@@ -159,7 +231,7 @@ entt::entity spawn_grakeny() {
 	const entt::entity entity = ecs.create();
 	add_component(entity, SpriteComp{.sprites = {Sprite::GRAKENY_1}});
 	add_component(entity, TransformComp{});
-	add_component(entity, BoxColliderComp{KERRY_COLLISION});
+	add_component(entity, BoxColliderComp{LD::KERRY_COLLISION});
 	add_component(entity, CycleAnimComp{.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}, .frequency = 2.f});
 	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 50.f, .type = CharacterType::EVIL, .inventory = make_cards({CardID::GRENADE})});
 	return entity;

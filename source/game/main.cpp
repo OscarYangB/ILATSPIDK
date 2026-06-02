@@ -33,6 +33,7 @@ static void update_process_input() {
 			update_interact();
 			update_player_enter();
 			update_movement();
+			update_transition_scene();
 			break;
 		}
 		case InputMode::DIALOG: {

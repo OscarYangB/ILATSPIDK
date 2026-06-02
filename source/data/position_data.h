@@ -2,8 +2,10 @@
 
 #pragma once
 
+#include "../basic/vector2.h"
 #include "../basic/shapes.h"
 
+namespace LD {
 constexpr Vector2 ENRETTEOFFICE_ENEMY_POSITION = {971.0, -272.0};
 constexpr Vector2 ENRETTEOFFICE_PLAYER_POSITION = {369.0, -399.0};
 constexpr Box ENRETTEOFFICE_TABLE_BOX = {{1134.0, -366.0}, {1327.0, -690.0}};
@@ -13,5 +15,12 @@ constexpr Box ENRETTEOFFICE_DRAWER_BOX = {{1174.0, -262.0}, {1471.0, -346.0}};
 constexpr Box ENRETTEOFFICE_CHAIR_BOX = {{1389.0, -649.0}, {1514.0, -738.0}};
 constexpr Box ENRETTEOFFICE_BOOKS_BOX = {{245.0, -971.0}, {1350.0, -1054.0}};
 constexpr Box ENRETTEOFFICE_GARBAGE_BOX = {{1399.0, -959.0}, {1497.0, -1020.0}};
+constexpr Box ENRETTEOFFICE_DOOR_BOX = {{211.5, -447.25}, {310.5, -702.75}};
 constexpr Polygon ENRETTEOFFICE_BORDER = {{Vector2{88,-1072},Vector2{1669,-1072},Vector2{1475,-294},Vector2{324,-270},}};
 constexpr Box KERRY_COLLISION = {{47.0, -251.0}, {151.0, -291.0}};
+constexpr Box RECEPTION_SOFA_1 = {{42.0, -294.0}, {388.0, -401.0}};
+constexpr Box RECEPTION_SOFA_2 = {{895.0, -274.75}, {1383.0, -425.0}};
+constexpr Box RECEPTION_TABLE = {{849.5, -704.0}, {1128.0, -850.0}};
+constexpr Polygon RECEPTION_DESK = {{Vector2{1399,-272},Vector2{1830,-224},Vector2{1888,-794},Vector2{1590,-808},Vector2{1366,-694},}};
+constexpr Polygon RECEPTION_BORDER = {{Vector2{-7,-287},Vector2{1928,-287},Vector2{1928,-1069},Vector2{-7,-1069},}};
+}

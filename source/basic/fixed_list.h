@@ -74,7 +74,7 @@ struct FixedList {
 		return (&array[current_size - 1]) + 1;
 	}
 
-	bool empty() {
+	bool empty() const {
 		return current_size == 0;
 	}
 

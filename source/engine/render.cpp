@@ -71,12 +71,29 @@ void sort_sprites() {
 	});
 
 	ecs.sort<TransformComp>([](entt::entity first, entt::entity second) {
-		BoxColliderComp* first_collider = ecs.try_get<BoxColliderComp>(first);
-		BoxColliderComp* second_collider = ecs.try_get<BoxColliderComp>(second);
+		BoxColliderComp* first_box = ecs.try_get<BoxColliderComp>(first);
+		BoxColliderComp* second_box = ecs.try_get<BoxColliderComp>(second);
+		PolygonColliderComp* first_polygon = ecs.try_get<PolygonColliderComp>(first);
+		PolygonColliderComp* second_polygon = ecs.try_get<PolygonColliderComp>(second);
 		TransformComp& first_transform = ecs.get<TransformComp>(first);
 		TransformComp& second_transform = ecs.get<TransformComp>(second);
 
-		if (!first_collider && !second_collider) {
+		std::optional<float> first_collider_y{};
+		std::optional<float> second_collider_y{};
+		if (first_box) {
+			first_collider_y.emplace(first_box->box.left_top.y);
+		}
+		else if (first_polygon) {
+			first_collider_y.emplace(first_polygon->polygon.top());
+		}
+		if (second_box) {
+			second_collider_y.emplace(second_box->box.left_top.y);
+		}
+		else if (second_polygon) {
+			second_collider_y.emplace(second_polygon->polygon.top());
+		}
+
+		if (!first_collider_y.has_value() && !second_collider_y.has_value()) {
 			SpriteComp* first_sprite = ecs.try_get<SpriteComp>(first);
 			SpriteComp* second_sprite = ecs.try_get<SpriteComp>(second);
 			if (first_sprite && second_sprite) {
@@ -85,11 +102,11 @@ void sort_sprites() {
 		}
 
 		// Background
-		if (!first_collider) return true;
-		if (!second_collider) return false;
+		if (!first_collider_y.has_value()) return true;
+		if (!second_collider_y.has_value()) return false;
 
 		// Foreground
-		return first_collider->box.left_top.y + first_transform.position.y > second_collider->box.left_top.y + second_transform.position.y;
+		return first_collider_y.value() + first_transform.position.y > second_collider_y.value() + second_transform.position.y;
 	});
 }
 
@@ -393,6 +410,18 @@ float UITransformComp::render_height() const {
 bool TransformComp::move(entt::entity entity_to_move, const Vector2& new_position) {
 	if (can_move(entity_to_move, new_position)) {
 		position = new_position;
+		return true;
+	}
+
+	Vector2 fallback_position = {new_position.x, position.y};
+	if (can_move(entity_to_move, fallback_position)) {
+		position = fallback_position;
+		return true;
+	}
+
+	fallback_position = {position.x, new_position.y};
+	if (can_move(entity_to_move, fallback_position)) {
+		position = fallback_position;
 		return true;
 	}
 

@@ -36,7 +36,8 @@ struct Box {
 };
 
 struct Polygon {
-	FixedList<Vector2, 4> points{};
+	FixedList<Vector2, 6> points{};
 
 	Polygon operator+(const Vector2& offset) const;
+	float top();
 };

@@ -45,3 +45,11 @@ Polygon Polygon::operator+(const Vector2& offset) const {
 	}
 	return result;
 }
+
+float Polygon::top() {
+	float max_y = std::numeric_limits<float>::lowest();
+	for (const Vector2 point : points) {
+		max_y = std::max(max_y, point.y);
+	}
+	return max_y;
+}
