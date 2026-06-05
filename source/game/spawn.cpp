@@ -68,46 +68,16 @@ void load_game() {
 	SDL_CloseIO(stream);
 }
 
-entt::entity create_transform() {
+template<typename... Components>
+entt::entity scene_create(Components&&... components) {
 	auto entity = ecs.create();
 	scene_entities.push_back(entity);
 	add_component(entity, TransformComp{});
-	return entity;
-}
 
-entt::entity create_sprite(Sprite sprite) {
-	auto entity = create_transform();
-	add_component(entity, SpriteComp{.sprites = {sprite}});
-	return entity;
-}
+	([entity, &components...]() {
+		add_component(entity, std::forward<Components>(components));
+	}(), ...);
 
-entt::entity create_sprite(Sprite sprite, const Box& box) {
-	auto entity = create_sprite(sprite);
-	add_component(entity, BoxColliderComp{.box = box});
-	return entity;
-}
-
-entt::entity create_sprite(Sprite sprite, const Polygon& polygon) {
-	auto entity = create_sprite(sprite);
-	add_component(entity, PolygonColliderComp{.polygon = polygon});
-	return entity;
-}
-
-entt::entity create_collider(const Box& box) {
-	auto entity = create_transform();
-	add_component(entity, BoxColliderComp{.box = box});
-	return entity;
-}
-
-entt::entity create_collider(const Polygon& polygon) {
-	auto entity = create_transform();
-	add_component(entity, PolygonColliderComp{polygon});
-	return entity;
-}
-
-entt::entity create_trigger(const Box& box, void (*on_interact)()) {
-	auto entity = create_transform();
-	add_component(entity, InteractionComp{.box = box, .on_interact = on_interact, .type = InteractionType::PLAYER_ENTER});
 	return entity;
 }
 
@@ -152,29 +122,42 @@ void update_transition_scene() {
 }
 
 void office_reception() {
-	create_sprite(Sprite::RECEPTION_BACKGROUND_1);
-	create_sprite(Sprite::RECEPTION_WALL_1);
-	create_sprite(Sprite::RECEPTION_SOFA_1, LD::RECEPTION_SOFA_1);
-	create_sprite(Sprite::RECEPTION_SOFA2_1, LD::RECEPTION_SOFA_2);
-	create_sprite(Sprite::RECEPTION_TABLE_1, LD::RECEPTION_TABLE);
-	create_sprite(Sprite::RECEPTION_DESK_1, LD::RECEPTION_DESK);
-	create_collider(LD::RECEPTION_BORDER);
+	scene_create(SpriteComp{.sprites = {Sprite::RECEPTION_BACKGROUND_1}});
+	scene_create(SpriteComp{.sprites = {Sprite::RECEPTION_WALL_1}});
+	scene_create(SpriteComp{.sprites = {Sprite::RECEPTION_SOFA_1}},
+				 BoxColliderComp{.box = LD::RECEPTION_SOFA_1});
+	scene_create(SpriteComp{.sprites = {Sprite::RECEPTION_SOFA2_1}},
+				 BoxColliderComp{.box = LD::RECEPTION_SOFA_2});
+	scene_create(SpriteComp{.sprites = {Sprite::RECEPTION_TABLE_1}},
+				 BoxColliderComp{.box = LD::RECEPTION_TABLE});
+	scene_create(SpriteComp{.sprites = {Sprite::RECEPTION_DESK_1}},
+				 PolygonColliderComp{.polygon = LD::RECEPTION_DESK});
+	scene_create(PolygonColliderComp{.polygon = LD::RECEPTION_BORDER});
 	center_scene(Sprite::RECEPTION_BACKGROUND_1);
 }
 
 void enrette_office() {
-	create_sprite(Sprite::ENRETTEOFFICE_BG_1);
-	create_sprite(Sprite::ENRETTEOFFICE_SHELF_1, LD::ENRETTEOFFICE_SHELF_BOX);
-	create_sprite(Sprite::ENRETTEOFFICE_DRAWER_1, LD::ENRETTEOFFICE_DRAWER_BOX);
-	create_sprite(Sprite::ENRETTEOFFICE_TABLE_1, LD::ENRETTEOFFICE_TABLE_BOX);
-	create_sprite(Sprite::ENRETTEOFFICE_CHAIR_1, LD::ENRETTEOFFICE_CHAIR_BOX);
-	create_sprite(Sprite::ENRETTEOFFICE_COUCH_1, LD::ENRETTEOFFICE_COUCH_BOX);
-	auto vent = create_sprite(Sprite::ENRETTEOFFICE_VENT_1);
-	add_component(vent, CycleAnimComp{.sprites = {Sprite::ENRETTEOFFICE_VENT_1, Sprite::ENRETTEOFFICE_VENT_2, Sprite::ENRETTEOFFICE_VENT_3}, .frequency = 24.f});
-	create_sprite(Sprite::ENRETTEOFFICE_GARBAGE_1, LD::ENRETTEOFFICE_GARBAGE_BOX);
-	create_sprite(Sprite::ENRETTEOFFICE_BOOKS_1, LD::ENRETTEOFFICE_BOOKS_BOX);
-	create_collider(LD::ENRETTEOFFICE_BORDER);
-	create_trigger(LD::ENRETTEOFFICE_DOOR_BOX, [](){transition_scene(office_reception);});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_BG_1}});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_SHELF_1}},
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_SHELF_BOX});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_DRAWER_1}},
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_DRAWER_BOX});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_TABLE_1}},
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_TABLE_BOX});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_CHAIR_1}},
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_CHAIR_BOX});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_COUCH_1}},
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_COUCH_BOX});
+	scene_create(SpriteComp{.sprites = {Sprite::NONE}},
+				 CycleAnimComp{.sprites = {Sprite::ENRETTEOFFICE_VENT_1, Sprite::ENRETTEOFFICE_VENT_2,
+										   Sprite::ENRETTEOFFICE_VENT_3}, .frequency = 24.f});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_GARBAGE_1}},
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_GARBAGE_BOX});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_BOOKS_1}},
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_BOOKS_BOX});
+	scene_create(PolygonColliderComp{.polygon = LD::ENRETTEOFFICE_BORDER});
+	scene_create(InteractionComp{.box = LD::ENRETTEOFFICE_DOOR_BOX, .on_interact = [](){transition_scene(office_reception);},
+								 .type = InteractionType::PLAYER_ENTER});
 	center_scene(Sprite::ENRETTEOFFICE_BG_1);
 }
 
