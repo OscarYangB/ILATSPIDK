@@ -37,6 +37,10 @@ constexpr char grakeny[] {
 	#embed "..\assets\art\Grakeny.png"
 };
 
+constexpr char hallway[] {
+	#embed "..\assets\art\Hallway.png"
+};
+
 constexpr char healthbar[] {
 	#embed "..\assets\art\healthbar.png"
 };
@@ -118,6 +122,8 @@ constexpr char gamebar[] {};
 
 constexpr char grakeny[] {};
 
+constexpr char hallway[] {};
+
 constexpr char healthbar[] {};
 
 constexpr char kerry[] {};
@@ -160,6 +166,7 @@ constexpr const char* image_file_data[] {
 	fireball,
 	gamebar,
 	grakeny,
+	hallway,
 	healthbar,
 	kerry,
 	queue,
@@ -186,6 +193,7 @@ constexpr int image_file_sizes[] {
 	sizeof(fireball),
 	sizeof(gamebar),
 	sizeof(grakeny),
+	sizeof(hallway),
 	sizeof(healthbar),
 	sizeof(kerry),
 	sizeof(queue),
@@ -212,6 +220,7 @@ enum class ImageFile {
 	FIREBALL_IMAGE,
 	GAMEBAR_IMAGE,
 	GRAKENY_IMAGE,
+	HALLWAY_IMAGE,
 	HEALTHBAR_IMAGE,
 	KERRY_IMAGE,
 	QUEUE_IMAGE,
@@ -238,6 +247,7 @@ constexpr ImageDimensions image_dimensions[] {
 	{272, 192},
 	{300, 100},
 	{200, 300},
+	{1920, 3000},
 	{175, 21},
 	{200, 300},
 	{915, 81},
@@ -339,6 +349,7 @@ enum class Sprite {
 	GRAKENY_1,
 	GRAKENY_2,
 	GRAKENY_3,
+	HALLWAY_1,
 	HEALTHBAR_OUTLINE_1,
 	HEALTHBAR_DYNAMIC_1,
 	HEALTHBAR_GOOD_1,
@@ -556,6 +567,7 @@ constexpr SpriteAtlasTransform sprite_atlas_transform[] {
 	{217, 0, 102, 124, 48, 85, 150, 209},
 	{109, 0, 106, 124, 46, 84, 152, 208},
 	{0, 0, 107, 124, 44, 85, 151, 209},
+	{0, 0, 1920, 3000, 0, 0, 1920, 3000},
 	{0, 0, 173, 19, 1, 1, 174, 20},
 	{178, 0, 169, 15, 3, 3, 172, 18},
 	{178, 20, 169, 15, 3, 3, 172, 18},
@@ -772,6 +784,7 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::GRAKENY_IMAGE,
 	ImageFile::GRAKENY_IMAGE,
 	ImageFile::GRAKENY_IMAGE,
+	ImageFile::HALLWAY_IMAGE,
 	ImageFile::HEALTHBAR_IMAGE,
 	ImageFile::HEALTHBAR_IMAGE,
 	ImageFile::HEALTHBAR_IMAGE,
@@ -905,5 +918,5 @@ constexpr ImageFile sprite_to_image_file[] {
 	ImageFile::VERY_LARGE_FONT_IMAGE
 };
 
-constexpr int NUMBER_OF_IMAGES = 23;
+constexpr int NUMBER_OF_IMAGES = 24;
 

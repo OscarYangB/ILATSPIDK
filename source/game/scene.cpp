@@ -23,7 +23,7 @@ enum class SceneTransitionDirection {
 };
 
 using SceneFunction = void(*)();
-constexpr float SCENE_TRANSITION_TIME = 0.5f;
+constexpr float SCENE_TRANSITION_TIME = 0.3f;
 
 struct SceneTransitionSingleton {
 	SceneTransitionDirection scene_transition_direction{};
@@ -88,6 +88,12 @@ entt::entity scene_create(Components&&... components) {
 	return entity;
 }
 
+void free_camera() {
+	ecs.ctx().get<CameraSingleton>().camera_follow = true;
+	auto [player, player_transform, sprite] = get_first_component<TransformComp, SpriteComp, PlayerCharacterComp>();
+	ecs.ctx().get<CameraSingleton>().camera_position = player_transform.position + sprite.bounding_box().center();
+}
+
 void center_scene(Sprite background) {
 	ecs.ctx().get<CameraSingleton>().camera_follow = false;
 	const auto& dimensions = image_dimensions[static_cast<size_t>(sprite_to_image_file[static_cast<size_t>(background)])];
@@ -119,9 +125,9 @@ void update_transition_scene() {
 				ecs.destroy(entity);
 			}
 			ecs.ctx().get<SceneSingleton>().scene_entities.clear();
-			singleton.scene_function();
 			auto [player, player_transform, player_box] = get_first_component<TransformComp, BoxColliderComp, PlayerCharacterComp>();
 			player_transform.position = singleton.scene_transition_position - player_box.box.center();
+			singleton.scene_function();
 			singleton.scene_transition_timer = 0.f;
 			singleton.scene_transition_direction = SceneTransitionDirection::IN;
 			brightness = 0.f;
@@ -132,6 +138,8 @@ void update_transition_scene() {
 	}
 	ecs.ctx().get<CameraSingleton>().brightness = brightness;
 }
+
+void office_hall();
 
 void office_reception() {
 	scene_create(SpriteComp{.sprites = {Sprite::RECEPTION_BACKGROUND_1}});
@@ -145,6 +153,9 @@ void office_reception() {
 	scene_create(SpriteComp{.sprites = {Sprite::RECEPTION_DESK_1}},
 				 PolygonColliderComp{.polygon = LD::RECEPTION_DESK});
 	scene_create(PolygonColliderComp{.polygon = LD::RECEPTION_BORDER});
+	scene_create(InteractionComp{.box = LD::RECEPTION_TO_HALLWAY,
+								 .on_interact = [](){transition_scene(office_hall, LD::OFFICE_HALL_RECEPTION_ENTRANCE);},
+								 .type = InteractionType::PLAYER_ENTER});
 	center_scene(Sprite::RECEPTION_BACKGROUND_1);
 }
 
@@ -169,9 +180,21 @@ void enrette_office() {
 				 BoxColliderComp{.box = LD::ENRETTEOFFICE_BOOKS_BOX});
 	scene_create(PolygonColliderComp{.polygon = LD::ENRETTEOFFICE_BORDER});
 	scene_create(InteractionComp{.box = LD::ENRETTEOFFICE_DOOR_BOX,
-								 .on_interact = [](){transition_scene(office_reception, LD::RECEPTION_HALLWAY_POSITION);},
+								 .on_interact = [](){transition_scene(office_hall, LD::OFFICE_HALL_OFFICE_ENTRANCE);},
 								 .type = InteractionType::PLAYER_ENTER});
 	center_scene(Sprite::ENRETTEOFFICE_BG_1);
+}
+
+void office_hall() {
+	scene_create(SpriteComp{.sprites = {Sprite::HALLWAY_1}});
+	scene_create(PolygonColliderComp{.polygon = LD::OFFICE_HALL_BORDER});
+	scene_create(InteractionComp{.box = LD::OFFICE_HALL_TO_RECEPTION,
+								 .on_interact = [](){transition_scene(office_reception, LD::RECEPTION_HALLWAY_POSITION);},
+								 .type = InteractionType::PLAYER_ENTER});
+	scene_create(InteractionComp{.box = LD::OFFICE_HALL_TO_OFFICE,
+								 .on_interact = [](){transition_scene(enrette_office, LD::ENRETTEOFFICE_ENTRANCE_POSITION);},
+								 .type = InteractionType::PLAYER_ENTER});
+	free_camera();
 }
 
 void new_game() {
@@ -183,11 +206,8 @@ void new_game() {
 	entt::entity grakeny = spawn_grakeny();
 	ecs.get<TransformComp>(grakeny).position = LD::ENRETTEOFFICE_ENEMY_POSITION;
 
-	//entt::entity grakeny_2 = spawn_grakeny();
-	//ecs.get<TransformComp>(grakeny_2).position = Vector2(-300.f, 300.f);
-
 	auto player = spawn_player();
-	ecs.get<TransformComp>(player).position = LD::ENRETTEOFFICE_PLAYER_POSITION;
+	ecs.get<TransformComp>(player).position = LD::RECEPTION_ELEVATOR_ENTRANCE;
 
 	//load_game();
 
@@ -205,7 +225,7 @@ void new_game() {
 	  // 										.on_interact = [](){ start_dialog(TUTORIAL_2);}, .type = InteractionType::PLAYER_ENTER});
 	}
 
-	enrette_office();
+	office_reception();
 
 	//start_dialog(TUTORIAL_1);
 }
