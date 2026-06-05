@@ -130,7 +130,7 @@ void update_transition_scene() {
 
 	float brightness = scene_transition_timer / SCENE_TRANSITION_TIME;
 	if (scene_transition_direction == SceneTransitionDirection::OUT) {
-		brightness *= -1.f;
+		brightness = 1.f - brightness;
 	}
 	scene_transition_timer += delta_time;
 	if (scene_transition_timer > SCENE_TRANSITION_TIME) {

@@ -31,9 +31,10 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
-- Moving between scenes
-- Scene load/unload during fadout system
-
+- Asset load/unload during fadout system
+- Move player during scene transition
+- Prevent input during scene transition
+- Stop walking animation when can't move
 
 Art
 - Nielon
