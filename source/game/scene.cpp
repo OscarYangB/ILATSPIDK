@@ -1,4 +1,4 @@
-#include "spawn.h"
+#include "scene.h"
 #include "dialog.h"
 #include "cards.h"
 
@@ -20,15 +20,21 @@ constexpr const char* game_name = "a_basket_full_of_gold";
 enum class SceneTransitionDirection {
 	IN,
 	OUT,
-	NONE
 };
-SceneTransitionDirection scene_transition_direction = SceneTransitionDirection::NONE;
-std::vector<entt::entity> scene_entities{};
-constexpr float SCENE_TRANSITION_TIME = 0.5f;
-float scene_transition_timer = 0.f;
+
 using SceneFunction = void(*)();
-SceneFunction scene_function = nullptr;
-Vector2 scene_transition_position{};
+constexpr float SCENE_TRANSITION_TIME = 0.5f;
+
+struct SceneTransitionSingleton {
+	SceneTransitionDirection scene_transition_direction{};
+	float scene_transition_timer = 0.f;
+	SceneFunction scene_function = nullptr;
+	Vector2 scene_transition_position{};
+};
+
+struct SceneSingleton {
+	std::vector<entt::entity> scene_entities{};
+};
 
 static std::string get_save_location() {
 	const char* save_directory = SDL_GetPrefPath(company_name, game_name);
@@ -72,7 +78,7 @@ void load_game() {
 template<typename... Components>
 entt::entity scene_create(Components&&... components) {
 	auto entity = ecs.create();
-	scene_entities.push_back(entity);
+	ecs.ctx().get<SceneSingleton>().scene_entities.push_back(entity);
 	add_component(entity, TransformComp{});
 
 	([entity, &components...]() {
@@ -89,37 +95,39 @@ void center_scene(Sprite background) {
 }
 
 void transition_scene(SceneFunction new_scene, const Vector2& new_position) {
-	scene_function = new_scene;
-	scene_transition_position = new_position;
-	scene_transition_timer = 0.f;
-	scene_transition_direction = SceneTransitionDirection::OUT;
+	auto& singleton = ecs.ctx().emplace<SceneTransitionSingleton>();
+	singleton.scene_function = new_scene;
+	singleton.scene_transition_position = new_position;
+	singleton.scene_transition_timer = 0.f;
+	singleton.scene_transition_direction = SceneTransitionDirection::OUT;
 }
 
 void update_transition_scene() {
-	if (scene_transition_direction == SceneTransitionDirection::NONE) {
+	if (!ecs.ctx().contains<SceneTransitionSingleton>()) {
 		return;
 	}
+	auto& singleton = ecs.ctx().get<SceneTransitionSingleton>();
 
-	float brightness = scene_transition_timer / SCENE_TRANSITION_TIME;
-	if (scene_transition_direction == SceneTransitionDirection::OUT) {
+	float brightness = singleton.scene_transition_timer / SCENE_TRANSITION_TIME;
+	if (singleton.scene_transition_direction == SceneTransitionDirection::OUT) {
 		brightness = 1.f - brightness;
 	}
-	scene_transition_timer += delta_time;
-	if (scene_transition_timer > SCENE_TRANSITION_TIME) {
-		if (scene_transition_direction == SceneTransitionDirection::OUT) {
-			for (entt::entity entity : scene_entities) {
+	singleton.scene_transition_timer += delta_time;
+	if (singleton.scene_transition_timer > SCENE_TRANSITION_TIME) {
+		if (singleton.scene_transition_direction == SceneTransitionDirection::OUT) {
+			for (entt::entity entity : ecs.ctx().get<SceneSingleton>().scene_entities) {
 				ecs.destroy(entity);
 			}
-			scene_entities.clear();
-			scene_function();
+			ecs.ctx().get<SceneSingleton>().scene_entities.clear();
+			singleton.scene_function();
 			auto [player, player_transform, player_box] = get_first_component<TransformComp, BoxColliderComp, PlayerCharacterComp>();
-			player_transform.position = scene_transition_position - player_box.box.center();
-			scene_transition_timer = 0.f;
-			scene_transition_direction = SceneTransitionDirection::IN;
+			player_transform.position = singleton.scene_transition_position - player_box.box.center();
+			singleton.scene_transition_timer = 0.f;
+			singleton.scene_transition_direction = SceneTransitionDirection::IN;
 			brightness = 0.f;
 		} else {
 			brightness = 1.f;
-			scene_transition_direction = SceneTransitionDirection::NONE;
+			ecs.ctx().erase<SceneTransitionSingleton>();
 		}
 	}
 	ecs.ctx().get<CameraSingleton>().brightness = brightness;
@@ -170,6 +178,7 @@ void new_game() {
 	push_input_mode(InputMode::EXPLORE);
 
 	ecs.ctx().emplace<CameraSingleton>();
+	ecs.ctx().emplace<SceneSingleton>();
 
 	entt::entity grakeny = spawn_grakeny();
 	ecs.get<TransformComp>(grakeny).position = LD::ENRETTEOFFICE_ENEMY_POSITION;
@@ -226,5 +235,5 @@ entt::entity spawn_grakeny() {
 }
 
 bool is_scene_transitioning() {
-	return scene_transition_direction != SceneTransitionDirection::NONE;
+	return ecs.ctx().contains<SceneTransitionSingleton>();
 }

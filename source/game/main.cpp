@@ -1,5 +1,5 @@
 #include "dialog.h"
-#include "spawn.h"
+#include "scene.h"
 #include "combat.h"
 #include "main_menu.h"
 

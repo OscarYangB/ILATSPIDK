@@ -1,5 +1,5 @@
 #include "main_menu.h"
-#include "spawn.h"
+#include "scene.h"
 
 #include "../engine/game.h"
 #include "../engine/button.h"
