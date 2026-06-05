@@ -32,7 +32,11 @@ static void update_process_input() {
 		case InputMode::EXPLORE: {
 			update_interact();
 			update_player_enter();
-			update_movement();
+			if (!is_scene_transitioning()) {
+				update_movement();
+			} else {
+				stop_movement();
+			}
 			update_transition_scene();
 			break;
 		}

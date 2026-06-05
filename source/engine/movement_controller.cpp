@@ -4,9 +4,7 @@
 #include "render.h"
 
 void update_movement() {
-	auto view = ecs.view<TransformComp, PlayerMovementComp>();
-
-	for (auto [entity, transform, movement] : view.each()) {
+	for (auto [entity, transform, movement] : ecs.view<TransformComp, PlayerMovementComp>().each()) {
 		Vector2 movement_direction = Vector2::zero();
 
 		if (input_held(InputType::RIGHT) && !input_held(InputType::LEFT)) {
@@ -26,10 +24,16 @@ void update_movement() {
 		}
 
 		if (movement_direction.magnitude() > 0.f) {
-			transform.move(entity, transform.position + movement_direction.normalized() * movement.speed * delta_time);
-			movement.is_moving = true;
+			bool moved = transform.move(entity, transform.position + movement_direction.normalized() * movement.speed * delta_time);
+			movement.is_moving = moved;
 		} else {
 			movement.is_moving = false;
 		}
+	}
+}
+
+void stop_movement() {
+	for (auto [entity, transform, movement] : ecs.view<TransformComp, PlayerMovementComp>().each()) {
+		movement.is_moving = false;
 	}
 }

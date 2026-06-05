@@ -28,6 +28,7 @@ constexpr float SCENE_TRANSITION_TIME = 0.5f;
 float scene_transition_timer = 0.f;
 using SceneFunction = void(*)();
 SceneFunction scene_function = nullptr;
+Vector2 scene_transition_position{};
 
 static std::string get_save_location() {
 	const char* save_directory = SDL_GetPrefPath(company_name, game_name);
@@ -87,8 +88,9 @@ void center_scene(Sprite background) {
 	ecs.ctx().get<CameraSingleton>().camera_position = {dimensions.width / 2.f, -dimensions.height / 2.f};
 }
 
-void transition_scene(SceneFunction new_scene) {
+void transition_scene(SceneFunction new_scene, const Vector2& new_position) {
 	scene_function = new_scene;
+	scene_transition_position = new_position;
 	scene_transition_timer = 0.f;
 	scene_transition_direction = SceneTransitionDirection::OUT;
 }
@@ -110,6 +112,8 @@ void update_transition_scene() {
 			}
 			scene_entities.clear();
 			scene_function();
+			auto [player, player_transform, player_box] = get_first_component<TransformComp, BoxColliderComp, PlayerCharacterComp>();
+			player_transform.position = scene_transition_position - player_box.box.center();
 			scene_transition_timer = 0.f;
 			scene_transition_direction = SceneTransitionDirection::IN;
 			brightness = 0.f;
@@ -156,7 +160,8 @@ void enrette_office() {
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_BOOKS_1}},
 				 BoxColliderComp{.box = LD::ENRETTEOFFICE_BOOKS_BOX});
 	scene_create(PolygonColliderComp{.polygon = LD::ENRETTEOFFICE_BORDER});
-	scene_create(InteractionComp{.box = LD::ENRETTEOFFICE_DOOR_BOX, .on_interact = [](){transition_scene(office_reception);},
+	scene_create(InteractionComp{.box = LD::ENRETTEOFFICE_DOOR_BOX,
+								 .on_interact = [](){transition_scene(office_reception, LD::RECEPTION_HALLWAY_POSITION);},
 								 .type = InteractionType::PLAYER_ENTER});
 	center_scene(Sprite::ENRETTEOFFICE_BG_1);
 }
@@ -218,4 +223,8 @@ entt::entity spawn_grakeny() {
 	add_component(entity, CycleAnimComp{.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}, .frequency = 2.f});
 	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 50.f, .type = CharacterType::EVIL, .inventory = make_cards({CardID::GRENADE})});
 	return entity;
+}
+
+bool is_scene_transitioning() {
+	return scene_transition_direction != SceneTransitionDirection::NONE;
 }

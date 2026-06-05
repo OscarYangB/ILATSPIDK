@@ -429,6 +429,10 @@ bool TransformComp::move(entt::entity entity_to_move, const Vector2& new_positio
 }
 
 bool TransformComp::can_move(entt::entity entity_to_move, const Vector2& new_position) {
+	if (position == new_position) {
+		return false;
+	}
+
 	if (BoxColliderComp* collider_to_move = ecs.try_get<BoxColliderComp>(entity_to_move); collider_to_move != nullptr) {
 		Box test_box = Box::bounds(collider_to_move->box + position, collider_to_move->box + new_position);
 

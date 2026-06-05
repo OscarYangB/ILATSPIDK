@@ -14,3 +14,4 @@ struct PlayerMovementComp {
 };
 
 void update_movement();
+void stop_movement();
