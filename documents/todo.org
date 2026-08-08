@@ -31,8 +31,6 @@
 | #27    |   | <2027-01-03 Sun> |                                 | ALPHA             |
 |--------+---+------------------+---------------------------------+-------------------|
 
-- Asset load/unload during fadout system
-
 Art
 - Nielon
 - Better dialog UI
@@ -42,8 +40,12 @@ Art
 - Tab to indent according to mode when line is empty and no selection
 - C-backspace stops on capital letter and line start
 - Go to top/bottom of page and push onto xref
-- Hotkey for lsp-execute-code-action
-- Pre-execute hook for open file add to x-ref history
+- Pre-execute hook for open file add to x-ref history (use window-selection-change-functions and filter out read-only buffers (buffer-read-only))
+- Remove bookmark feature
+- Fix init.el compile warnings
+- Put keybinds and dependencies in README.org in init.el repo
+- M-d for (delete-forward-char)
+- Use (keymap-global-set)
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Combat UI

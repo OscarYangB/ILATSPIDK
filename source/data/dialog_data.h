@@ -5,170 +5,51 @@
 #include "dialog_structures.h"
 
 enum class Speaker {
-	WIZARD,
-	LADYBUG,
-	NIELON,
 	KERRY,
-	TABLE,
-	NARRATOR,
-	INTERCOM,
-	ENRETTE,
-	MAXWELL,
-	SAM
+	NARRATOR
 };
 
-void give_flower();
-void start_table_fight();
+void hallway_outside_office();
 
 
-bool has_flower();
-bool has_cat();
 
 
-constexpr Dialog SAMPLE_DIALOG[] {
-/* 001 */	DialogLine { {"Do you know where to find the orb?"}, Speaker::WIZARD },
-/* 002 */	DialogChoice { {"Orange: Yes!"}, 5, nullptr },
+constexpr Dialog ENRETTE_BODY[] {
+/* 001 */	DialogLine { {"Mom?"}, Speaker::KERRY },
+/* 002 */	DialogLine { {"She is dead."}, Speaker::NARRATOR },
 /* 003 */	DialogJump { 0 },
-/* 004 */	DialogJump { 29 },
-/* 005 */	DialogChoice { {"Orange: No"}, 0, nullptr },
-/* 006 */	DialogLine { {"Where is it?"}, Speaker::WIZARD },
-/* 007 */	DialogChoice { {"Orange: It's off the coast of Kamlin?"}, 22, nullptr },
-/* 008 */	DialogLine { {"And where is that?"}, Speaker::WIZARD },
-/* 009 */	DialogChoice { {"Orange: Huh?"}, 12, nullptr },
-/* 010 */	DialogLine { {"Don't be smart with me, dolt!"}, Speaker::WIZARD },
-/* 011 */	DialogJump { 14 },
-/* 012 */	DialogChoice { {"Orange: I don't know what you're talking about!"}, 0, nullptr },
-/* 013 */	DialogLine { {"You will!"}, Speaker::WIZARD },
-/* 014 */	DialogLine { {"Shut up!"}, Speaker::LADYBUG },
-/* 015 */	DialogLine { {"That's no way to talk to me."}, Speaker::WIZARD },
-/* 016 */	DialogChoice { {"Ladybug: Shut up!!"}, 19, nullptr },
-/* 017 */	DialogJump { 0 },
-/* 018 */	DialogJump { 21 },
-/* 019 */	DialogChoice { {"Orange: Haha!"}, 0, nullptr },
-/* 020 */	DialogJump { 1 },
-/* 021 */	DialogJump { 29 },
-/* 022 */	DialogChoice { {"Orange: It's behind you?"}, 26, nullptr },
-/* 023 */	DialogLine { {"Wrong!"}, Speaker::WIZARD },
-/* 024 */	DialogJump { 0 },
-/* 025 */	DialogJump { 29 },
-/* 026 */	DialogChoice { {"Orange: It's in the museum of modern political science!"}, 0, nullptr },
-/* 027 */	DialogLine { {"Yes!"}, Speaker::WIZARD },
-/* 028 */	DialogJump { 0 },
-/* 029 */	DialogJump { 0 },
 };
 
-constexpr Dialog SAMPLE_DIALOGUE[] {
-/* 001 */	DialogLine { {"Ah, there we are. Can you hear me?"}, Speaker::NIELON },
-/* 002 */	DialogChoice { {"Kerry: Yes, I can"}, 5, nullptr },
-/* 003 */	DialogLine { {"Excellent! Let's proceed."}, Speaker::NIELON },
-/* 004 */	DialogJump { 10 },
-/* 005 */	DialogChoice { {"Kerry: No, I can't"}, 0, nullptr },
-/* 006 */	DialogLine { {"Oh boy that's no good. Let me try something..."}, Speaker::NIELON },
-/* 007 */	DialogLine { {"Alright."}, Speaker::KERRY },
-/* 008 */	DialogLine { {"Okay now can you hear me?"}, Speaker::NIELON },
-/* 009 */	DialogJump { 2 },
-/* 010 */	DialogLine { {"Do you have that flower in your inventory?"}, Speaker::NIELON },
-/* 011 */	DialogCheck { has_flower, 15 },
-/* 012 */	DialogLine { {"Yes"}, Speaker::KERRY },
-/* 013 */	DialogJump { 0 },
-/* 014 */	DialogJump { 18 },
-/* 015 */	DialogChoice { {""}, 0, nullptr },
-/* 016 */	DialogLine { {"No"}, Speaker::KERRY },
-/* 017 */	DialogFunction { give_flower },
-/* 018 */	DialogLine { {"Chungus."}, Speaker::NIELON },
-/* 019 */	DialogJump { 0 },
+constexpr Dialog DESK[] {
+/* 001 */	DialogLine { {"The desk has a framed photograph of a smiling family. A mother, a father, a son, a daughter."}, Speaker::NARRATOR },
+/* 002 */	DialogLine { {"Judging by the age of the daughter, this photo was taken decades ago."}, Speaker::NARRATOR },
+/* 003 */	DialogLine { {"In present day, the daughter lies lifeless in front of you."}, Speaker::NARRATOR },
+/* 004 */	DialogJump { 0 },
 };
 
-constexpr Dialog TABLE_DIALOG[] {
-/* 001 */	DialogLine { {"I'm a table!"}, Speaker::TABLE },
-/* 002 */	DialogChoice { {"Kerry: You sure look like one."}, 14, nullptr },
-/* 003 */	DialogLine { {"I sure do!"}, Speaker::TABLE },
-/* 004 */	DialogLine { {"..."}, Speaker::KERRY },
-/* 005 */	DialogLine { {"Would you like to come in and have a drink?"}, Speaker::TABLE },
-/* 006 */	DialogChoice { {"Kerry: Come in where?"}, 10, nullptr },
-/* 007 */	DialogLine { {"Into my home of course!"}, Speaker::TABLE },
-/* 008 */	DialogJump { 6 },
-/* 009 */	DialogJump { 13 },
-/* 010 */	DialogChoice { {"Kerry: Uhhh... sure"}, 0, nullptr },
-/* 011 */	DialogLine { {"Come on in!"}, Speaker::TABLE },
-/* 012 */	DialogJump { 0 },
-/* 013 */	DialogJump { 25 },
-/* 014 */	DialogChoice { {"Kerry: I don't think so..."}, 20, nullptr },
-/* 015 */	DialogLine { {"That's quite a rude thing to say don't you think? I think that you should take a deep breath. Just to calm yourself down!"}, Speaker::TABLE },
-/* 016 */	DialogLine { {"I'm sorry"}, Speaker::KERRY },
-/* 017 */	DialogLine { {"You better be!"}, Speaker::TABLE },
-/* 018 */	DialogFunction { start_table_fight },
-/* 019 */	DialogJump { 25 },
-/* 020 */	DialogChoice { {"Kerry: Here's a cat!"}, 23, has_cat },
-/* 021 */	DialogLine { {"Thank you!"}, Speaker::TABLE },
-/* 022 */	DialogJump { 25 },
-/* 023 */	DialogChoice { {"Kerry: FIGHT ME!!"}, 0, nullptr },
-/* 024 */	DialogFunction { start_table_fight },
-/* 025 */	DialogJump { 0 },
+constexpr Dialog CHARGING_STATION[] {
+/* 001 */	DialogLine { {"This is where you sleep. You were sleeping when Enrette died. Why didn't she wake you?"}, Speaker::NARRATOR },
+/* 002 */	DialogJump { 0 },
 };
 
-constexpr Dialog TUTORIAL_DIALOG[] {
-/* 001 */	DialogLine { {"The wind. It's the first thing that Kerry ever hears. And it's peaceful in those first moments."}, Speaker::NARRATOR },
-/* 002 */	DialogLine { {"It's perfect. And it's happy. Until more is understood. This is very often the case. In this case, the room is dusty and Kerry is being scolded."}, Speaker::NARRATOR },
-/* 003 */	DialogLine { {"Wake up child, I don't have long. I'm really very busy."}, Speaker::INTERCOM },
-/* 004 */	DialogLine { {"But we're all busy aren't we?"}, Speaker::NARRATOR },
-/* 005 */	DialogLine { {"What do you mean?"}, Speaker::KERRY },
-/* 006 */	DialogLine { {"I mean you should hurry up and move to the next room."}, Speaker::INTERCOM },
-/* 007 */	DialogLine { {"I mean that, as many have observed, we're first busy being born, then we're busy eating, shitting, drinking. And while all that is going on, we're busy dying."}, Speaker::NARRATOR },
-/* 008 */	DialogLine { {"That's a sad way to look at it."}, Speaker::KERRY },
-/* 009 */	DialogLine { {"Who are you talking to?"}, Speaker::INTERCOM },
-/* 010 */	DialogLine { {"Ignore him. He's not very important. What's important is that humans were the only species to realize their busyness. To really analyze their situation deeply."}, Speaker::NARRATOR },
-/* 011 */	DialogLine { {"Am I human?"}, Speaker::KERRY },
-/* 012 */	DialogLine { {"No"}, Speaker::INTERCOM },
-/* 013 */	DialogLine { {"Yes. You will see."}, Speaker::NARRATOR },
-/* 014 */	DialogLine { {"For now, you should probably follow the instructions from the intercom. Use the WASD keys to move around."}, Speaker::NARRATOR },
-/* 015 */	DialogJump { 0 },
+constexpr Dialog CALENDAR[] {
+/* 001 */	DialogLine { {"The calendar says that it's July 15th 1835. You have been asleep for 3 days."}, Speaker::NARRATOR },
+/* 002 */	DialogJump { 0 },
 };
 
-constexpr Dialog TUTORIAL_1[] {
-/* 001 */	DialogLine { {"I dreamt of my mother last night. Do you think that means anything?"}, Speaker::ENRETTE },
-/* 002 */	DialogLine { {"..."}, Speaker::KERRY },
-/* 003 */	DialogLine { {"I was sitting on the porch -- the one back home -- and I was crying."}, Speaker::ENRETTE },
-/* 004 */	DialogLine { {"I can't remember what I tried to say to her, but she was just staring at me without saying anything."}, Speaker::ENRETTE },
-/* 005 */	DialogLine { {"I hope I said sorry. And I hope that she could hear me."}, Speaker::ENRETTE },
-/* 006 */	DialogLine { {"..."}, Speaker::KERRY },
-/* 007 */	DialogLine { {"Yeah, that's what I thought. Anyway it's almost over now."}, Speaker::ENRETTE },
-/* 008 */	DialogLine { {"You have five minutes director."}, Speaker::NIELON },
-/* 009 */	DialogLine { {"Thank you sir, the team has been working very hard. Kerry, why don't you move around for us? (With the WASD keys perhaps?)"}, Speaker::ENRETTE },
-/* 010 */	DialogJump { 0 },
+constexpr Dialog BOOKS[] {
+/* 001 */	DialogLine { {"These books are unrealistically large."}, Speaker::NARRATOR },
+/* 002 */	DialogJump { 0 },
 };
 
-constexpr Dialog TUTORIAL_2[] {
-/* 001 */	DialogLine { {"We're still working on integrating the Necromancer project technology that you mentioned."}, Speaker::ENRETTE },
-/* 002 */	DialogLine { {"I've seen enough. I'm letting go of your entire team including you. The Kerry project will be merged with Necromancer."}, Speaker::NIELON },
-/* 003 */	DialogLine { {"..."}, Speaker::ENRETTE },
-/* 004 */	DialogLine { {"There's nothing you'd like to say?"}, Speaker::NIELON },
-/* 005 */	DialogLine { {"Kerry, kill him."}, Speaker::ENRETTE },
-/* 006 */	DialogLine { {"So you HAVE figured out the Necromancer technology."}, Speaker::NIELON },
-/* 007 */	DialogLine { {"What happened?"}, Speaker::ENRETTE },
-/* 008 */	DialogLine { {"I am under the protection of a power greater than you can understand. I did not mean for it to injure you so badly, but of course it was in self-defence."}, Speaker::NIELON },
-/* 009 */	DialogLine { {"I don't know why you attempted this, but needless to say, you're still fired if you survive."}, Speaker::NIELON },
-/* 010 */	DialogLine { {"Your five minutes are up. Goodbye."}, Speaker::NIELON },
-/* 011 */	DialogLine { {"Kerry? Can you hear me?"}, Speaker::ENRETTE },
-/* 012 */	DialogLine { {"..."}, Speaker::KERRY },
-/* 013 */	DialogLine { {"Everything is wrong in this world. When you leave this room remember that. When you leave this room everything will appear okay to you."}, Speaker::ENRETTE },
-/* 014 */	DialogLine { {"There is no lie, nobody will really lie to you. Everything is as it seems, but everything is still wrong and nobody can tell. Something is evil in this world."}, Speaker::ENRETTE },
-/* 015 */	DialogLine { {"I'm sorry for bringing you into all of this."}, Speaker::ENRETTE },
-/* 016 */	DialogLine { {"What was all that noise dad?"}, Speaker::MAXWELL },
-/* 017 */	DialogLine { {"Oh Ms. Enrette was just showing me her project. It's nothing to worry about."}, Speaker::NIELON },
-/* 018 */	DialogLine { {"Is Ms. Enrette busy right now? She promised me that she would teach me more about feedback delay networks and also demo her project!"}, Speaker::LADYBUG },
-/* 019 */	DialogLine { {"She is very busy. You won't be seeing her for quite some time, but her project is right there. It's called Kerry."}, Speaker::NIELON },
-/* 020 */	DialogLine { {"Wow!"}, Speaker::LADYBUG },
-/* 021 */	DialogLine { {"You can take a closer look but be careful. It's extremely expensive."}, Speaker::NIELON },
-/* 022 */	DialogLine { {"Thanks Nielon!"}, Speaker::LADYBUG },
-/* 023 */	DialogLine { {"Sir!"}, Speaker::SAM },
-/* 024 */	DialogLine { {"I'm taking my kids to lunch. Whatever this is has got to wait."}, Speaker::NIELON },
-/* 025 */	DialogLine { {"It's from the Necromancer project. He wants to see you right away. His team has been pinging me nonstop."}, Speaker::SAM },
-/* 026 */	DialogLine { {"I haven't seen him in years, are you sure he wants me right now?"}, Speaker::NIELON },
-/* 027 */	DialogLine { {"It's okay dad, you pretty much never cancel on me. You should go if it's an emergency."}, Speaker::MAXWELL },
-/* 028 */	DialogLine { {"That's kind of you son. Although I remember cancelling on your recently when the company made me fly out that one time."}, Speaker::NIELON },
-/* 029 */	DialogLine { {"That was years ago! You should go!"}, Speaker::MAXWELL },
-/* 030 */	DialogLine { {"Alright, thank you son. I'll see you and Ladybug again soon."}, Speaker::NIELON },
-/* 031 */	DialogJump { 0 },
+constexpr Dialog DOOR[] {
+/* 001 */	DialogLine { {"You hear danger ahead."}, Speaker::NARRATOR },
+/* 002 */	DialogChoice { {"Open the door"}, 6, nullptr },
+/* 003 */	DialogFunction { hallway_outside_office },
+/* 004 */	DialogJump { 0 },
+/* 005 */	DialogJump { 8 },
+/* 006 */	DialogChoice { {"Nevermind"}, 0, nullptr },
+/* 007 */	DialogJump { 0 },
+/* 008 */	DialogJump { 0 },
 };
 

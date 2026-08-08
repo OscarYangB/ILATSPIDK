@@ -21,7 +21,7 @@ def write_line(line : str):
 
 def add_dialog(file_name : str):
     global dialog_data
-    dialog_data[-1] += "constexpr Dialog %s[] {\n"%file_name.upper()
+    dialog_data[-1] += "constexpr Dialog %s[] {\n"%file_name.upper().replace(' ', '_')
 
 def add_line(line, speaker):
     write_line("\tDialogLine { {\"%s\"}, %s },\n"%(line, speaker))
@@ -67,7 +67,7 @@ def parse_dialog(file : str):
     lines = file.split("\n")
     for line in lines:
         line = line.lstrip().rstrip()
-        if line == "":
+        if line == '':
             continue
         if line.startswith("#"):
             continue
@@ -99,9 +99,13 @@ def parse_dialog(file : str):
             line = line.removeprefix("[").removesuffix("]")
             add_function(line)
             continue
-        parsed_line = line.split(": ")
-        prefix = parsed_line[0]
-        data = parsed_line[1]
+        if line.find(': ') == -1:
+            prefix = 'Narrator'
+            data = line
+        else:
+            parsed_line = line.split(": ")
+            prefix = parsed_line[0]
+            data = parsed_line[1]
         if prefix == "goto":
             add_jump("|")
             line_to_variable[line_index] = data
@@ -129,9 +133,19 @@ def parse_dialog(file : str):
 
 for (name, path) in get_files_of_type("dlg"):
     with open(path) as file:
-        dialog_data.append("")
-        add_dialog(name)
-        parse_dialog(file.read())
+        text = file.read()
+        if text.find('* ') == -1:
+            dialog_data.append("")
+            add_dialog(name)
+            parse_dialog(text)
+        else:
+            for section in text.split('* '):
+                if section == '':
+                    continue
+                section = section.split('\n', 1)
+                dialog_data.append("")
+                add_dialog(section[0])
+                parse_dialog(section[1])
 
 speaker_enum_builder = EnumBuilder("Speaker")
 for speaker in speaker_list: speaker_enum_builder.add_entry(speaker)

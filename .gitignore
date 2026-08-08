@@ -9,4 +9,5 @@ tools/external/*
 tools/__pycache__
 
 assets/*
+garbage/*
 .cache/*
