@@ -159,14 +159,36 @@ void office_reception() {
 	center_scene(Sprite::RECEPTION_BACKGROUND_1);
 }
 
+inline static bool office_lights_on = false;
+
+void office_turn_on_lights() {
+	ecs.ctx().erase<TintSingleton>();
+	office_lights_on = true;
+}
+
 void enrette_office() {
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_BG_1}});
+	entt::entity border = scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_BORDER_1}});
+	entt::entity light_switch = scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_SWITCH_1}},
+											 InteractionComp{.box = LD::ENRETTEOFFICE_LIGHT_SWITCH,
+															 .on_interact = [](){start_dialog(LIGHT_SWITCH);},
+															 .can_interact = [](){return !office_lights_on;},
+															 .type = InteractionType::INTERACT});
+	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_CHARGING_1}},
+				 InteractionComp{.box = LD::ENRETTEOFFICE_CHARGING,
+								 .on_interact = [](){if (office_lights_on) start_dialog(CHARGING_STATION);},
+								 .type = InteractionType::INTERACT},
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_CHARGING});
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_SHELF_1}},
 				 BoxColliderComp{.box = LD::ENRETTEOFFICE_SHELF_BOX});
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_DRAWER_1}},
 				 BoxColliderComp{.box = LD::ENRETTEOFFICE_DRAWER_BOX});
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_TABLE_1}},
-				 BoxColliderComp{.box = LD::ENRETTEOFFICE_TABLE_BOX});
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_TABLE_BOX},
+				 InteractionComp{.box = LD::ENRETTEOFFICE_TABLE_BOX,
+								 .on_interact = [](){start_dialog(DESK);},
+								 .can_interact = [](){return office_lights_on;},
+								 .type = InteractionType::INTERACT});
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_CHAIR_1}},
 				 BoxColliderComp{.box = LD::ENRETTEOFFICE_CHAIR_BOX});
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_COUCH_1}},
@@ -177,12 +199,30 @@ void enrette_office() {
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_GARBAGE_1}},
 				 BoxColliderComp{.box = LD::ENRETTEOFFICE_GARBAGE_BOX});
 	scene_create(SpriteComp{.sprites = {Sprite::ENRETTEOFFICE_BOOKS_1}},
-				 BoxColliderComp{.box = LD::ENRETTEOFFICE_BOOKS_BOX});
+				 BoxColliderComp{.box = LD::ENRETTEOFFICE_BOOKS_BOX},
+				 InteractionComp{.box = LD::ENRETTEOFFICE_BOOKS_BOX,
+								 .on_interact = [](){start_dialog(BOOKS);},
+								 .can_interact = [](){return office_lights_on;},
+								 .type = InteractionType::INTERACT});
 	scene_create(PolygonColliderComp{.polygon = LD::ENRETTEOFFICE_BORDER});
 	scene_create(InteractionComp{.box = LD::ENRETTEOFFICE_DOOR_BOX,
-								 .on_interact = [](){transition_scene(office_hall, LD::OFFICE_HALL_OFFICE_ENTRANCE);},
+								 .on_interact = [](){start_dialog(DOOR);},
+								 .can_interact = [](){return office_lights_on;},
 								 .type = InteractionType::PLAYER_ENTER});
+	scene_create(SpriteComp{.sprites = Sprite::ENRETTEOFFICE_CALENDAR_1},
+				 InteractionComp{.box = LD::ENRETTEOFFICE_CALENDAR,
+								 .on_interact = [](){start_dialog(CALENDAR);},
+								 .can_interact = [](){return office_lights_on;},
+								 .type = InteractionType::INTERACT});
+	auto [player_entity] = get_first_component<PlayerCharacterComp>();
+	if (!office_lights_on) {
+		ecs.ctx().emplace<TintSingleton>(TintSingleton{.tint = Colour{15, 15, 20, 255}, .excluded_entities = {player_entity, border, light_switch}});
+	}
 	center_scene(Sprite::ENRETTEOFFICE_BG_1);
+}
+
+void office_go_to_hallway() {
+	transition_scene(office_hall, LD::OFFICE_HALL_OFFICE_ENTRANCE);
 }
 
 void office_hall() {
@@ -214,9 +254,9 @@ void new_game() {
 	{ // TABLE
 	  auto entity = ecs.create();
 	  auto& sprite = add_component(entity, SpriteComp{.sprites = {Sprite::TABLE}});
-	  add_component(entity, TransformComp{.position = {0.f, 0.f}});
+	  add_component(entity, TransformComp{.position = {100.f, -100.f}});
 	  add_component(entity, BoxColliderComp{LD::KERRY_COLLISION});
-	  add_component(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG); }});
+	  //add_component(entity, InteractionComp{ .box = sprite.bounding_box(), .on_interact = [](){ start_dialog(TABLE_DIALOG); }});
 	}
 	{ // Tutorial trigger
 	  auto entity = ecs.create();
@@ -225,7 +265,7 @@ void new_game() {
 	  // 										.on_interact = [](){ start_dialog(TUTORIAL_2);}, .type = InteractionType::PLAYER_ENTER});
 	}
 
-	office_reception();
+	enrette_office();
 
 	//start_dialog(TUTORIAL_1);
 }
@@ -237,7 +277,7 @@ entt::entity spawn_player() {
 	add_component(entity, PlayerMovementComp{.speed = 200.f});
 	add_component(entity, BoxColliderComp{LD::KERRY_COLLISION});
 	add_component(entity, CharacterDataComp{.name = {"Kerry"}, .starting_health = 150.f, .type = CharacterType::GOOD,
-		.inventory = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE })});
+		.deck = make_cards({ CardID::FIREBALL, CardID::SATURN, CardID::MIND_READ, CardID::SATURN, CardID::SATURN, CardID::GRENADE, CardID::GRENADE, CardID::HEAL, CardID::GRENADE })});
 	add_component(entity, CharacterAnimComp{});
 	add_component(entity, PlayerCharacterComp{});
 	add_component(entity, PerspectiveComp{});
@@ -250,7 +290,7 @@ entt::entity spawn_grakeny() {
 	add_component(entity, TransformComp{});
 	add_component(entity, BoxColliderComp{LD::KERRY_COLLISION});
 	add_component(entity, CycleAnimComp{.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}, .frequency = 2.f});
-	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 50.f, .type = CharacterType::EVIL, .inventory = make_cards({CardID::GRENADE})});
+	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 50.f, .type = CharacterType::EVIL, .deck = make_cards({CardID::GRENADE})});
 	return entity;
 }
 

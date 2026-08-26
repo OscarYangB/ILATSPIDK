@@ -28,7 +28,7 @@ void create_action_text() {
 void update_action_text() {
 	auto [entity, text] = get_first_component<ActionText, TextComp>();
 	if (get_combat().get_active_character()->played_card.has_value()) {
-		text.text = std::string{get_combat().get_active_character()->data->name.get()} + " " +
+		text.text = std::string{get_combat().get_active_character()->get_data().name.get()} + " " +
 				   std::string{get_combat().get_active_character()->played_card.value().card.data->play_text.get()};
 	} else {
 		text.text = {};
@@ -139,7 +139,7 @@ void create_healthbars() {
 		auto& transform = add_component(entity, TransformComp{.position = {10.f, -50.f}});
 		character_transform.add_child(character_entity, entity);
 		auto& sprite = add_component(entity, SpriteComp{.sprites = { Sprite::HEALTHBAR_OUTLINE_1, Sprite::HEALTHBAR_DYNAMIC_1, Sprite::HEALTHBAR_GOOD_1}});
-		switch (character_component.data->type) {
+		switch (character_component.get_data().type) {
 		case CharacterType::GOOD: sprite.sprites.at(2) = Sprite::HEALTHBAR_GOOD_1; break;
 		case CharacterType::EVIL: sprite.sprites.at(2) = Sprite::HEALTHBAR_EVIL_1; break;
 		case CharacterType::FURNITURE: sprite.sprites.at(2) = Sprite::HEALTHBAR_NEUTRAL_1; break;
@@ -315,20 +315,12 @@ void UI::start_combat() {
 	create_action_text();
 }
 
-constexpr u16 CARD_HOVER_WIDTH = 145;
-constexpr u16 CARD_HOVER_HEIGHT = 200;
-constexpr u16 CARD_HOVER_EXPANDED_HEIGHT = 250;
-
 constexpr u16 CARD_SPRITE_WIDTH = 150;
 constexpr u16 CARD_SPRITE_HEIGHT = 200;
 
-constexpr u16 CARD_SPRITE_SHOWN_OFFSET = 3;
-constexpr u16 CARD_SPRITE_HIDDEN_OFFSET = 100;
-constexpr u16 CARD_SPRITE_OFF_SCREEN_OFFSET = 400;
-
 float card_x_offset(u8 hand_size, u8 index) {
-	float starting_position = -(CARD_HOVER_WIDTH * hand_size) / 2.f + (CARD_HOVER_WIDTH / 2.f);
-	return starting_position + CARD_HOVER_WIDTH * index;
+	float starting_position = -(CARD_SPRITE_WIDTH * hand_size) / 2.f + (CARD_SPRITE_WIDTH / 2.f);
+	return starting_position + CARD_SPRITE_WIDTH * index;
 }
 
 void attach_card_visual(Card card, entt::entity parent) {
@@ -343,11 +335,6 @@ void attach_card_visual(Card card, entt::entity parent) {
 	add_component(frame, UITransformComp{.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT});
 	transform.add_child(parent, frame);
 	auto& sprite = add_component(frame, SpriteComp{});
-	switch (card.data->card_type) {
-	case CardType::PSYCHIC: sprite.sprites = {Sprite::CARD_PSYCHIC_1, Sprite::CARD_PSYCHIC_LVL_1}; break;
-	case CardType::MAGIC: sprite.sprites = {Sprite::CARD_MAGIC_1, Sprite::CARD_MAGIC_LVL_1}; break;
-	case CardType::GROOVE: sprite.sprites = {Sprite::CARD_GROOVE_1, Sprite::CARD_GROOVE_LVL_1}; break;
-	}
 
 	entt::entity name = ecs.create();
 	add_component(name, UITransformComp{.relative_position = {0.f, 10.f}, .width = CARD_SPRITE_WIDTH, .height = 200});
@@ -379,55 +366,14 @@ void create_card_preview(Card card) {
 void on_card_hover(entt::entity hovered_entity) {
 	auto& hovered_button = ecs.get<HandButtonComp>(hovered_entity);
 	u8 index = hovered_button.index;
-	u8 hand_size = get_combat().get_active_character()->hand.size();
-
-	auto view = ecs.view<HandCardComp, UITransformComp>();
 	auto [card_entity, hovered_card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
 	get_combat().ui.hovered_card = card_entity;
-	ecs.get<UITransformComp>(hovered_entity).height = CARD_HOVER_EXPANDED_HEIGHT;
-
-	stop_animation(hovered_card.animation_id);
-	hovered_card.animation_id = start_animation_group();
-	play_animation(0.04, 0.0, &UITransformComp::scale, card_entity, [](Animation& animation, float starting_value) {
-		return smooth_curve(2.f, animation, starting_value);
-	});
-	play_animation(0.04, 0.0, &UITransformComp::relative_position, card_entity, [index, hand_size](Animation& animation, Vector2 starting_value) {
-		float x_target = card_x_offset(hand_size, index);
-		return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve<float>(CARD_SPRITE_SHOWN_OFFSET, animation, starting_value.y)};
-	});
-	end_animation_group();
-
-	for (auto [entity, card, transform] : view.each()) {
-		u8 current_index = card.index;
-		int distance_from_hovered = std::abs(current_index - index);
-		transform.sort_order = hand_size - 1 - distance_from_hovered;
-
-		if (current_index != index) {
-			stop_animation(card.animation_id);
-
-			card.animation_id = start_animation_group();
-			float distance_weight = distance_from_hovered / 25.f;
-			play_animation(0.06, 0.0, &UITransformComp::scale, entity, [distance_weight](Animation& animation, float starting_value) {
-				return smooth_curve(1.f - distance_weight * 1.f, animation, starting_value);
-			});
-			float x_offset = current_index > index ? 70.f : -70.f;
-			float x_offset_coeff = current_index > index ? -60.f : 60.f;
-			x_offset += x_offset_coeff * (distance_from_hovered / 2.5f);
-			play_animation(0.10, 0.0, &UITransformComp::relative_position, entity, [current_index, x_offset, distance_from_hovered, hand_size](Animation& animation, Vector2 starting_value) {
-				float x_target = card_x_offset(hand_size, current_index) + x_offset;
-				float y_target = CARD_SPRITE_SHOWN_OFFSET + 2.0f - 12.f * distance_from_hovered;
-				return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve(y_target, animation, starting_value.y)};
-			});
-			end_animation_group();
-		}
-	}
 }
 
 void create_cancel_area();
 
 void on_card_unhover(entt::entity entity) {
 	get_combat().ui.hovered_card = entt::null;
-	float y_target = CARD_SPRITE_HIDDEN_OFFSET;
 
 	u8 index = ecs.get<HandButtonComp>(entity).index;
 	auto [card_entity, unhovered_card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
@@ -435,7 +381,6 @@ void on_card_unhover(entt::entity entity) {
 		create_arrow();
 		create_card_preview(unhovered_card.get_card());
 		create_cancel_area();
-		y_target = CARD_SPRITE_OFF_SCREEN_OFFSET;
 		auto& tint_singleton = ecs.ctx().emplace<TintSingleton>(Colour{150, 150, 150, 255});
 		for (auto [entity, character, transform] : ecs.view<CharacterComp, TransformComp>().each()) {
 			if (is_valid_target(*get_combat().get_active_character(), character, unhovered_card.get_card())) {
@@ -446,25 +391,6 @@ void on_card_unhover(entt::entity entity) {
 			}
 		}
 	}
-
-	u8 hand_size = get_combat().get_active_character()->hand.size();
-
-	for (auto [entity, card, transform] : ecs.view<HandCardComp, UITransformComp>().each()) {
-		u8 index = card.index;
-		stop_animation(card.animation_id);
-
-		card.animation_id = start_animation_group();
-		play_animation(0.04, 0.0, &UITransformComp::scale, entity, [](Animation& animation, float starting_value) {
-			return smooth_curve(1.f, animation, starting_value);
-		});
-		play_animation(0.04, 0.0, &UITransformComp::relative_position, entity, [hand_size, index, y_target](Animation& animation, Vector2 starting_value) {
-			float x_target = card_x_offset(hand_size, index);
-			return Vector2{smooth_curve(x_target, animation, starting_value.x), smooth_curve<float>(y_target, animation, starting_value.y)};
-		});
-		end_animation_group();
-	}
-
-	ecs.get<UITransformComp>(entity).height = CARD_HOVER_HEIGHT;
 }
 
 void on_card_click(entt::entity entity) {
@@ -482,33 +408,9 @@ void on_card_click(entt::entity entity) {
 	for (auto [entity, hand_button, button] : view.each()) {
 		button.is_enabled = false;
 	}
-
-	stop_animation(card.animation_id);
-	card.animation_id = start_animation_group();
-	play_animation(0.05, 0.0, &UITransformComp::relative_position, card_entity, [](Animation& animation, Vector2 starting_value) {
-		Vector2 new_value = starting_value;
-		new_value.y = CARD_SPRITE_SHOWN_OFFSET - 30;
-		return fast_start_curve(new_value, animation, starting_value);
-	});
-	play_animation(0.05, 0.0, &UITransformComp::scale, card_entity, [](Animation& animation, float starting_value) {
-		return smooth_curve(2.f, animation, starting_value);
-	});
-	end_animation_group();
-
-	auto fx_entity = ecs.create();
-	add_component(fx_entity, UITransformComp{});
-	ecs.get<UITransformComp>(card_entity).add_child(card_entity, fx_entity);
-	add_component(fx_entity, SpriteComp{.sprites = {Sprite::NONE}, .tint = {255, 255, 255, 200}});
-	decltype(CycleAnimComp::sprites) fx_sprites;
-	switch (card.get_card().data->card_type) {
-	case CardType::GROOVE: fx_sprites = {Sprite::CARD_GROOVE_FX_1, Sprite::CARD_GROOVE_FX_2, Sprite::CARD_GROOVE_FX_3}; break;
-	case CardType::MAGIC: fx_sprites = {Sprite::CARD_MAGIC_FX_1, Sprite::CARD_MAGIC_FX_2, Sprite::CARD_MAGIC_FX_3}; break;
-	case CardType::PSYCHIC: fx_sprites = {Sprite::CARD_PSYCHIC_FX_1, Sprite::CARD_PSYCHIC_FX_2, Sprite::CARD_PSYCHIC_FX_3}; break;
-	}
-	add_component(fx_entity, CycleAnimComp{.sprites = fx_sprites, .frequency = 20.f, .finish_behaviour = FinishBehaviour::DESTROY_ENTITY});
 }
 
-// 1. HandCardComp and unpositioned visuals are created/destroyed whenever hand state changes: ui_add_hand_visual() ui_destroy_hand_visual()
+// 1. HandCardComp and unpositioned visuals are created/destroyed whenever hand state changes: UI::add_hand_visual() UI::destroy_hand_visual()
 // 2. Buttons are destroyed and recreated whenever active hand state changes: refresh_hand_buttons()
 // 3. visuals are repositioned when turn changes or hand state changes: position_hand_visuals()
 
@@ -516,75 +418,13 @@ void refresh_hand_buttons() {
 	destroy_entities<HandButtonComp>();
 
 	CharacterComp* character = get_combat().get_active_character();
-	for (u8 i = 0; i < character->hand.size(); i++) {
+	for (u8 i = 0; i < character->get_data().deck.size(); i++) {
 		entt::entity entity = ecs.create();
-		add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM, .relative_position = {card_x_offset(character->hand.size(), i), 0.f},
-											  .width = CARD_HOVER_WIDTH, .height = CARD_HOVER_HEIGHT});
+		add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
+											  .relative_position = {card_x_offset(character->get_data().deck.size(), i), 0.f},
+											  .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT});
 		add_component(entity, ButtonComp{.on_hover = on_card_hover, .on_click = on_card_click, .on_unhover = on_card_unhover});
 		add_component(entity, HandButtonComp{.index = i});
-	}
-}
-
-void UI::play_queued_draw_animations() {
-	entt::entity character_entity = get_combat().get_active_character_entity();
-	CharacterComp* character = get_combat().get_active_character();
-	auto view = ecs.view<HandCardComp>();
-	u8 counter = view.size() - 1;
-
-	for (auto [card_entity, card] : view.each()) {
-		if (card.owning_character != character_entity) {
-			continue;
-		}
-
-		if (!card.queue_draw_animation) {
-			continue;
-		}
-
-		CardType type = character->hand.at(card.index).data->card_type;
-
-		constexpr double DURATION = 0.2;
-		double delay = 0.02 * counter;
-
-		entt::entity fx_entity = ecs.create();
-		add_component(fx_entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
-												 .relative_position = {card_x_offset(character->hand.size(), card.index) + 200.f, -100.f},
-												 .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1});
-		auto& sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::NONE}});
-
-		play_animation(DURATION, delay, &UITransformComp::relative_position, fx_entity, [card_entity](Animation& animation, Vector2 starting_value) {
-			if (!ecs.valid(card_entity)) {
-				animation.should_remove = true;
-				return Vector2{};
-			}
-			Vector2 target = ecs.get<UITransformComp>(card_entity).relative_position;
-			return Vector2{smooth_curve(target.x, animation, starting_value.x), smooth_curve(target.y, animation, starting_value.y)};
-		});
-
-		play_animation(DURATION, delay, &UITransformComp::scale, fx_entity, [card_entity](Animation& animation, float starting_value) {
-			if (!ecs.valid(card_entity)) {
-				animation.should_remove = true;
-				return 1.f;
-			}
-			float target = ecs.get<UITransformComp>(card_entity).scale;
-			return smooth_curve(target, animation, starting_value);
-		});
-
-		auto& animation = add_component(fx_entity, CycleAnimComp{});
-		switch (type) {
-		case CardType::PSYCHIC: animation.sprites = {Sprite::CARD_PSYCHIC_2, Sprite::CARD_PSYCHIC_3, Sprite::CARD_PSYCHIC_4, Sprite::CARD_PSYCHIC_5, Sprite::CARD_PSYCHIC_6,Sprite::CARD_PSYCHIC_7, Sprite::CARD_PSYCHIC_8, Sprite::CARD_PSYCHIC_9, Sprite::CARD_PSYCHIC_10 }; break;
-		case CardType::MAGIC: animation.sprites = {Sprite::CARD_MAGIC_2, Sprite::CARD_MAGIC_3, Sprite::CARD_MAGIC_4, Sprite::CARD_MAGIC_5, Sprite::CARD_MAGIC_6,Sprite::CARD_MAGIC_7, Sprite::CARD_MAGIC_8, Sprite::CARD_MAGIC_9, Sprite::CARD_MAGIC_10 }; break;
-		case CardType::GROOVE: animation.sprites = {Sprite::CARD_GROOVE_2, Sprite::CARD_GROOVE_3, Sprite::CARD_GROOVE_4, Sprite::CARD_GROOVE_5, Sprite::CARD_GROOVE_6,Sprite::CARD_GROOVE_7, Sprite::CARD_GROOVE_8, Sprite::CARD_GROOVE_9, Sprite::CARD_GROOVE_10 }; break;
-		}
-		animation.finish_behaviour = FinishBehaviour::DESTROY_ENTITY;
-		animation.frequency = 1.0 / ((DURATION) / (double)animation.sprites.size());
-		animation.delay = delay;
-
-		play_animation(DURATION + delay - 0.01, 0.f, &SpriteComp::visible, card_entity, [](Animation& animation, bool starting_value) {
-			return animation.is_finished();
-		});
-
-		counter--;
-		card.queue_draw_animation = false;
 	}
 }
 
@@ -598,34 +438,20 @@ void position_hand_visuals(bool from_current_position) {
 		}
 
 		sprite.visible = true;
-		float x_position = card_x_offset(character_component->hand.size(), card.index);
-		Vector2 start_position = from_current_position ? transform.relative_position : Vector2{x_position, CARD_SPRITE_HIDDEN_OFFSET + 100.f};
-		Vector2 new_position = {x_position, CARD_SPRITE_HIDDEN_OFFSET};
-
-		stop_animation(card.animation_id);
-		card.animation_id = start_animation_group();
-		play_animation(0.04, 0.0, &UITransformComp::relative_position, entity, [new_position, start_position](Animation& animation, Vector2 starting_value) {
-			return fast_start_curve(new_position, animation, start_position);
-		});
-		if (from_current_position) {
-			play_animation(0.04, 0.0, &UITransformComp::scale, entity, [](Animation& animation, float starting_value) {
-				return smooth_curve(1.f, animation, starting_value);
-			});
-		} else {
-			transform.scale = 1.f;
-		}
-		end_animation_group();
+		float x_position = card_x_offset(character_component->get_data().deck.size(), card.index);
+		Vector2 start_position = from_current_position ? transform.relative_position : Vector2{x_position, 0.f};
+		transform.relative_position = {x_position, 0.f};
 	}
 }
 
 void UI::add_hand_visual(const CharacterComp& character, u8 index) {
-	Card card = character.hand.at(index);
+	Card card = character.get_data().deck.at(index);
 
 	entt::entity entity = ecs.create();
 	auto& transform = add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
 															.width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT });
 	add_component(entity, SpriteComp{}); // To access visibility for children
-	add_component(entity, HandCardComp{.index = index, .owning_character = character.entity, .queue_draw_animation = true});
+	add_component(entity, HandCardComp{.index = index, .owning_character = character.entity});
 	attach_card_visual(card, entity);
 
 	if (character.entity == get_combat().get_active_character_entity()) {
@@ -712,17 +538,10 @@ void update_drag() {
 	if (!input_held(InputType::MOUSE_CLICK)) {
 		if (!ecs.view<CancelAreaComp>().empty()) {
 			Card card = dragged_card.get_card();
-			get_combat().get_active_character()->play_card(dragged_card.index, closest_character);
+			get_combat().get_active_character()->queue_card(dragged_card.get_card(), closest_character);
 			refresh_hand_buttons();
 			stop_drag();
 		} else {
-			stop_animation(dragged_card.animation_id);
-			dragged_card.animation_id =
-				play_animation(0.05, 0.0, &UITransformComp::relative_position, get_combat().ui.dragged_card, [](Animation& animation, Vector2 starting_value) {
-					Vector2 new_value = starting_value;
-					new_value.y = CARD_SPRITE_SHOWN_OFFSET;
-					return fast_start_curve(new_value, animation, starting_value);
-				});
 			end_card_click();
 		}
 	}
@@ -782,8 +601,10 @@ void UI::end_combat() {
 void UI::on_turn_start() {
 	get_combat().ui.hovered_card = entt::null;
 	stop_drag();
+	for (int i = 0; i < get_combat().get_active_character()->get_data().deck.size(); i++) { // TEMP
+		add_hand_visual(*get_combat().get_active_character(), i);
+	} // TEMP
 	refresh_hand_buttons();
-	UI::play_queued_draw_animations();
 	position_hand_visuals(false);
 	stop_animation(get_combat().ui.outline_animation_id);
 	for (auto [entity, character, sprite] : ecs.view<CharacterComp, SpriteComp>().each()) {
@@ -797,5 +618,5 @@ void UI::on_turn_start() {
 
 Card HandCardComp::get_card() {
 	// Assumes the active character
-	return get_combat().get_active_character()->hand.at(index);
+	return get_combat().get_active_character()->get_data().deck.at(index);
 }

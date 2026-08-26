@@ -13,12 +13,6 @@
 
 struct CharacterComp;
 
-enum class CardType {
-	PSYCHIC,
-	MAGIC,
-	GROOVE
-};
-
 struct CardData {
 	Text name{};
 	Text description{};
@@ -26,7 +20,6 @@ struct CardData {
 	u8 cost{};
 	u8 valid_target_bitmask{};
 	u8 ai_target_bitmask{};
-	CardType card_type{};
 	Sprite sprite{};
 
 	void (*play)(CharacterComp& character, CharacterComp& target);
@@ -69,35 +62,29 @@ struct CharacterDataComp {
 	float starting_health{};
 	float starting_shield = 0.f;
 	CharacterType type{};
-	std::vector<Card> inventory{};
+	std::vector<Card> deck{};
 	Sprite icon{};
-
-	static constexpr auto in_place_delete = true;
 };
 
 struct CharacterComp {
 	entt::entity entity{};
-	const CharacterDataComp* data{};
 	float health{};
 	float max_health{};
 	float shield{};
-	std::vector<Card> deck{};
-	std::vector<Card> hand{};
 	std::vector<StatusEffect> status_effects{};
 	std::optional<PlayedCard> played_card{};
 
 	u64 low_health_animation_id{};
 
-	void init_from_data(const CharacterDataComp& new_data);
+	void init_from_data(const CharacterDataComp& data);
 	void heal(float amount);
 	void damage(float amount);
 	void die();
-	void draw(u8 amount = 1);
-	void play_card(u8 hand_index, entt::entity target);
 	void queue_card(Card card, entt::entity target);
 	void queue_random_card();
 	void on_bar_end();
 	void on_turn_start();
+	CharacterDataComp& get_data() const;
 };
 
 constexpr double BPM = 137.14285714;

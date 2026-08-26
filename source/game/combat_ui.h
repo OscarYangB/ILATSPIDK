@@ -39,9 +39,6 @@ struct HandCardComp {
 	u8 index{};
 	entt::entity owning_character{};
 
-	u32 animation_id{};
-	bool queue_draw_animation = false;
-
 	Card get_card();
 };
 

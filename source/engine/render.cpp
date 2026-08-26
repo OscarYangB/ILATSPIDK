@@ -160,9 +160,17 @@ void render_transform_sprite(Sprite sprite, const Vector2& root_position, Box ma
 	if (position.x > window_width() || position.y > window_height()) return;
 	if (position.x + render_w < 0.f || position.y + render_h < 0.f) return;
 
-	float thickness = outline * window_scale;
-	render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h,
-				  position.x - thickness, position.y - thickness, render_w + 2.f * thickness, render_h + 2.f * thickness, tint);
+	if (outline > 0.f) {
+		float thickness = outline * render_scale();
+		SpriteAtlasTransform centroid_data = sprite_atlas_transform[index];
+		Vector2 centroid_offset = Vector2{static_cast<float>(centroid_data.centroid_x) * (1.f - ((render_w + 2.f * thickness) / render_w)),
+										  static_cast<float>(centroid_data.centroid_y) * (1.f - ((render_h + 2.f * thickness) / render_h))} * render_scale();
+		position += centroid_offset;
+		render_w += 2.f * thickness;
+		render_h += 2.f * thickness;
+	}
+
+	render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);
 }
 
 void render_transform(entt::entity entity) {
@@ -200,7 +208,7 @@ void render_transform(entt::entity entity) {
 		for (int i = 0; i < sprite_component->sprites.size(); i++) {
 			render_transform_sprite(sprite_component->sprites.at(i), position,
 									sprite_component->masks.at(i).has_value() ? sprite_component->masks.at(i).value() : Box{},
-									sprite_component->outline_thickness, Colour::black(), max_y);
+									sprite_component->outline_thickness, Colour{0, 0, 0, 200}, max_y);
 		}
 	}
 

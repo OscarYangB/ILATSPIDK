@@ -12,6 +12,9 @@ struct SpriteAtlasTransform {
 	u16 visible_up{};
 	u16 visible_right{};
 	u16 visible_down{};
+
+	u16 centroid_x;
+	u16 centroid_y;
 };
 
 struct ImageDimensions {

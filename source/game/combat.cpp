@@ -1,6 +1,6 @@
 #include "combat.h"
-#include "cards.h"
 #include "main_menu.h"
+#include "cards.h"
 
 #include "../basic/random.h"
 #include "../data/audio_data.h"
@@ -9,14 +9,14 @@
 #include "../engine/animation.h"
 #include "../engine/audio.h"
 
-void CharacterComp::init_from_data(const CharacterDataComp& new_data) {
-	data = &new_data;
-	health = data->starting_health;
-	max_health = data->starting_health;
-	shield = data->starting_shield;
-	deck = data->inventory;
-	std::shuffle(deck.begin(), deck.end(), random_generator);
-	hand = {};
+CharacterDataComp& CharacterComp::get_data() const {
+	return ecs.get<CharacterDataComp>(entity);
+}
+
+void CharacterComp::init_from_data(const CharacterDataComp& data) {
+	health = data.starting_health;
+	max_health = data.starting_health;
+	shield = data.starting_shield;
 	status_effects = {};
 	played_card = std::nullopt;
 }
@@ -42,12 +42,12 @@ void CharacterComp::damage(float amount) {
 	health = std::clamp(health, 0.f, max_health);
 	UI::refresh_health_bar(*this, false);
 	if (health == 0.f) {
-		if (data->type == CharacterType::GOOD && low_health_animation_id == 0) {
+		if (get_data().type == CharacterType::GOOD && low_health_animation_id == 0) {
 			low_health_animation_id = play_animation(0.0, 0.0, &SpriteComp::tint, entity, [](Animation& animation, Colour starting_value) {
 				u8 value = sinusoid_curve(100.0, 2.0, 0.0, animation, 100.0);
 				return Colour{255, value, value, 255};
 			});
-		} else if (data->type != CharacterType::GOOD) {
+		} else if (get_data().type != CharacterType::GOOD) {
 			get_combat().kill_zero_health_characters(CharacterType::EVIL | CharacterType::FURNITURE);
 		}
 	}
@@ -56,32 +56,6 @@ void CharacterComp::damage(float amount) {
 void CharacterComp::die() {
 	// TODO Death animation
 	ecs.get<SpriteComp>(entity).visible = false;
-}
-
-void CharacterComp::draw(u8 amount) {
-	if (data->type != CharacterType::GOOD) {
-		return;
-	}
-
-	for (int i = 0; i < amount; i++) {
-		if (deck.empty()) {
-			break;
-		}
-
-		Card card = deck.back();
-		deck.pop_back();
-		hand.push_back(card);
-		UI::add_hand_visual(*this, hand.size() - 1);
-	}
-
-	UI::play_queued_draw_animations();
-}
-
-void CharacterComp::play_card(u8 hand_index, entt::entity target) {
-	Card card = hand.at(hand_index);
-	hand.erase(hand.begin() + hand_index);
-	queue_card(card, target);
-	UI::destroy_hand_visual(*this, hand_index);
 }
 
 void CharacterComp::queue_card(Card card, entt::entity target) {
@@ -93,9 +67,8 @@ void CharacterComp::queue_card(Card card, entt::entity target) {
 }
 
 void CharacterComp::queue_random_card() {
-	assert(data->type != CharacterType::GOOD);
-	assert(!deck.empty());
-	Card card = deck[random_integer(0, deck.size() - 1)];
+	assert(get_data().type != CharacterType::GOOD);
+	Card card = get_data().deck[random_integer(0, get_data().deck.size() - 1)];
 	std::vector<entt::entity> valid_targets;
 	for (auto [entity, character] : ecs.view<CharacterComp>().each()) {
 		if (is_valid_target(*this, character, card)) {
@@ -115,26 +88,24 @@ void CharacterComp::on_bar_end() {
 		}
 	}
 
-	if (!played_card.has_value() && data->type != CharacterType::GOOD) {
+	if (!played_card.has_value() && get_data().type != CharacterType::GOOD) {
 		queue_random_card();
 	}
 }
 
 void CharacterComp::on_turn_start() {
-	draw();
-
-	if (data->type != CharacterType::GOOD) {
+	if (get_data().type != CharacterType::GOOD) {
 		queue_random_card();
 	}
 }
 
 bool is_valid_target(const CharacterComp& playing_character, const CharacterComp& target_character, const Card& card) {
-	auto valid_target_bitmask = playing_character.data->type == CharacterType::GOOD ? card.data->valid_target_bitmask : card.data->ai_target_bitmask;
+	auto valid_target_bitmask = playing_character.get_data().type == CharacterType::GOOD ? card.data->valid_target_bitmask : card.data->ai_target_bitmask;
 	if (valid_target_bitmask == 0) {
 		if (target_character.entity != get_combat().get_active_character_entity()) {
 			return false;
 		}
-	} else if ((target_character.data->type & valid_target_bitmask) != target_character.data->type) {
+	} else if ((target_character.get_data().type & valid_target_bitmask) != target_character.get_data().type) {
 		return false;
 	}
 
@@ -174,10 +145,6 @@ void start_combat() {
 	auto& combat = ecs.ctx().emplace<CombatSingleton>(characters);
 	sort_characters();
 	UI::start_combat();
-
-	for (auto [entity, character] : ecs.view<CharacterComp>().each()) {
-		character.draw(5);
-	}
 
 	get_combat().get_active_character()->on_turn_start();
 	UI::on_turn_start();
@@ -262,7 +229,7 @@ float CombatSingleton::get_discrete_bar_progress() {
 void CombatSingleton::kill_zero_health_characters(u8 type_bitmask) {
 	characters.erase_if([type_bitmask](entt::entity character) {
 		auto& character_component = ecs.get<CharacterComp>(character);
-		if ((character_component.data->type & type_bitmask) != 0 && character_component.health <= 0.f) {
+		if ((character_component.get_data().type & type_bitmask) != 0 && character_component.health <= 0.f) {
 			character_component.die();
 			return true;
 		}
@@ -276,8 +243,8 @@ bool CombatSingleton::check_combat_end() {
 	for (entt::entity character : characters) {
 		auto& character_component = ecs.get<CharacterComp>(character);
 		if (character_component.health > 0.f) {
-			if (character_component.data->type == CharacterType::GOOD) good_count++;
-			if (character_component.data->type == CharacterType::EVIL) evil_count++;
+			if (character_component.get_data().type == CharacterType::GOOD) good_count++;
+			if (character_component.get_data().type == CharacterType::EVIL) evil_count++;
 		}
 	}
 	if (good_count == 0 || evil_count == 0) {

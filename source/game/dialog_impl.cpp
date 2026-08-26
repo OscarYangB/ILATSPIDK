@@ -1,7 +1,5 @@
 #include "combat.h"
 
-#include "../data/dialog_data.h"
-
 bool has_cat() {
 	return true;
 }

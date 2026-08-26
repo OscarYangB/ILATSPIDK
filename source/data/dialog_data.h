@@ -9,7 +9,8 @@ enum class Speaker {
 	NARRATOR
 };
 
-void hallway_outside_office();
+void office_turn_on_lights();
+void office_go_to_hallway();
 
 
 
@@ -20,10 +21,20 @@ constexpr Dialog ENRETTE_BODY[] {
 /* 003 */	DialogJump { 0 },
 };
 
+constexpr Dialog LIGHT_SWITCH[] {
+/* 001 */	DialogLine { {"You found the light switch."}, Speaker::NARRATOR },
+/* 002 */	DialogChoice { {"I don't want to see."}, 5, nullptr },
+/* 003 */	DialogJump { 0 },
+/* 004 */	DialogJump { 7 },
+/* 005 */	DialogChoice { {"Turn on the lights."}, 0, nullptr },
+/* 006 */	DialogFunction { office_turn_on_lights },
+/* 007 */	DialogJump { 0 },
+};
+
 constexpr Dialog DESK[] {
 /* 001 */	DialogLine { {"The desk has a framed photograph of a smiling family. A mother, a father, a son, a daughter."}, Speaker::NARRATOR },
 /* 002 */	DialogLine { {"Judging by the age of the daughter, this photo was taken decades ago."}, Speaker::NARRATOR },
-/* 003 */	DialogLine { {"In present day, the daughter lies lifeless in front of you."}, Speaker::NARRATOR },
+/* 003 */	DialogLine { {"Presently, the daughter is dead on the carpet behind you."}, Speaker::NARRATOR },
 /* 004 */	DialogJump { 0 },
 };
 
@@ -45,7 +56,7 @@ constexpr Dialog BOOKS[] {
 constexpr Dialog DOOR[] {
 /* 001 */	DialogLine { {"You hear danger ahead."}, Speaker::NARRATOR },
 /* 002 */	DialogChoice { {"Open the door"}, 6, nullptr },
-/* 003 */	DialogFunction { hallway_outside_office },
+/* 003 */	DialogFunction { office_go_to_hallway },
 /* 004 */	DialogJump { 0 },
 /* 005 */	DialogJump { 8 },
 /* 006 */	DialogChoice { {"Nevermind"}, 0, nullptr },
