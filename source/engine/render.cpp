@@ -162,12 +162,17 @@ void render_transform_sprite(Sprite sprite, const Vector2& root_position, Box ma
 
 	if (outline > 0.f) {
 		float thickness = outline * render_scale();
+
+		static constexpr float OUTLINE_SCALING = 1.03f;
+		u16 new_render_w = render_w * OUTLINE_SCALING + 2.f * thickness;
+		u16 new_render_h = render_h * OUTLINE_SCALING + 2.f * thickness;
+
 		SpriteAtlasTransform centroid_data = sprite_atlas_transform[index];
-		Vector2 centroid_offset = Vector2{static_cast<float>(centroid_data.centroid_x) * (1.f - ((render_w + 2.f * thickness) / render_w)),
-										  static_cast<float>(centroid_data.centroid_y) * (1.f - ((render_h + 2.f * thickness) / render_h))} * render_scale();
+		Vector2 centroid_offset = Vector2{static_cast<float>(centroid_data.centroid_x) * (1.f - (static_cast<float>(new_render_w) / render_w)),
+										  static_cast<float>(centroid_data.centroid_y) * (1.f - (static_cast<float>(new_render_h) / render_h))} * render_scale();
 		position += centroid_offset;
-		render_w += 2.f * thickness;
-		render_h += 2.f * thickness;
+		render_w = new_render_w;
+		render_h = new_render_h;
 	}
 
 	render_sprite(sprite_to_image_file[index], atlas_x, atlas_y, atlas_w, atlas_h, position.x, position.y, render_w, render_h, tint);

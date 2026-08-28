@@ -33,6 +33,7 @@
 
 Art
 - Nielon
+- Enrette
 - Better dialog UI
 - Inventory screen
 
@@ -154,3 +155,4 @@ Then the weight map is multiplied by the luminance map and added to final image
 - Drawn card is invisible until positions are reset
 - Drawing card at end of turn
 - UI Arrow screen scaling
+- Audio stutter

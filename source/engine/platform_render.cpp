@@ -213,7 +213,8 @@ void render_text(std::string_view text, float x, float y, float w, float h, floa
 		auto [min_x, max_x] = std::ranges::minmax_element(x_positions.begin(), x_positions.begin() + length);
 		auto [min_y, max_y] = std::ranges::minmax_element(y_positions.begin(), y_positions.begin() + length);
 		static constexpr float LEFT_MARGIN = 12.f;
-		SDL_FRect rect = {*min_x - LEFT_MARGIN, *min_y, *max_x - *min_x + render_width + LEFT_MARGIN, line_widths.size() * size};
+		static constexpr float TOP_MARGIN = 5.f;
+		SDL_FRect rect = {*min_x - LEFT_MARGIN, *min_y - TOP_MARGIN, *max_x - *min_x + render_width + LEFT_MARGIN, line_widths.size() * size + TOP_MARGIN};
 		SDL_SetTextureAlphaMod(text_background_texture, a);
 		SDL_RenderTexture9Grid(renderer, text_background_texture, nullptr, 6.f, 6.f, 6.f, 6.f, window_scale, &rect);
 	}

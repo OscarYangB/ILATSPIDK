@@ -44,7 +44,7 @@ void update_interact() {
 
 	for (auto [entity, sprite, interaction] : ecs.view<SpriteComp, InteractionComp>().each()) {
 		interaction.highlight_time = interaction.highlight ? std::min(interaction.highlight_time + delta_time, HIGHLIGHT_ANIMATION_TIME) : 0.f;
-		sprite.outline_thickness = interaction.highlight ? 5.f * (interaction.highlight_time / HIGHLIGHT_ANIMATION_TIME) : 0.f;
+		sprite.outline_thickness = interaction.highlight ? 4.f * (interaction.highlight_time / HIGHLIGHT_ANIMATION_TIME) : 0.f;
 		interaction.highlight = false;
 	}
 }
