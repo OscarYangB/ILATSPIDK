@@ -47,6 +47,7 @@ Art
 - Put keybinds and dependencies in README.org in init.el repo
 - M-d for (delete-forward-char)
 - Use (keymap-global-set)
+- Hotkey for formatting without newline
 * Combat UI
 [[../source/combat_ui.h]]
 ** TODO Combat UI

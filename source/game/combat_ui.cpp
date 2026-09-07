@@ -28,7 +28,7 @@ void create_action_text() {
 void update_action_text() {
 	auto [entity, text] = get_first_component<ActionText, TextComp>();
 	if (get_combat().get_active_character()->played_card.has_value()) {
-		text.text = std::string{get_combat().get_active_character()->data->name.get()} + " " +
+		text.text = std::string{get_combat().get_active_character()->get_data().name.get()} + " " +
 				   std::string{get_combat().get_active_character()->played_card.value().card.data->play_text.get()};
 	} else {
 		text.text = {};
@@ -139,7 +139,7 @@ void create_healthbars() {
 		auto& transform = add_component(entity, TransformComp{.position = {10.f, -50.f}});
 		character_transform.add_child(character_entity, entity);
 		auto& sprite = add_component(entity, SpriteComp{.sprites = { Sprite::HEALTHBAR_OUTLINE_1, Sprite::HEALTHBAR_DYNAMIC_1, Sprite::HEALTHBAR_GOOD_1}});
-		switch (character_component.data->type) {
+		switch (character_component.get_data().type) {
 		case CharacterType::GOOD: sprite.sprites.at(2) = Sprite::HEALTHBAR_GOOD_1; break;
 		case CharacterType::EVIL: sprite.sprites.at(2) = Sprite::HEALTHBAR_EVIL_1; break;
 		case CharacterType::FURNITURE: sprite.sprites.at(2) = Sprite::HEALTHBAR_NEUTRAL_1; break;
@@ -379,7 +379,7 @@ void create_card_preview(Card card) {
 void on_card_hover(entt::entity hovered_entity) {
 	auto& hovered_button = ecs.get<HandButtonComp>(hovered_entity);
 	u8 index = hovered_button.index;
-	u8 hand_size = get_combat().get_active_character()->hand.size();
+	u8 hand_size = get_combat().get_active_character()->get_data().deck.size();
 
 	auto view = ecs.view<HandCardComp, UITransformComp>();
 	auto [card_entity, hovered_card] = find_component<HandCardComp>([index](auto& card){ return card.index == index; });
@@ -447,7 +447,7 @@ void on_card_unhover(entt::entity entity) {
 		}
 	}
 
-	u8 hand_size = get_combat().get_active_character()->hand.size();
+	u8 hand_size = get_combat().get_active_character()->get_data().deck.size();
 
 	for (auto [entity, card, transform] : ecs.view<HandCardComp, UITransformComp>().each()) {
 		u8 index = card.index;
@@ -516,9 +516,9 @@ void refresh_hand_buttons() {
 	destroy_entities<HandButtonComp>();
 
 	CharacterComp* character = get_combat().get_active_character();
-	for (u8 i = 0; i < character->hand.size(); i++) {
+	for (u8 i = 0; i < character->get_data().deck.size(); i++) {
 		entt::entity entity = ecs.create();
-		add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM, .relative_position = {card_x_offset(character->hand.size(), i), 0.f},
+		add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM, .relative_position = {card_x_offset(character->get_data().deck.size(), i), 0.f},
 											  .width = CARD_HOVER_WIDTH, .height = CARD_HOVER_HEIGHT});
 		add_component(entity, ButtonComp{.on_hover = on_card_hover, .on_click = on_card_click, .on_unhover = on_card_unhover});
 		add_component(entity, HandButtonComp{.index = i});
@@ -528,6 +528,9 @@ void refresh_hand_buttons() {
 void UI::play_queued_draw_animations() {
 	entt::entity character_entity = get_combat().get_active_character_entity();
 	CharacterComp* character = get_combat().get_active_character();
+	if (character->get_data().type != CharacterType::GOOD) {
+		return;
+	}
 	auto view = ecs.view<HandCardComp>();
 	u8 counter = view.size() - 1;
 
@@ -540,14 +543,14 @@ void UI::play_queued_draw_animations() {
 			continue;
 		}
 
-		CardType type = character->hand.at(card.index).data->card_type;
+		CardType type = character->get_data().deck.at(card.index).data->card_type;
 
 		constexpr double DURATION = 0.2;
 		double delay = 0.02 * counter;
 
 		entt::entity fx_entity = ecs.create();
 		add_component(fx_entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
-												 .relative_position = {card_x_offset(character->hand.size(), card.index) + 200.f, -100.f},
+												 .relative_position = {card_x_offset(character->get_data().deck.size(), card.index) + 200.f, -100.f},
 												 .width = CARD_SPRITE_WIDTH, .height = CARD_SPRITE_HEIGHT, .sort_order = 1});
 		auto& sprite = add_component(fx_entity, SpriteComp{.sprites = {Sprite::NONE}});
 
@@ -592,13 +595,13 @@ void position_hand_visuals(bool from_current_position) {
 	entt::entity character = get_combat().get_active_character_entity();
 	CharacterComp* character_component = get_combat().get_active_character();
 	for (auto [entity, card, transform, sprite] : ecs.view<HandCardComp, UITransformComp, SpriteComp>().each()) {
-		if (card.owning_character != character) {
+		if (card.owning_character != character || character_component->get_data().type != CharacterType::GOOD) {
 			sprite.visible = false;
 			continue;
 		}
 
 		sprite.visible = true;
-		float x_position = card_x_offset(character_component->hand.size(), card.index);
+		float x_position = card_x_offset(character_component->get_data().deck.size(), card.index);
 		Vector2 start_position = from_current_position ? transform.relative_position : Vector2{x_position, CARD_SPRITE_HIDDEN_OFFSET + 100.f};
 		Vector2 new_position = {x_position, CARD_SPRITE_HIDDEN_OFFSET};
 
@@ -619,7 +622,7 @@ void position_hand_visuals(bool from_current_position) {
 }
 
 void UI::add_hand_visual(const CharacterComp& character, u8 index) {
-	Card card = character.hand.at(index);
+	Card card = character.get_data().deck.at(index);
 
 	entt::entity entity = ecs.create();
 	auto& transform = add_component(entity, UITransformComp{.x_anchor = XAnchor::CENTER, .y_anchor = YAnchor::BOTTOM,
@@ -712,7 +715,7 @@ void update_drag() {
 	if (!input_held(InputType::MOUSE_CLICK)) {
 		if (!ecs.view<CancelAreaComp>().empty()) {
 			Card card = dragged_card.get_card();
-			get_combat().get_active_character()->play_card(dragged_card.index, closest_character);
+			get_combat().get_active_character()->queue_card(card, closest_character);
 			refresh_hand_buttons();
 			stop_drag();
 		} else {
@@ -797,5 +800,5 @@ void UI::on_turn_start() {
 
 Card HandCardComp::get_card() {
 	// Assumes the active character
-	return get_combat().get_active_character()->hand.at(index);
+	return get_combat().get_active_character()->get_data().deck.at(index);
 }

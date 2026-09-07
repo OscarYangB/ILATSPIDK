@@ -146,6 +146,12 @@ void start_combat() {
 	sort_characters();
 	UI::start_combat();
 
+	for (auto[entity, character] : ecs.view<CharacterComp>().each()) {
+		for (int i = 0; i < character.get_data().deck.size(); i++) {
+			UI::add_hand_visual(character, i);
+		}
+	}
+
 	get_combat().get_active_character()->on_turn_start();
 	UI::on_turn_start();
 }

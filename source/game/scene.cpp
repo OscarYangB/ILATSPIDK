@@ -291,6 +291,10 @@ entt::entity spawn_grakeny() {
 	add_component(entity, BoxColliderComp{LD::KERRY_COLLISION});
 	add_component(entity, CycleAnimComp{.sprites = {Sprite::GRAKENY_1, Sprite::GRAKENY_2, Sprite::GRAKENY_3}, .frequency = 2.f});
 	add_component(entity, CharacterDataComp{.name = {"Grakeny"}, .starting_health = 50.f, .type = CharacterType::EVIL, .deck = make_cards({CardID::GRENADE})});
+	add_component(entity, InteractionComp{
+			.box = LD::KERRY_COLLISION,
+			.on_interact = [](){start_combat();},
+			.type = InteractionType::INTERACT});
 	return entity;
 }
 

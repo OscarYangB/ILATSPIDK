@@ -13,6 +13,12 @@
 
 struct CharacterComp;
 
+enum class CardType {
+	PSYCHIC,
+	MAGIC,
+	GROOVE
+};
+
 struct CardData {
 	Text name{};
 	Text description{};
@@ -20,6 +26,7 @@ struct CardData {
 	u8 cost{};
 	u8 valid_target_bitmask{};
 	u8 ai_target_bitmask{};
+	CardType card_type{};
 	Sprite sprite{};
 
 	void (*play)(CharacterComp& character, CharacterComp& target);
