@@ -1,11 +1,11 @@
-* Dependencies
-- SDL3: [[https://github.com/libsdl-org/SDL]]
+# Dependencies
+- SDL3: https://github.com/libsdl-org/SDL
 - entt: https://github.com/skypjack/entt
-* Asset Importing
+# Asset Importing
 Assets are bundled with the compiled binary of the game using scripts that recurse through the assets folder and generate code as a result. Generated code includes enums to refer to the assets in the rest of the codebase and it uses the experimental ~#embed~ preprocessor directive to bundle the assets. Since assets will be used all over the code base, this is a stupid stupid idea because new assets will destroy compile times.
-* Dialog Language
+# Dialog Language
 Branching dialog is written in this custom language and transpiled to code. This is also a stupid idea that destroys compile times but I think it's pretty neat.
-#+begin_src
+```
 # The air clears and the sun rises over the mountains
 Table: I'm a table!
 { Kerry: You sure look like one.
@@ -35,8 +35,8 @@ Table: I'm a table!
 { Kerry: FIGHT ME!!
 	[start_table_fight]
 }
-#+end_src
-#+begin_src
+```
+```
 enum class Speaker {
 	WIZARD,
 	LADYBUG,
@@ -77,13 +77,13 @@ constexpr Dialog TABLE_DIALOG[] {
 /* 024 */	DialogFunction { start_table_fight },
 /* 025 */	DialogJump { 0 },
 };
-#+end_src
-* Generic Animations
+```
+# Generic Animations
 Using entt and templates I can animate anything through a duration, delay, curve (linear, smoothstep, exponential, etc.), curve parameters, and member pointer (the struct type is inferred).
-#+begin_src
+```
 play_animation(0.06, 0.0, &UITransformComp::width, entity, [](Animation& animation, u16 starting_value) {
 	return smooth_curve(CARD_SPRITE_WIDTH, animation, starting_value);
 });
-#+end_src
-* Text Rendering
+```
+# Text Rendering
 I initially used a library that created SDL textures from .ttf files at runtime, but I quickly realized that it's too expensive to send a new texture in VRAM every time I need new text. So I wrote a text renderer with a tool that creates font mipmaps and extracts kerning data.
