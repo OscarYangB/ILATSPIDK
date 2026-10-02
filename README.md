@@ -1,3 +1,5 @@
+No generative AI is used to develop this project because it is for my own personal enjoyment and education.
+
 # Dependencies
 - SDL3: https://github.com/libsdl-org/SDL
 - entt: https://github.com/skypjack/entt
