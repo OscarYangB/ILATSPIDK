@@ -2,7 +2,7 @@
 - SDL3: https://github.com/libsdl-org/SDL
 - entt: https://github.com/skypjack/entt
 # Asset Importing
-Assets are bundled with the compiled binary of the game using scripts that recurse through the assets folder and generate code as a result. Generated code includes enums to refer to the assets in the rest of the codebase and it uses the experimental ~#embed~ preprocessor directive to bundle the assets. Since assets will be used all over the code base, this is a stupid stupid idea because new assets will destroy compile times.
+Assets are bundled with the compiled binary of the game using scripts that recurse through the assets folder and generate code as a result. Generated code includes enums to refer to the assets in the rest of the codebase and it uses the experimental #embed preprocessor directive to bundle the assets. Since assets will be used all over the code base, this is a stupid stupid idea because new assets will destroy compile times.
 # Dialog Language
 Branching dialog is written in this custom language and transpiled to code. This is also a stupid idea that destroys compile times but I think it's pretty neat.
 ```
@@ -80,7 +80,7 @@ constexpr Dialog TABLE_DIALOG[] {
 ```
 # Generic Animations
 Using entt and templates I can animate anything through a duration, delay, curve (linear, smoothstep, exponential, etc.), curve parameters, and member pointer (the struct type is inferred).
-```
+```c++
 play_animation(0.06, 0.0, &UITransformComp::width, entity, [](Animation& animation, u16 starting_value) {
 	return smooth_curve(CARD_SPRITE_WIDTH, animation, starting_value);
 });
