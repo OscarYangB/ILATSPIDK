@@ -87,3 +87,6 @@ play_animation(0.06, 0.0, &UITransformComp::width, entity, [](Animation& animati
 ```
 # Text Rendering
 I initially used a library that created SDL textures from .ttf files at runtime, but I quickly realized that it's too expensive to send a new texture in VRAM every time I need new text. So I wrote a text renderer with a tool that creates font mipmaps and extracts kerning data.
+
+# Level Editor
+I am stealing the Godot Engine's level editor by using it to create my levels and then using a script I wrote to compile Godot level files into C++ data that compiles into the game. Another stupid idea that I think is really fun and good.
